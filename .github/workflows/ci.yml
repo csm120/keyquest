@@ -11,7 +11,9 @@ jobs:
   test:
     runs-on: ${{ matrix.os }}
     strategy:
-      matrix:\n        os: [ubuntu-latest, windows-latest]\n        node-version: [18, 20]
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [18, 20]
     defaults:
       run:
         working-directory: app
