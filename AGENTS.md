@@ -1,37 +1,22 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Root keeps `index.html`, `DESIGN.md`, and CI config; the TypeScript app lives in `app/`.
-- `app/src` houses React modules: `a11y/` for accessibility helpers, `game/` for core logic, `input/` for keyboard handling, `tts/` for speech, and `ui/` for composite views.
-- `app/public` stores PWA assets (icons, `manifest.webmanifest`); build artifacts emit to `app/dist`.
-- Automation lives in `.github/workflows`; align changes with `DESIGN.md` for feature context.
+The root directory holds `index.html`, `DESIGN.md`, `AGENTS.md`, and CI configuration inside `.github/`. The production app lives in `app/`, with React source in `app/src`. Within `app/src`, `a11y/` hosts accessibility helpers, `game/` manages core state and rules, `input/` normalizes keyboard events, `tts/` wraps speech output, and `ui/` assembles screens. Public assets ship from `app/public`, while build artifacts land in `app/dist`. Place new tests beside their modules or inside `app/src/__tests__/`.
 
 ## Build, Test, and Development Commands
-Run commands from `app/`:
-- `npm install` - install or refresh dependencies.
-- `npm run dev` - start the Vite dev server with hot reloading.
-- `npm run build` - type-check, then emit production assets to `dist`.
-- `npm run preview` - serve the built bundle locally.
-- `npm run lint`, `npm run lint:fix`, `npm run typecheck` - enforce ESLint and TypeScript rules; `lint:fix` applies safe fixes.
-- `npm run test`, `npm run test:watch` - execute Vitest suites once or in watch mode.
+Run all scripts from the `app/` directory. Use `npm install` to sync dependencies. Start local development with `npm run dev`. Run the type-checked production build via `npm run build`; preview it with `npm run preview`. Quality gates include `npm run lint`, `npm run lint:fix`, and `npm run typecheck`. Execute `npm run test` for the Vitest suite or `npm run test:watch` when iterating.
 
 ## Coding Style & Naming Conventions
-- `.editorconfig` enforces LF endings, UTF-8, and two-space indentation; avoid committing trailing whitespace.
-- Prettier config (`.prettierrc.json`) sets single quotes, no semicolons, 90 character width, and trailing commas; run `npm run lint:fix` before pushing.
-- React components and hooks stay in PascalCase (see `app/src/ui/Onboarding.tsx`); utilities use camelCase or kebab-case modules (for example `app/src/a11y/focus-trap.tsx`).
-- Keep accessibility and TTS helpers with their contexts; prefer named exports for shared utilities.
+The project follows `.editorconfig` (UTF-8, LF, two spaces). Prettier (`.prettierrc.json`) enforces single quotes, trailing commas, and a 90-character width; run `npm run lint:fix` before commits. Components, hooks, and contexts use PascalCase, utilities use camelCase or kebab-case filenames, and prefer named exports. Keep accessibility and TTS utilities within their respective folders to preserve ownership.
 
 ## Testing Guidelines
-- Vitest with Testing Library drives unit and UI tests; colocate specs as `*.test.ts[x]` near the module or under `src/__tests__/`.
-- Mock browser-only APIs such as `idb-keyval` and `speechSynthesis` to keep runs deterministic.
-- Target meaningful coverage on new logic, especially inside `src/game/` and `src/a11y/`; confirm `npm run lint` and `npm run test` pass.
+Vitest with Testing Library powers unit and UI tests. Name specs `*.test.ts` or `*.test.tsx`, colocated with the implementation. Mock browser-only APIs (`speechSynthesis`, `idb-keyval`) to keep runs deterministic. Treat `npm run lint` and `npm run test` as required before any PR.
 
-## Commit & Pull Request Guidelines
-- Use Conventional Commit prefixes (`ci:`, `docs:`, `chore:`) as in history; keep subjects imperative and under 72 characters.
-- Reference issues in footers when relevant (`Refs #123`) and describe behavioral impact in the PR body.
-- Attach screenshots or recordings for UI changes and note accessibility or keyboard considerations.
-- Confirm CI status locally (`npm run build`, `npm run test`) and record the executed commands in the PR checklist.
+## Commit & Pull Request Expectations
+Follow Conventional Commit prefixes such as `docs:`, `feat:`, or `chore:` with imperative subjects under 72 characters. Reference tracked work in a footer (`Refs #123`). PRs should summarize behavior, call out keyboard or screen-reader impact, and include screenshots for UI changes. Document which local checks you ran.
+
+## Cloud-Only PR Workflow
+Operate directly on GitHub rather than the local filesystem. Create branch `codex/<short-task-slug>` for each change, then apply edits via GitHub UI, Codespaces, or API. Before asking for approval, share the plan and a unified diff of pending changes. Open a PR with the steps executed; wait for approval before merging. After approval, squash-merge, delete the branch, and report the resulting commit hash plus the latest GitHub Actions run URL. If any push or merge fails, surface the exact error and the next command to run.
 
 ## Accessibility & TTS Notes
-- Review `DESIGN.md` before altering interaction flows; verify screen reader announcements via `app/src/a11y/announcer-provider.tsx`.
-- Gate audio cues through the TTS context so Silent Mode remains respected, and document new preferences in `app/src/a11y/preferences.ts`.
+Review `DESIGN.md` before altering interaction flows. Announce user-facing changes through `app/src/a11y/announcer-provider.tsx`. Route all audio cues through the TTS context to respect Silent Mode, and record new preferences in `app/src/a11y/preferences.ts`.
