@@ -4,7 +4,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type PropsWithChildren,
 } from 'react'
@@ -35,7 +34,6 @@ const TtsContext = createContext<TtsContextValue | undefined>(undefined)
 
 const MIN_RATE = 0.5
 const MAX_RATE = 2
-const RATE_STEP = 0.1
 const DEFAULT_TEST_UTTERANCE = 'Testing voice output.'
 
 export function TtsProvider({ children }: PropsWithChildren) {
