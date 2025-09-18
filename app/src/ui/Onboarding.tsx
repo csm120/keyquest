@@ -19,7 +19,7 @@ interface OnboardingProps {
 
 export function Onboarding({ onComplete }: OnboardingProps) {
   const {
-    preferences: { screenReaderUser, seed },
+    preferences: { seed },
     updatePreferences,
   } = useSettings()
   const announceFn = useAnnounce()
