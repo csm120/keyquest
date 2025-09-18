@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { announce, type AnnounceChannel } from '../a11y/announcer'
+import { announce } from '../a11y/announcer'
 import { useAnnouncer } from '../a11y/announcer-provider'
 import { useTts } from '../tts/tts-context'
 
