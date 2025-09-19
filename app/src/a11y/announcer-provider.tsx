@@ -8,7 +8,11 @@ import {
   useState,
   type PropsWithChildren,
 } from 'react'
-import { announce as externalAnnounce, setAnnouncer, type AnnounceChannel } from './announcer'
+import {
+  announce as externalAnnounce,
+  setAnnouncer,
+  type AnnounceChannel,
+} from './announcer'
 import { useTts } from '../tts/tts-context'
 
 interface AnnouncerContextValue {
@@ -81,7 +85,7 @@ export function AnnouncerProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     return () => {
-      (Object.keys(timers.current) as AnnounceChannel[]).forEach((channel) => {
+      ;(Object.keys(timers.current) as AnnounceChannel[]).forEach((channel) => {
         if (timers.current[channel]) {
           window.clearTimeout(timers.current[channel] ?? undefined)
         }

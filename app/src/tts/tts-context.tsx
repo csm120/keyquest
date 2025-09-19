@@ -169,8 +169,13 @@ export function TtsProvider({ children }: PropsWithChildren) {
         announce('No alternate voice available.', 'status')
         return
       }
-      const currentIndex = voices.findIndex((voice) => voice.voiceURI === resolvedVoice?.voiceURI)
-      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + direction + voices.length) % voices.length
+      const currentIndex = voices.findIndex(
+        (voice) => voice.voiceURI === resolvedVoice?.voiceURI,
+      )
+      const nextIndex =
+        currentIndex === -1
+          ? 0
+          : (currentIndex + direction + voices.length) % voices.length
       const nextVoice = voices[nextIndex]
       selectVoice(nextVoice?.voiceURI ?? null)
     },
@@ -179,7 +184,9 @@ export function TtsProvider({ children }: PropsWithChildren) {
 
   const setRateValue = useCallback<TtsContextValue['setRate']>(
     (value) => {
-      const clamped = Number.isFinite(value) ? Math.min(MAX_RATE, Math.max(MIN_RATE, value)) : 1
+      const clamped = Number.isFinite(value)
+        ? Math.min(MAX_RATE, Math.max(MIN_RATE, value))
+        : 1
       updatePreferences({ rate: Number(clamped.toFixed(2)) as Preferences['rate'] })
       announce(`Speech rate set to ${clamped.toFixed(1)}`, 'status')
     },

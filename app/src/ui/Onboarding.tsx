@@ -6,9 +6,21 @@ import type { Preferences } from '../a11y/preferences'
 import { useSettings } from './settings-context'
 
 const SEEDS: Array<{ id: string; label: string; description: string }> = [
-  { id: 'NAV-1', label: 'Pathfinder 1', description: 'Prioritise steady pacing and safe shortcuts.' },
-  { id: 'NAV-2', label: 'Pathfinder 2', description: 'Favour bold routes with tight timing.' },
-  { id: 'NAV-3', label: 'Pathfinder 3', description: 'Balanced tempo with room for reflection.' },
+  {
+    id: 'NAV-1',
+    label: 'Pathfinder 1',
+    description: 'Prioritise steady pacing and safe shortcuts.',
+  },
+  {
+    id: 'NAV-2',
+    label: 'Pathfinder 2',
+    description: 'Favour bold routes with tight timing.',
+  },
+  {
+    id: 'NAV-3',
+    label: 'Pathfinder 3',
+    description: 'Balanced tempo with room for reflection.',
+  },
 ]
 
 type OnboardingStep = 'screenReader' | 'seed' | 'summary'
@@ -27,7 +39,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const [localSeed, setLocalSeed] = useState<string | null>(seed)
 
   useEffect(() => {
-    announceFn('Welcome to KeyQuest setup. Answer a quick question to continue.', 'status')
+    announceFn(
+      'Welcome to KeyQuest setup. Answer a quick question to continue.',
+      'status',
+    )
   }, [announceFn])
 
   useEffect(() => {
@@ -55,7 +70,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       ttsEnabled: usesScreenReader ? false : true,
     }
     updatePreferences(nextPrefs)
-    announce(`Screen reader preference set to ${usesScreenReader ? 'enabled' : 'disabled'}.`, 'status')
+    announce(
+      `Screen reader preference set to ${usesScreenReader ? 'enabled' : 'disabled'}.`,
+      'status',
+    )
     setStep('seed')
   }
 

@@ -7,7 +7,11 @@ export interface ExplorePreview {
 }
 
 const LOCATIONS = ['Signal Archive', 'Crystal Vault', 'Echo Library']
-const OBJECTIVES = ['map the safe paths', 'catalogue the guard rotations', 'decode the gate glyphs']
+const OBJECTIVES = [
+  'map the safe paths',
+  'catalogue the guard rotations',
+  'decode the gate glyphs',
+]
 const HINTS = [
   'A precision typing drill will follow in the next session.',
   'Prepare for a rhythm drill soon.',

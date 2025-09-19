@@ -16,5 +16,7 @@ export function hashSeed(seed: string): number {
     h = Math.imul(h ^ seed.charCodeAt(i), 3432918353)
     h = (h << 13) | (h >>> 19)
   }
-  return (Math.imul(h ^ (h >>> 16), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0
+  return (
+    (Math.imul(h ^ (h >>> 16), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0
+  )
 }

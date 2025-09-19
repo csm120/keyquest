@@ -1,11 +1,26 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react'
-import { DEFAULT_PREFERENCES, PREFERENCE_VERSION, type Preferences } from '../a11y/preferences'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from 'react'
+import {
+  DEFAULT_PREFERENCES,
+  PREFERENCE_VERSION,
+  type Preferences,
+} from '../a11y/preferences'
 import { loadPreferences, savePreferences } from '../a11y/storage'
 
 interface SettingsContextValue {
   ready: boolean
   preferences: Preferences
-  updatePreferences: (updater: Partial<Preferences> | ((current: Preferences) => Partial<Preferences>)) => void
+  updatePreferences: (
+    updater: Partial<Preferences> | ((current: Preferences) => Partial<Preferences>),
+  ) => void
 }
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(undefined)
@@ -55,12 +70,15 @@ export function SettingsProvider({ children }: PropsWithChildren) {
     }
   }, [preferences, ready])
 
-  const updatePreferences = useCallback<SettingsContextValue['updatePreferences']>((updater) => {
-    setPreferences((current) => {
-      const update = typeof updater === 'function' ? updater(current) : updater
-      return { ...current, ...update }
-    })
-  }, [])
+  const updatePreferences = useCallback<SettingsContextValue['updatePreferences']>(
+    (updater) => {
+      setPreferences((current) => {
+        const update = typeof updater === 'function' ? updater(current) : updater
+        return { ...current, ...update }
+      })
+    },
+    [],
+  )
 
   const value = useMemo<SettingsContextValue>(
     () => ({ ready, preferences, updatePreferences }),

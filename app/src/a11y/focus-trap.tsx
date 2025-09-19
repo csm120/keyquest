@@ -38,7 +38,9 @@ export function FocusTrap({
     if (!root) {
       return
     }
-    const focusTarget = initialFocusRef?.current ?? (root.querySelector(FOCUSABLE_SELECTOR) as HTMLElement | null)
+    const focusTarget =
+      initialFocusRef?.current ??
+      (root.querySelector(FOCUSABLE_SELECTOR) as HTMLElement | null)
     focusTarget?.focus()
   }, [initialFocusRef])
 
@@ -68,7 +70,9 @@ export function FocusTrap({
 
       const focusable = Array.from(
         containerRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
-      ).filter((element) => element.offsetParent !== null || element === document.activeElement)
+      ).filter(
+        (element) => element.offsetParent !== null || element === document.activeElement,
+      )
 
       if (focusable.length === 0) {
         event.preventDefault()
@@ -103,5 +107,9 @@ export function FocusTrap({
     }
   }, [active, moveFocus, onEscape, returnFocus])
 
-  return <div ref={containerRef} tabIndex={-1}>{children}</div>
+  return (
+    <div ref={containerRef} tabIndex={-1}>
+      {children}
+    </div>
+  )
 }

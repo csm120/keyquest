@@ -21,7 +21,10 @@ export async function loadPreferences(): Promise<StoredPreferences> {
         return normalise(fromIdb)
       }
     } catch (error) {
-      console.warn('KeyQuest preferences: IndexedDB read failed, falling back to localStorage.', error)
+      console.warn(
+        'KeyQuest preferences: IndexedDB read failed, falling back to localStorage.',
+        error,
+      )
     }
   }
 
