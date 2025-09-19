@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "KeyQuest",
   "short_name": "KeyQuest",
   "description": "Accessible training drills and quests for keyboard mastery.",
@@ -6,7 +6,7 @@
   "background_color": "#000000",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "start_url": "/",
+  "start_url": "/keyquest/",
   "icons": [
     {
       "src": "/icon-192.png",
