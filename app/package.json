@@ -12,8 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "format": "prettier \"**/*\" --write --ignore-path .prettierignore",
-    "format:check": "prettier \"**/*\" --check --ignore-path .prettierignore"
+    "format": "prettier \"**/*\" --write --ignore-path .prettierignore --ignore-unknown",
+    "format:check": "prettier \"**/*\" --check --ignore-path .prettierignore --ignore-unknown"
   },
   "dependencies": {
     "idb-keyval": "^6.2.1",
