@@ -1,7 +1,7 @@
 param([string]$Msg = "chore: dev push")
 $ErrorActionPreference = "Continue"
 
-# Resolve repo root and app dir even when running from anywhere
+# Resolve repo root and app dir even when run from anywhere
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $AppDir   = Join-Path $RepoRoot 'app'
 
@@ -39,10 +39,10 @@ coverage
     $pkg | Add-Member -NotePropertyName scripts -NotePropertyValue (@{}) -Force
   }
   if (-not ($pkg.scripts.PSObject.Properties.Name -contains 'format')) {
-    $pkg.scripts | Add-Member -NotePropertyName 'format' -NotePropertyValue 'prettier "**/*" --write --ignore-path .prettierignore' -Force
+    $pkg.scripts | Add-Member -NotePropertyName 'format' -NotePropertyValue 'prettier ""**/*"" --write --ignore-path .prettierignore' -Force
   }
   if (-not ($pkg.scripts.PSObject.Properties.Name -contains 'format:check')) {
-    $pkg.scripts | Add-Member -NotePropertyName 'format:check' -NotePropertyValue 'prettier "**/*" --check --ignore-path .prettierignore' -Force
+    $pkg.scripts | Add-Member -NotePropertyName 'format:check' -NotePropertyValue 'prettier ""**/*"" --check --ignore-path .prettierignore' -Force
   }
   Save-Pkg $pkg
 
@@ -53,12 +53,14 @@ coverage
 
 Write-Host "== Format, lint, test, build ==" -ForegroundColor Cyan
 Push-Location $AppDir
+
 if (-not (Test-Path (Join-Path $AppDir 'package-lock.json'))) { npm i --package-lock-only | Out-Null }
 npm ci
 
 Ensure-Prettier
 if (HasScript "format") { npm run format } else { npx prettier . --write }
 
+# Lint (non-blocking if ESLint config is unhappy)
 if (HasScript "lint") {
   npm run lint
   if ($LASTEXITCODE -ne 0) {
@@ -67,6 +69,7 @@ if (HasScript "lint") {
   }
 }
 
+# Tests: add smoke test if none detected
 $ranTests = $false
 if (HasScript "test") {
   $out = & npm test 2>&1
@@ -84,12 +87,19 @@ describe("smoke", () => { it("works", () => expect(1+1).toBe(2)); });
   Write-Host "-- no 'npm test' script found; skipping tests." -ForegroundColor Yellow
 }
 
+# Build for production
 npm run build
 Pop-Location
 
 Write-Host "== Stage, commit, push ==" -ForegroundColor Cyan
-git -C $RepoRoot add "$AppDir\src\" "$AppDir\index.html" "$AppDir\vite.config.ts" "$AppDir\.pretti*" "$AppDir\**\smoke.test.ts" ".github\workflows\gh-pages.yml" 2>$null
+# Auto-stage everything under app plus this script and the workflow
+git -C $RepoRoot add -A app
+git -C $RepoRoot add ".github\workflows\gh-pages.yml" "tools\dev-push.ps1"
+
+# Commit (no-op if nothing changed)
 git -C $RepoRoot commit -m $Msg 2>$null
+
+# Rebase/push
 git -C $RepoRoot pull --rebase origin main
 git -C $RepoRoot push origin main
 
