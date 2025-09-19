@@ -6,8 +6,10 @@ on:
       - 'app/**'
       - '.github/workflows/gh-pages.yml'
   workflow_dispatch:
+
 permissions:
   contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -18,12 +20,25 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: app/package-lock.json
+
       - name: Install
         run: npm ci
         working-directory: app
+
       - name: Build
         run: npm run build
         working-directory: app
+
+      # Enforce /keyquest/ paths in the built HTML (covers plugin-injected tags too)
+      - name: Enforce /keyquest/ base in dist/index.html
+        run: |
+          sed -i 's|src="/assets/|src="/keyquest/assets/|g' dist/index.html
+          sed -i 's|href="/assets/|href="/keyquest/assets/|g' dist/index.html
+          sed -i 's|href="/manifest.webmanifest"|href="/keyquest/manifest.webmanifest"|g' dist/index.html
+          sed -i 's|src="/registerSW.js"|src="/keyquest/registerSW.js"|g' dist/index.html
+          sed -i 's|href="/vite.svg"|href="/keyquest/vite.svg"|g' dist/index.html
+        working-directory: app
+
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
