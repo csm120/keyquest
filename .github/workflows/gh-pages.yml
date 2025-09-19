@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -29,7 +30,7 @@ jobs:
         run: npm run build
         working-directory: app
 
-      # Enforce /keyquest/ paths in the built HTML (covers plugin-injected tags too)
+      # Keep GitHub Pages paths working even if something injects absolute URLs
       - name: Enforce /keyquest/ base in dist/index.html
         run: |
           sed -i 's|src="/assets/|src="/keyquest/assets/|g' dist/index.html
@@ -37,6 +38,11 @@ jobs:
           sed -i 's|href="/manifest.webmanifest"|href="/keyquest/manifest.webmanifest"|g' dist/index.html
           sed -i 's|src="/registerSW.js"|src="/keyquest/registerSW.js"|g' dist/index.html
           sed -i 's|href="/vite.svg"|href="/keyquest/vite.svg"|g' dist/index.html
+        working-directory: app
+
+      # SPA fallback so deep links serve your app
+      - name: Add SPA 404 fallback
+        run: cp dist/index.html dist/404.html
         working-directory: app
 
       - name: Publish to gh-pages
