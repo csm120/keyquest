@@ -32,12 +32,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: app/dist
-import { defineConfig } from 'vite';
-export default defineConfig({
-  base: '/keyquest/',
-});
-export GH_TOKEN="ghp_yourTokenHere"   # scope: repo
-git add -A
-git commit -m "chore: trigger deploy"
-git push "https://$GH_TOKEN@github.com/csm120/keyquest.git" HEAD:main
-unset GH_TOKEN
