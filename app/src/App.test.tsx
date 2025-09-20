@@ -10,3 +10,4 @@ describe("KeyQuest App", () => {
     expect(screen.getByText(/round timing adapts to your skill/i)).toBeInTheDocument();
   });
 });
+

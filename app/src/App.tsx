@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * KeyQuest — Tutorial-gated Adventure (TypeScript) + Adaptive Difficulty
- * Adapts to recent accuracy and reaction time (no Easy/Hard menu).
- * Sounds toggle included. Hints & penalties on.
+ * KeyQuest — Tutorial-gated Adventure with Adaptive Difficulty
+ * - Tutorial: user must successfully press Space, Left, Right, Up, Down 3x (any order) to unlock.
+ * - Adventure: randomized prompts, timed hints, adaptive timing based on recent accuracy & RT.
+ * - Sounds toggle; screen-reader announcements via polite live region.
  */
 
 type Phase = "idle" | "tutorial" | "adventure" | "summary";
@@ -42,7 +43,8 @@ const PROMPTS: Prompt[] = [
 
 // --- Web Audio (simple tones) ---
 function makeAudio() {
-  const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
+  const win = window as (typeof window & { webkitAudioContext?: typeof AudioContext });
+  const Ctx = win.AudioContext ?? win.webkitAudioContext;
   if (!Ctx) return null;
   return new Ctx();
 }
@@ -54,10 +56,10 @@ function playTone(ctx: AudioContext, freq: number, durationMs = 120, type: Oscil
   gain.gain.value = 0.12;
   osc.connect(gain).connect(ctx.destination);
   osc.start();
-  setTimeout(() => { try { osc.stop(); } catch {} }, durationMs);
+  setTimeout(() => { try { osc.stop(); } catch { /* ignore stop issues */ } }, durationMs);
 }
 
-export default function App(): JSX.Element {
+export default function App() {
   // ---------- Global & Tutorial State ----------
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string>("Welcome to KeyQuest. Press Start to begin the free tutorial.");
@@ -75,7 +77,7 @@ export default function App(): JSX.Element {
   const [streak, setStreak] = useState<number>(0);
   const [bestStreak, setBestStreak] = useState<number>(0);
   const [adventurePrompt, setAdventurePrompt] = useState<Prompt | null>(null);
-  const [adventureTimeLeft, setAdventureTimeLeft] = useState<number | null>(null); // hidden
+  const [, setAdventureTimeLeft] = useState<number | null>(null); // hidden, only setter used
 
   // ---------- Adaptive Skill Tracking ----------
   type Sample = { rt: number; ok: boolean };
@@ -141,11 +143,13 @@ export default function App(): JSX.Element {
 
   const remainingTargets = (c: Record<Target["code"], number>) =>
     TARGETS.filter(t => (c[t.code] ?? 0) < TARGET_TIMES);
+
   const pickNextTarget = (c: Record<Target["code"], number>): Target | null => {
     const pool = remainingTargets(c);
     if (pool.length === 0) return null;
     return pool[Math.floor(Math.random() * pool.length)];
   };
+
   const describeProgress = (c: Record<Target["code"], number>): string =>
     TARGETS.map(t => `${t.label} ${c[t.code]}/${TARGET_TIMES}`).join(", ");
 
@@ -154,10 +158,12 @@ export default function App(): JSX.Element {
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     hintTimerRef.current = setTimeout(() => offerLocationHint(target), adaptiveHintDelay());
   };
+
   const cancelHint = () => {
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     hintTimerRef.current = null;
   };
+
   const offerLocationHint = (target: Target) => {
     if (target.code === " ") {
       announce("Hint: Space is the long, wide bar along the bottom center of the keyboard. Slide your thumbs down.");
@@ -178,6 +184,7 @@ export default function App(): JSX.Element {
         break;
     }
   };
+
   const wrongKeyCoach = (pressedKey: string, target: Target) => {
     const wantSpace = target.code === " ";
     const pressedIsSpace = pressedKey === " " || pressedKey === "Spacebar";
@@ -250,9 +257,9 @@ export default function App(): JSX.Element {
               beginBtnRef.current?.focus();
             }, 500);
           } else {
-            const nxt = pickNextTarget(next);
-            setCurrent(nxt);
-            scheduleHint(nxt);
+            const nxt2 = pickNextTarget(next);
+            setCurrent(nxt2);
+            scheduleHint(nxt2);
           }
           return next;
         });
@@ -289,13 +296,13 @@ export default function App(): JSX.Element {
 
     if (promptIdleTimerRef.current) clearTimeout(promptIdleTimerRef.current);
     promptIdleTimerRef.current = setTimeout(() => {
-      if (p.hint) announce(`Hint: \${p.hint}`);
+      if (p.hint) announce(`Hint: ${p.hint}`);
       setTimeout(() => newPrompt(true), 1400);
     }, adaptivePromptIdleTimeout());
 
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     hintTimerRef.current = setTimeout(() => {
-      if (p.hint) announce(`Hint: \${p.hint}`);
+      if (p.hint) announce(`Hint: ${p.hint}`);
     }, adaptiveHintDelay());
   };
 
@@ -394,8 +401,6 @@ export default function App(): JSX.Element {
   const attempts = correct + wrong;
   const accuracy = attempts ? Math.round((correct / attempts) * 100) : 0;
 
-  const canStart = phase === "idle" || phase === "tutorial" || phase === "summary";
-
   return (
     <main style={{ maxWidth: 720, margin: "4rem auto", padding: "0 1rem", lineHeight: 1.5 }}>
       <h1 style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>KeyQuest</h1>
@@ -409,10 +414,10 @@ export default function App(): JSX.Element {
         <button
           ref={startBtnRef}
           onClick={startTutorial}
-          disabled={!canStart || phase === "adventure"}
-          aria-disabled={!canStart || phase === "adventure"}
+          disabled={phase === "adventure"}
+          aria-disabled={phase === "adventure"}
           style={{ padding: "0.6rem 1rem", fontSize: "1rem", borderRadius: "0.75rem", border: "1px solid #ccc",
-                   cursor: (canStart && phase !== "adventure") ? "pointer" : "not-allowed" }}
+                   cursor: (phase !== "adventure") ? "pointer" : "not-allowed" }}
         >
           {started ? "Restart Tutorial" : "Start Tutorial"}
         </button>
@@ -507,7 +512,3 @@ export default function App(): JSX.Element {
     </main>
   );
 }
-
-
-
-
