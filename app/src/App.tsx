@@ -289,13 +289,13 @@ export default function App(): JSX.Element {
 
     if (promptIdleTimerRef.current) clearTimeout(promptIdleTimerRef.current);
     promptIdleTimerRef.current = setTimeout(() => {
-      if (p.hint) announce(\`Hint: \${p.hint}\`);
+      if (p.hint) announce(`Hint: \${p.hint}`);
       setTimeout(() => newPrompt(true), 1400);
     }, adaptivePromptIdleTimeout());
 
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
     hintTimerRef.current = setTimeout(() => {
-      if (p.hint) announce(\`Hint: \${p.hint}\`);
+      if (p.hint) announce(`Hint: \${p.hint}`);
     }, adaptiveHintDelay());
   };
 
@@ -507,6 +507,7 @@ export default function App(): JSX.Element {
     </main>
   );
 }
+
 
 
 
