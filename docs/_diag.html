@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>KeyQuest – Diagnostics</title>
+<link rel="stylesheet" href="./style.css?v=1">
+<style>.box{padding:12px;border:1px solid #e5e7eb;border-radius:8px;background:#fafafa}.grid{display:grid;grid-template-columns:220px 1fr;gap:8px 16px;align-items:start}</style>
+</head><body class="wrap">
+<h1>Diagnostics</h1>
+<p>Checks build.json, caches, and service workers.</p>
+<div id="out" class="grid"></div>
+<script>
+async function section(t,h){const o=document.getElementById("out");const k=document.createElement("div");k.textContent=t;k.style.fontWeight="600";const v=document.createElement("div");v.className="box";v.innerHTML=h;o.appendChild(k);o.appendChild(v);}
+function fmt(h){if(!h)return"<em>n/a</em>";const keys=["cache-control","etag","last-modified","age","server","content-type"];return keys.map(k=>`<code>${k}</code>: ${h.get(k)||"<em>—</em>"}`).join("<br/>");}
+async function noStore(u){return fetch(u+(u.includes("?")?"&":"?")+"ts="+Date.now(),{cache:"no-store"}).catch(e=>({error:String(e)}));}
+async function build(){const r=await noStore("./build.json");if(r.error){await section("build.json",`<strong>ERROR</strong><pre>${r.error}</pre>`);return}const txt=await r.clone().text();await section("build.json",`<div><strong>status:</strong> ${r.status}</div><div><strong>headers</strong><br/>${fmt(r.headers)}</div><div><strong>body</strong><pre>${txt}</pre></div>`);}
+async function sw(){let regs=[];try{regs=await navigator.serviceWorker.getRegistrations()}catch{}const det=regs.map(r=>`scope=${r.scope}\nstate=${(r.installing||r.waiting||r.active)?.state||"?"}`).join("\n\n")||"none";await section("Service Workers",`<pre>${det}</pre>`);}
+(async ()=>{await build();await sw();await section("Client",`<div><strong>URL:</strong> <code>${location.href}</code></div><div><strong>Now:</strong> ${new Date().toString()}</div><div><strong>User Agent:</strong> <code>${navigator.userAgent}</code></div>`);})();
+</script>
+</body></html>

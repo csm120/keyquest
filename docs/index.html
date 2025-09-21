@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>KeyQuest</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="stylesheet" href="./style.css?v=1">
+</head>
+<body>
+  <main id="app" aria-labelledby="app-title" class="wrap">
+    <h1 id="app-title" class="title">KeyQuest</h1>
+
+    <section id="kq-instructions" aria-describedby="kq-help" class="block">
+      <p id="kq-help">
+        <strong>Typing mode is active.</strong> Your keys control the app now.
+        Press <kbd>Space</kbd> to begin. Press <kbd>Esc</kbd> to pause. Press <kbd>Enter</kbd> to resume.
+        Press <kbd>F1</kbd> or <kbd>Ctrl</kbd>+<kbd>/</kbd> for help; <kbd>R</kbd> repeats the last message.
+      </p>
+    </section>
+
+    <div id="kq-controls" class="row">
+      <button id="pauseBtn">Pause typing (Esc)</button>
+      <button id="resumeBtn">Resume typing (Enter)</button>
+    </div>
+
+    <div id="kq-typingRegion" role="group" aria-labelledby="kq-typing-title" aria-describedby="kq-help" class="block">
+      <h2 id="kq-typing-title" class="sr-only">Typing Mode</h2>
+      <input id="kq-typing" aria-label="Typing capture field" aria-describedby="kq-help"
+             inputmode="none" autocapitalize="off" autocorrect="off" spellcheck="false"/>
+    </div>
+
+    <div id="kq-statusWrap" class="block">
+      <p id="status"><strong>Status:</strong> Press Space to begin the tutorial.</p>
+    </div>
+  </main>
+
+  <!-- Live regions -->
+  <div id="live-polite" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+  <div id="live-assertive" aria-live="assertive" aria-atomic="true" class="sr-only"></div>
+
+  <script src="./app.js?v=1" defer></script>
+</body>
+</html>
