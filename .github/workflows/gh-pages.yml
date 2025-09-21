@@ -1,0 +1,39 @@
+name: Deploy to gh-pages
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: app } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: app/package-lock.json }
+      - name: Install
+        run: npm ci
+      - name: Generate build metadata (public/build.json)
+        run: |
+          COMMIT=$(git rev-parse --short HEAD || echo local)
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          mkdir -p public
+          printf '{"commit":"%s","built":"%s"}\n' "$COMMIT" "$DATE" > public/build.json
+          cat public/build.json
+      - name: Build (Vite with /keyquest/ base)
+        run: npx vite build --base=/keyquest/
+      - name: Ensure build.json is in dist
+        run: cp -f public/build.json dist/build.json
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: app/dist
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          commit_message: "deploy: ${GITHUB_SHA}"
+          keep_files: false
+          force_orphan: true
