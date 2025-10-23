@@ -468,8 +468,15 @@ class KeyQuestApp {
       // Check if prefix matches
       if (!target.startsWith(typed)) {
         this.audio.beepBad();
+        // Calculate what was remaining before the error
+        const beforeError = this.state.lesson.typed.slice(0, -1); // Remove the wrong character
+        const remaining = beforeError.length > 0 && target.startsWith(beforeError)
+          ? target.substring(beforeError.length)
+          : target;
         this.state.lesson.typed = "";
         this.renderLesson();
+        // Tell user what they need to type
+        this.speech.say(`Remaining: ${remaining}`, true);
         return;
       }
 
