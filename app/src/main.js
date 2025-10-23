@@ -98,33 +98,53 @@ class KeyQuestApp {
 
     this.rootEl.innerHTML = `
       <div style="max-width:600px;margin:2rem auto;text-align:center;">
-        <h2>Main Menu</h2>
-        <div id="menu-list" role="menu" style="margin:2rem 0;">
-          ${this.state.menuItems.map((item, i) =>
-            `<div role="menuitem" data-index="${i}" style="padding:1rem;margin:0.5rem 0;background:${i === 0 ? 'var(--hilite, #444)' : 'var(--bg)'};border:2px solid var(--fg);">${item}</div>`
-          ).join('')}
-        </div>
-        <p class="muted">Current Stage: ${stage} / ${total}</p>
-        <p class="muted">Use Up/Down to navigate, Enter or Space to select</p>
+        <h2 id="menu-heading">Main Menu</h2>
+        <nav aria-labelledby="menu-heading">
+          <div id="menu-list" role="listbox" aria-activedescendant="menu-item-0" tabindex="0"
+               style="margin:2rem auto;max-width:300px;border:2px solid var(--fg);border-radius:0.5rem;padding:0.5rem;">
+            ${this.state.menuItems.map((item, i) =>
+              `<div id="menu-item-${i}" role="option" aria-selected="${i === 0 ? 'true' : 'false'}"
+                   style="padding:1rem;margin:0.25rem;background:${i === 0 ? 'var(--hilite, #444)' : 'transparent'};
+                   border:1px solid ${i === 0 ? 'var(--fg)' : 'transparent'};border-radius:0.25rem;cursor:pointer;">
+                ${item}
+              </div>`
+            ).join('')}
+          </div>
+        </nav>
+        <p class="muted" style="margin-top:1rem;">Current Stage: ${stage} / ${total}</p>
+        <p class="muted" aria-live="polite">Use Up/Down arrows to navigate, Enter or Space to select</p>
       </div>
     `;
 
-    this.updateMenuHighlight();
+    // Focus the listbox
+    setTimeout(() => {
+      const listbox = document.getElementById("menu-list");
+      if (listbox) listbox.focus();
+    }, 100);
 
     const items = this.state.menuItems;
     const current = items[this.state.menuIndex];
     this.announceAlert(
-      `Key Quest. Main menu. ${current}. Use Up and Down to choose. Press Enter or Space to select.`,
+      `Main menu. ${current} selected. Use Up and Down arrows to navigate. Press Enter or Space to select.`,
       true,
       2.0
     );
   }
 
   updateMenuHighlight() {
-    const menuItems = this.rootEl.querySelectorAll('[role="menuitem"]');
+    const listbox = document.getElementById("menu-list");
+    const menuItems = this.rootEl.querySelectorAll('[role="option"]');
+
     menuItems.forEach((item, i) => {
-      item.style.background = i === this.state.menuIndex ? 'var(--hilite, #444)' : 'transparent';
+      const isSelected = i === this.state.menuIndex;
+      item.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      item.style.background = isSelected ? 'var(--hilite, #444)' : 'transparent';
+      item.style.border = `1px solid ${isSelected ? 'var(--fg)' : 'transparent'}`;
     });
+
+    if (listbox) {
+      listbox.setAttribute('aria-activedescendant', `menu-item-${this.state.menuIndex}`);
+    }
   }
 
   handleMenuKey(e) {
@@ -137,12 +157,12 @@ class KeyQuestApp {
       e.preventDefault();
       this.state.menuIndex = (this.state.menuIndex - 1 + this.state.menuItems.length) % this.state.menuItems.length;
       this.updateMenuHighlight();
-      this.speech.say(this.state.menuItems[this.state.menuIndex]);
+      this.announceStatus(this.state.menuItems[this.state.menuIndex]);
     } else if (e.key === "ArrowDown") {
       e.preventDefault();
       this.state.menuIndex = (this.state.menuIndex + 1) % this.state.menuItems.length;
       this.updateMenuHighlight();
-      this.speech.say(this.state.menuItems[this.state.menuIndex]);
+      this.announceStatus(this.state.menuItems[this.state.menuIndex]);
     } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       const choice = this.state.menuItems[this.state.menuIndex];
@@ -263,7 +283,7 @@ class KeyQuestApp {
       promptEl.textContent = CONST.FRIENDLY_NAMES[name];
     }
 
-    this.speech.say(`Press ${CONST.FRIENDLY_NAMES[name]}.`);
+    this.announceStatus(`Press ${CONST.FRIENDLY_NAMES[name]}.`);
   }
 
   handleTutorialKey(e) {
@@ -276,7 +296,7 @@ class KeyQuestApp {
     if (e.key === " " && e.ctrlKey) {
       e.preventDefault();
       const t = this.state.tutorial;
-      this.speech.say(`Press ${CONST.FRIENDLY_NAMES[t.requiredName]}.`);
+      this.announceStatus(`Press ${CONST.FRIENDLY_NAMES[t.requiredName]}.`);
       return;
     }
 
@@ -295,9 +315,9 @@ class KeyQuestApp {
     if (pressedName === null) {
       // Invalid key
       if (t.phase === 1) {
-        this.speech.say("Use the arrow keys or the space bar.");
+        this.announceStatus("Use the arrow keys or the space bar.");
       } else {
-        this.speech.say("Use arrows, space, or Enter.");
+        this.announceStatus("Use arrows, space, or Enter.");
       }
       return;
     }
@@ -310,7 +330,7 @@ class KeyQuestApp {
       t.index++;
 
       const praises = ["Good.", "Nice.", "Correct."];
-      this.speech.say(praises[Math.floor(Math.random() * praises.length)]);
+      this.announceStatus(praises[Math.floor(Math.random() * praises.length)]);
 
       this.renderTutorial();
 
@@ -327,7 +347,7 @@ class KeyQuestApp {
       const guidance = CONST.RELATIONS[relationKey] || `Try ${CONST.FRIENDLY_NAMES[target]}.`;
       const hint = CONST.HINTS[target];
 
-      this.speech.say(`${CONST.FRIENDLY_NAMES[pressed]}. ${guidance} ${hint}`);
+      this.announceAlert(`${CONST.FRIENDLY_NAMES[pressed]}. ${guidance} ${hint}`);
     }
   }
 
@@ -417,7 +437,7 @@ class KeyQuestApp {
 
   lessonPrompt() {
     const target = this.state.lesson.batchWords[this.state.lesson.index];
-    this.speech.say(`Type: ${target}`, true);
+    this.announceAlert(`Type: ${target}`, true);
   }
 
   nextLessonItem() {
@@ -537,7 +557,7 @@ class KeyQuestApp {
     this.state.test.current = this.state.test.remaining.shift();
     this.state.test.typed = "";
     this.renderTest();
-    this.speech.say(this.state.test.current);
+    this.announceStatus(this.state.test.current);
   }
 
   renderTest() {
@@ -607,7 +627,7 @@ class KeyQuestApp {
       const current = this.state.test.current;
       const typed = this.state.test.typed;
       const remaining = current.substring(typed.length);
-      this.speech.say(remaining || current, true);
+      this.announceAlert(remaining || current, true);
       return;
     }
 
