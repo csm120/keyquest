@@ -1,21 +1,25 @@
 {
   "name": "keyquest-app",
   "version": "1.0.0",
-  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
-  "main": "index.js",
+  "description": "An accessible, screen-reader-first, turn-based typing adventure",
+  "type": "module",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
-  "keywords": [],
+  "keywords": ["accessibility", "typing", "game", "screen-reader"],
   "author": "",
   "license": "ISC",
-  "type": "module",
-  "private": "true",
   "devDependencies": {
-    "typescript": "^5.9.2",
-    "vite": "^7.1.6"
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "vite": "^7.1.6",
+    "vitest": "^2.0.0"
   }
 }
