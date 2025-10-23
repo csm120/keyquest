@@ -49,7 +49,21 @@ class KeyQuestApp {
   // ==================== MAIN LOOP ====================
 
   start() {
-    this.showMenu();
+    // Focus the game root to automatically enter application mode for screen readers
+    setTimeout(() => {
+      this.rootEl.focus();
+    }, 100);
+
+    // Add initial screen reader instructions
+    this.announceAlert(
+      "KeyQuest typing game loaded. Screen reader users: You are now in application mode. Use arrow keys to navigate. If arrow keys don't work, enter forms mode or focus mode in your screen reader. For NVDA press Insert plus Space. For JAWS press Enter.",
+      true,
+      3.0
+    );
+
+    setTimeout(() => {
+      this.showMenu();
+    }, 500);
   }
 
   handleKeyDown(e) {

@@ -1,10 +1,12 @@
 /**
  * Speech system using Web Speech API
- * Priority mode prevents critical messages from being interrupted
+ * DISABLED by default to allow screen readers to work via ARIA live regions.
+ * Users can enable Web Speech manually if needed (future feature).
+ * Priority mode prevents critical messages from being interrupted.
  */
 export class Speech {
   constructor() {
-    this.enabled = true;
+    this.enabled = false; // Disabled by default - rely on screen reader + ARIA
     this.priorityUntil = 0; // timestamp
     this.synth = window.speechSynthesis;
     this.currentUtterance = null;
