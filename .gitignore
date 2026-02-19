@@ -6,8 +6,8 @@ __pycache__/
 .Python
 
 # PyInstaller
-build/
-dist/
+/build/
+/dist/
 *.spec.bak
 
 # Virtual environments

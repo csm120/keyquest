@@ -33,6 +33,7 @@ try {
 
   if ($Target -eq "exe" -or $Target -eq "all") {
     Run-Step "Build executable" { cmd /c "tools\\build\\build_exe.bat --nopause" }
+    Run-Step "Build portable zip" { cmd /c "tools\\build\\build_portable_zip.bat --nopause" }
   }
 
   if ($Target -eq "installer") {
