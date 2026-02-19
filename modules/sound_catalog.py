@@ -1,0 +1,23 @@
+SOUND_ITEMS = (
+    {"name": "Correct Key", "description": "High beep when you type the correct key", "sound": "ok"},
+    {"name": "Wrong Key", "description": "Low beep when you type the wrong key", "sound": "bad"},
+    {"name": "Progress Tone", "description": "Rising pitch as you complete a word", "sound": "progressive"},
+    {"name": "Item Complete", "description": "Three rising notes when you complete an item", "sound": "success"},
+    {"name": "Lesson Complete", "description": "Victory melody when you finish a lesson", "sound": "victory"},
+    {"name": "Lesson Unlocked", "description": "Mysterious arpeggio when you unlock a new lesson", "sound": "unlock"},
+    {"name": "Badge Earned", "description": "Bright jingle when you earn a badge", "sound": "badge"},
+    {"name": "Level Up", "description": "Triumphant fanfare when you level up", "sound": "levelup"},
+    {"name": "Quest Complete", "description": "Rewarding melody when you complete a quest", "sound": "quest"},
+    {"name": "Time's Up Chime", "description": "Descending melody when time runs out in a test", "sound": "buzz"},
+    {"name": "Robot Pet", "description": "Retro R2D2-style chirp - square wave with pitch bend 600-900 Hz", "sound": "pet_robot"},
+    {"name": "Dragon Pet", "description": "8-bit growl - triangle wave portamento slide 280-180 Hz", "sound": "pet_dragon"},
+    {"name": "Owl Pet", "description": "Classic hoo-hoo - two sine wave hoots at 420 Hz", "sound": "pet_owl"},
+    {"name": "Cat Pet", "description": "Cartoon meow - triangle wave with pitch bend and vibrato", "sound": "pet_cat"},
+    {"name": "Dog Pet", "description": "High-pitched yap - triangle wave with pitch drop 1100-700 Hz", "sound": "pet_dog"},
+    {"name": "Phoenix Pet", "description": "Magical chime - ascending triangle wave arpeggio", "sound": "pet_phoenix"},
+    {"name": "Tribble Pet", "description": "Cute squeak - high sine wave at 3700 Hz with vibrato", "sound": "pet_tribble"},
+    {"name": "Pet Feeding", "description": "Happy eating chirps when you feed your pet", "sound": "pet_feed"},
+    {"name": "Pet Playing", "description": "Excited playful sounds when you play with your pet", "sound": "pet_play"},
+    {"name": "Pet Evolution", "description": "Magical transformation sound when your pet evolves", "sound": "pet_evolve"},
+)
+

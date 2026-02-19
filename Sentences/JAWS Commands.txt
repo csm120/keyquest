@@ -1,0 +1,97 @@
+Press Insert plus Down Arrow to say all from current position.
+Press Insert plus Up Arrow to read current line.
+Press Insert plus F12 to read time and date.
+Press Insert plus T to read window title.
+Press Insert plus Tab to read status bar.
+Press Insert plus Page Up to read from top to cursor.
+Press Insert plus Page Down to read to bottom from cursor.
+Press Insert plus Home to read to end of line.
+Press Insert plus 5 on NumPad to read current word.
+Press Insert plus Semicolon to adjust verbosity.
+Press Insert plus V to announce JAWS version.
+Press Insert plus F1 to open JAWS help.
+Press Insert plus J to open JAWS window list.
+Press Insert plus F6 to list headings.
+Press Insert plus F7 to list links.
+Press Insert plus F5 to list form fields.
+Press Insert plus F9 to list frames.
+Press Insert plus Control plus F to find text.
+Press Insert plus F3 to find next occurrence.
+Press Insert plus Shift plus F3 to find previous.
+Press Insert plus Spacebar to read next character.
+Press Insert plus NumPad 5 to speak current character.
+Press Insert plus Left Arrow to speak previous character.
+Press Insert plus Right Arrow to speak next character.
+Press Control to stop speech temporarily.
+Press Insert plus F2 to pass next key to application.
+Press Insert plus Z to toggle virtual cursor.
+Press Insert plus NumPad Plus to increase speech rate.
+Press Insert plus NumPad Minus to decrease speech rate.
+Press Insert plus Control plus NumPad Plus to increase volume.
+Press Insert plus Control plus NumPad Minus to decrease volume.
+Press Insert plus Escape to refresh screen display.
+Press Insert plus A to read active cursor coordinates.
+Press Insert plus B to say bottom line of window.
+Press Insert plus C to toggle cursor announcement.
+Press Insert plus F to read font information.
+Press Insert plus G to open JAWS graphics labeler.
+Press Insert plus H to toggle JAWS help mode.
+Press Insert plus K to toggle keys help.
+Press Insert plus M to go to top of window.
+Press Insert plus N to go to system tray.
+Press Insert plus O to go to control panel.
+Press Insert plus Q to go to system menu.
+Press Insert plus R to read remainder of document.
+Press Insert plus S to toggle speech on or off.
+Press Insert plus W to read current word spelled.
+Press Insert plus X to read context information.
+Press Insert plus Y to go to link start.
+Press H to move to next heading.
+Press Shift plus H to move to previous heading.
+Press 1 through 6 to move to heading level.
+Press B to move to next button.
+Press Shift plus B to move to previous button.
+Press C to move to next combo box.
+Press Shift plus C to move to previous combo box.
+Press D to move to next landmark.
+Press Shift plus D to move to previous landmark.
+Press E to move to next edit field.
+Press Shift plus E to move to previous edit field.
+Press F to move to next form control.
+Press Shift plus F to move to previous form control.
+Press G to move to next graphic.
+Press Shift plus G to move to previous graphic.
+Press I to move to next list item.
+Press Shift plus I to move to previous list item.
+Press K to move to next link.
+Press Shift plus K to move to previous link.
+Press L to move to next list.
+Press Shift plus L to move to previous list.
+Press M to move to next frame.
+Press Shift plus M to move to previous frame.
+Press N to skip navigation links.
+Press O to move to next article.
+Press Shift plus O to move to previous article.
+Press P to move to next paragraph.
+Press Shift plus P to move to previous paragraph.
+Press Q to move to next blockquote.
+Press Shift plus Q to move to previous blockquote.
+Press R to move to next radio button.
+Press Shift plus R to move to previous radio button.
+Press S to move to next separator.
+Press Shift plus S to move to previous separator.
+Press T to move to next table.
+Press Shift plus T to move to previous table.
+Press U to move to next unvisited link.
+Press Shift plus U to move to previous unvisited link.
+Press V to move to next visited link.
+Press Shift plus V to move to previous visited link.
+Press X to move to next checkbox.
+Press Shift plus X to move to previous checkbox.
+Press Z to move to next div section.
+Press Shift plus Z to move to previous div section.
+Press Insert plus Control plus Home to go to top of page.
+Press Insert plus Control plus End to go to bottom of page.
+Press Semicolon to move to next focusable item.
+Press Shift plus Semicolon to move to previous focusable item.
+Press Insert plus Shift plus Period to toggle mouse pointer echo.

@@ -1,0 +1,105 @@
+Press NVDA plus N to open NVDA menu.
+Press NVDA plus Q to quit NVDA.
+Press NVDA plus Control plus C to save configuration.
+Press NVDA plus Control plus R to reload configuration.
+Press NVDA plus F1 to open user guide.
+Press NVDA plus T to read window title.
+Press NVDA plus B to read status bar.
+Press NVDA plus End to say all from cursor.
+Press NVDA plus Down Arrow to read from current position.
+Press NVDA plus Up Arrow to read current line.
+Press NVDA plus Shift plus Up Arrow to read previous line.
+Press NVDA plus Shift plus Down Arrow to read next line.
+Press NVDA plus Left Arrow to read previous character.
+Press NVDA plus Right Arrow to read next character.
+Press NVDA plus Control plus Left Arrow to read previous word.
+Press NVDA plus Control plus Right Arrow to read next word.
+Press NVDA plus Shift plus Period to read current word.
+Press NVDA plus F12 to announce time and date.
+Press NVDA plus NumPad Delete to announce current location.
+Press NVDA plus Tab to announce current focus.
+Press NVDA plus Shift plus F to read formatting information.
+Press NVDA plus V to repeat last spoken phrase.
+Press NVDA plus S to toggle speech mode.
+Press NVDA plus Z to toggle input help mode.
+Press NVDA plus 1 to toggle input help.
+Press NVDA plus F2 to pass next keystroke to application.
+Press NVDA plus NumPad Plus to increase speech rate.
+Press NVDA plus NumPad Minus to decrease speech rate.
+Press NVDA plus Control plus Up Arrow to increase volume.
+Press NVDA plus Control plus Down Arrow to decrease volume.
+Press NVDA plus Control plus Left Arrow to move to previous synthesizer setting.
+Press NVDA plus Control plus Right Arrow to move to next synthesizer setting.
+Press NVDA plus Page Up to move to previous synth setting value.
+Press NVDA plus Page Down to move to next synth setting value.
+Press NVDA plus D to toggle document formatting reporting.
+Press NVDA plus F to report text formatting.
+Press NVDA plus G to report progress bar.
+Press NVDA plus C to report clipboard text.
+Press NVDA plus E to toggle element list.
+Press NVDA plus F5 to refresh current braille display.
+Press NVDA plus F7 to show links list.
+Press NVDA plus Shift plus O to show outline.
+Press NVDA plus F9 to set start marker for text selection.
+Press NVDA plus F10 to select and copy to marked position.
+Press NVDA plus Shift plus F9 to report position of text start marker.
+Press NVDA plus Shift plus F10 to move to marked position.
+Press NVDA plus R to toggle screen review mode.
+Press NVDA plus NumPad 7 to move to top line in review.
+Press NVDA plus NumPad 9 to move to bottom line in review.
+Press NVDA plus NumPad 8 to move to previous line in review.
+Press NVDA plus NumPad 2 to move to next line in review.
+Press NVDA plus NumPad 4 to move to previous character in review.
+Press NVDA plus NumPad 6 to move to next character in review.
+Press NVDA plus NumPad 1 to move to previous word in review.
+Press NVDA plus NumPad 3 to move to next word in review.
+Press NVDA plus Shift plus NumPad 7 to move to first line in review.
+Press NVDA plus Shift plus NumPad 9 to move to last line in review.
+Press NVDA plus NumPad 5 to announce current review position.
+Press NVDA plus NumPad Minus to move review cursor to system focus.
+Press NVDA plus NumPad Plus to move system focus to review cursor.
+Press NVDA plus Shift plus NumPad Minus to move to contained object.
+Press NVDA plus Shift plus NumPad Plus to move to containing object.
+Press H to jump to next heading.
+Press Shift plus H to jump to previous heading.
+Press 1 through 6 to jump to heading level.
+Press L to jump to next list.
+Press Shift plus L to jump to previous list.
+Press I to jump to next list item.
+Press Shift plus I to jump to previous list item.
+Press T to jump to next table.
+Press Shift plus T to jump to previous table.
+Press K to jump to next link.
+Press Shift plus K to jump to previous link.
+Press U to jump to next unvisited link.
+Press Shift plus U to jump to previous unvisited link.
+Press V to jump to next visited link.
+Press Shift plus V to jump to previous visited link.
+Press E to jump to next edit field.
+Press Shift plus E to jump to previous edit field.
+Press F to jump to next form field.
+Press Shift plus F to jump to previous form field.
+Press B to jump to next button.
+Press Shift plus B to jump to previous button.
+Press X to jump to next checkbox.
+Press Shift plus X to jump to previous checkbox.
+Press C to jump to next combo box.
+Press Shift plus C to jump to previous combo box.
+Press R to jump to next radio button.
+Press Shift plus R to jump to previous radio button.
+Press Q to jump to next quote.
+Press Shift plus Q to jump to previous quote.
+Press S to jump to next separator.
+Press Shift plus S to jump to previous separator.
+Press M to jump to next frame.
+Press Shift plus M to jump to previous frame.
+Press G to jump to next graphic.
+Press Shift plus G to jump to previous graphic.
+Press D to jump to next landmark.
+Press Shift plus D to jump to previous landmark.
+Press O to jump to next embedded object.
+Press Shift plus O to jump to previous embedded object.
+Press A to jump to next annotation.
+Press Shift plus A to jump to previous annotation.
+Press W to jump to next spelling error.
+Press Shift plus W to jump to previous spelling error.

@@ -1,0 +1,102 @@
+The capital of France is Paris.
+Mount Everest is the tallest mountain on Earth.
+The Amazon River is in South America.
+The Pacific Ocean is the largest ocean on Earth.
+The Sahara Desert is the largest hot desert in the world.
+The Nile River is the longest river in Africa.
+Antarctica is the coldest continent on Earth.
+Australia is both a country and a continent.
+The Grand Canyon is located in Arizona.
+The Great Barrier Reef is off the coast of Australia.
+The Mississippi River flows through the United States.
+The Rocky Mountains stretch across North America.
+The Alps are a major mountain range in Europe.
+The Andes are the longest mountain range in the world.
+The Great Lakes are located between the US and Canada.
+Niagara Falls is on the border of the US and Canada.
+The Himalayas contain the world's highest peaks.
+Mount Kilimanjaro is the highest mountain in Africa.
+The Dead Sea is the lowest point on Earth's surface.
+The Arctic Ocean surrounds the North Pole.
+The equator divides Earth into Northern and Southern hemispheres.
+The prime meridian passes through Greenwich, England.
+Latitude lines run parallel to the equator.
+Longitude lines run from pole to pole.
+The Tropic of Cancer is located north of the equator.
+The Tropic of Capricorn is located south of the equator.
+The Arctic Circle marks the edge of the polar region.
+The Antarctic Circle surrounds Antarctica.
+Africa has fifty four countries.
+Asia is the largest continent by land area and population.
+Europe and Asia together form Eurasia.
+North America includes the United States, Canada, and Mexico.
+South America has twelve independent countries.
+The Caribbean Sea contains many island nations.
+The Mediterranean Sea separates Europe and Africa.
+The Atlantic Ocean connects the Americas to Europe and Africa.
+The Indian Ocean is the third largest ocean.
+The Southern Ocean surrounds Antarctica.
+Tokyo is the capital of Japan.
+Beijing is the capital of China.
+New Delhi is the capital of India.
+Moscow is the capital of Russia.
+London is the capital of the United Kingdom.
+Berlin is the capital of Germany.
+Rome is the capital of Italy.
+Madrid is the capital of Spain.
+Cairo is the capital of Egypt.
+Nairobi is the capital of Kenya.
+Brasilia is the capital of Brazil.
+Buenos Aires is the capital of Argentina.
+Ottawa is the capital of Canada.
+Washington DC is the capital of the United States.
+Mexico City is the capital of Mexico.
+Sydney is the largest city in Australia but Canberra is the capital.
+Wellington is the capital of New Zealand.
+The Amazon rainforest produces twenty percent of Earth's oxygen.
+The Congo rainforest is the second largest rainforest.
+The Gobi Desert is located in Asia.
+The Atacama Desert is one of the driest places on Earth.
+The Mojave Desert is in the southwestern United States.
+Iceland is known for its volcanoes and geysers.
+Hawaii is a volcanic island chain in the Pacific.
+Greenland is the world's largest island.
+Madagascar is an island nation off the coast of Africa.
+The Philippines consists of over seven thousand islands.
+Indonesia is the largest archipelago in the world.
+Japan is an island nation in East Asia.
+The United Kingdom includes England, Scotland, Wales, and Northern Ireland.
+Ireland is an island divided between two countries.
+The Netherlands is famous for its windmills and tulips.
+Switzerland is known for its Alps and neutrality.
+The Vatican City is the smallest country in the world.
+Monaco is one of the smallest countries in Europe.
+Luxembourg is a small European country.
+Singapore is a city state in Southeast Asia.
+Hong Kong is a special administrative region of China.
+The Panama Canal connects the Atlantic and Pacific Oceans.
+The Suez Canal connects the Mediterranean Sea to the Red Sea.
+The Strait of Gibraltar separates Europe from Africa.
+The Bering Strait separates Asia from North America.
+The English Channel separates England from France.
+Lake Superior is the largest of the Great Lakes.
+Lake Victoria is the largest lake in Africa.
+The Caspian Sea is the world's largest lake.
+Lake Baikal is the deepest lake in the world.
+Yellowstone is the first national park in the United States.
+Yosemite is famous for its granite cliffs and waterfalls.
+The Serengeti is famous for its wildlife migrations.
+The Galapagos Islands inspired Darwin's theory of evolution.
+The Great Wall of China stretches over thirteen thousand miles.
+Machu Picchu is an ancient Incan city in Peru.
+The Taj Mahal is located in India.
+The Eiffel Tower is a famous landmark in Paris.
+The Statue of Liberty stands in New York Harbor.
+Big Ben is a famous clock tower in London.
+The Colosseum is an ancient amphitheater in Rome.
+Stonehenge is a prehistoric monument in England.
+The Pyramids of Giza are located near Cairo.
+Petra is an ancient city carved into rock in Jordan.
+Earthquakes occur along tectonic plate boundaries.
+Volcanoes form where magma reaches Earth's surface.
+Tsunamis are large ocean waves caused by underwater disturbances.

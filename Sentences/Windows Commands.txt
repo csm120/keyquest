@@ -1,0 +1,102 @@
+Press Windows key to open Start menu.
+Press Alt plus Tab to switch between open windows.
+Press Windows plus D to show or hide desktop.
+Press Windows plus E to open File Explorer.
+Press Windows plus L to lock your computer.
+Press Windows plus I to open Settings.
+Press Windows plus S to open Search.
+Press Windows plus V to open clipboard history.
+Press Windows plus X to open Quick Link menu.
+Press Windows plus Period to open emoji picker.
+Press Control plus C to copy selected text.
+Press Control plus X to cut selected text.
+Press Control plus V to paste copied text.
+Press Control plus Z to undo last action.
+Press Control plus Y to redo last action.
+Press Control plus A to select all items.
+Press Control plus F to find text on page.
+Press Control plus P to print current document.
+Press Control plus S to save current document.
+Press Control plus N to open new window.
+Press Alt plus F4 to close current window.
+Press Alt plus Enter to view properties.
+Press Alt plus Space to open window menu.
+Press F2 to rename selected file.
+Press F5 to refresh current view.
+Press F11 to toggle full screen mode.
+Press Escape to cancel current operation.
+Press Delete to move item to Recycle Bin.
+Press Shift plus Delete to permanently delete item.
+Press Control plus Shift plus Escape to open Task Manager.
+Press Windows plus R to open Run dialog.
+Press Windows plus Pause to open System properties.
+Press Windows plus Plus to open Magnifier and zoom in.
+Press Windows plus Minus to zoom out in Magnifier.
+Press Windows plus Comma to peek at desktop.
+Press Windows plus Tab to open Task View.
+Press Windows plus Number to open pinned taskbar app.
+Press Windows plus Shift plus S to take screenshot.
+Press Windows plus Print Screen to save full screenshot.
+Press Windows plus Home to minimize all except active window.
+Press Control plus W to close current tab.
+Press Control plus T to open new tab.
+Press Control plus Shift plus T to reopen closed tab.
+Press Control plus Tab to switch to next tab.
+Press Control plus Shift plus Tab to switch to previous tab.
+Press Control plus L to select address bar.
+Press Alt plus Left Arrow to go back.
+Press Alt plus Right Arrow to go forward.
+Press F6 to cycle through screen elements.
+Press Spacebar to scroll down one page.
+Press Shift plus Spacebar to scroll up one page.
+Press Home to go to top of page.
+Press End to go to bottom of page.
+Press Page Up to scroll up one screen.
+Press Page Down to scroll down one screen.
+Press Control plus Home to go to start of document.
+Press Control plus End to go to end of document.
+Press Control plus Right Arrow to move cursor right one word.
+Press Control plus Left Arrow to move cursor left one word.
+Press Shift plus Arrow keys to select text.
+Press Control plus Shift plus Arrow keys to select words.
+Press Control plus B to make text bold.
+Press Control plus I to make text italic.
+Press Control plus U to underline text.
+Press Windows plus Semicolon to open emoji panel.
+Press Alt plus F to open File menu.
+Press Alt plus E to open Edit menu.
+Press Alt plus V to open View menu.
+Press Alt plus H to open Help menu.
+Press Control plus F4 to close current document.
+Press Alt plus Spacebar then X to maximize window.
+Press Alt plus Spacebar then N to minimize window.
+Press Alt plus Spacebar then R to restore window.
+Press Alt plus Spacebar then C to close window.
+Press Windows plus A to open Action Center.
+Press Windows plus C to open Cortana.
+Press Windows plus G to open Game Bar.
+Press Windows plus K to open Connect dialog.
+Press Windows plus M to minimize all windows.
+Press Windows plus Shift plus M to restore minimized windows.
+Press Windows plus U to open Ease of Access Center.
+Press Windows plus Ctrl plus D to create new virtual desktop.
+Press Windows plus Ctrl plus F4 to close current virtual desktop.
+Press Windows plus Ctrl plus Left Arrow to switch to previous desktop.
+Press Windows plus Ctrl plus Right Arrow to switch to next desktop.
+Press Control plus Shift plus N to create new folder.
+Press Control plus Mouse Wheel to change icon size.
+Press Alt plus Up Arrow to go up one folder level.
+Press Shift plus F10 to open context menu for selected item.
+Press Backspace to go to previous folder in File Explorer.
+Press Control plus Shift plus Escape opens Task Manager quickly.
+Press Windows plus Break opens System properties immediately.
+Press Control plus Alt plus Tab shows persistent app switcher.
+Press Alt plus Shift changes keyboard input language.
+Press Print Screen copies screenshot to clipboard.
+Press Control plus Escape opens Start menu.
+Press Application key opens context menu.
+Press F1 to open Help and Support.
+Press F3 to search for files.
+Press F4 to display address bar list.
+Press F7 to check spelling and grammar.
+Press F10 to activate menu bar.

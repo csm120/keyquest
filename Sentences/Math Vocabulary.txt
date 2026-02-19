@@ -1,0 +1,100 @@
+An isosceles triangle has two equal sides.
+Pi is approximately three point one four one five nine.
+The Pythagorean theorem relates sides of a right triangle.
+A prime number has only two factors, one and itself.
+An even number is divisible by two.
+An odd number is not divisible by two.
+A fraction represents part of a whole.
+The numerator is the top number of a fraction.
+The denominator is the bottom number of a fraction.
+Decimals use place value to show parts of a whole.
+Percent means per hundred.
+A ratio compares two quantities.
+A proportion shows two equal ratios.
+An equation states that two expressions are equal.
+An inequality compares two values using less than or greater than.
+Variables are letters that represent unknown numbers.
+A constant is a value that does not change.
+An integer is a whole number that can be positive, negative, or zero.
+A natural number is a positive integer.
+A whole number includes zero and all positive integers.
+A rational number can be expressed as a fraction.
+An irrational number cannot be expressed as a simple fraction.
+Real numbers include both rational and irrational numbers.
+Absolute value is the distance from zero.
+The square of a number is that number multiplied by itself.
+The square root of a number is a value that when squared equals that number.
+A cube is a number raised to the third power.
+An exponent shows how many times to multiply the base.
+The order of operations is parentheses, exponents, multiplication, division, addition, subtraction.
+The commutative property says order does not matter in addition and multiplication.
+The associative property says grouping does not matter in addition and multiplication.
+The distributive property multiplies a number by each term inside parentheses.
+The identity element for addition is zero.
+The identity element for multiplication is one.
+Inverse operations undo each other.
+Addition and subtraction are inverse operations.
+Multiplication and division are inverse operations.
+The sum is the result of addition.
+The difference is the result of subtraction.
+The product is the result of multiplication.
+The quotient is the result of division.
+A remainder is what is left over after division.
+The greatest common factor is the largest factor shared by two numbers.
+The least common multiple is the smallest multiple shared by two numbers.
+Simplifying a fraction means reducing it to lowest terms.
+An improper fraction has a numerator greater than the denominator.
+A mixed number combines a whole number and a fraction.
+To convert an improper fraction to a mixed number, divide the numerator by the denominator.
+Like fractions have the same denominator.
+Unlike fractions have different denominators.
+To add fractions, they must have a common denominator.
+To multiply fractions, multiply numerators and denominators.
+To divide fractions, multiply by the reciprocal.
+The reciprocal of a fraction flips the numerator and denominator.
+A point has no dimensions, only position.
+A line extends infinitely in both directions.
+A line segment has two endpoints.
+A ray has one endpoint and extends infinitely.
+Parallel lines never intersect.
+Perpendicular lines intersect at right angles.
+An angle is formed by two rays with a common endpoint.
+An acute angle measures less than ninety degrees.
+A right angle measures exactly ninety degrees.
+An obtuse angle measures more than ninety but less than one hundred eighty degrees.
+A straight angle measures one hundred eighty degrees.
+A reflex angle measures more than one hundred eighty degrees.
+Complementary angles add up to ninety degrees.
+Supplementary angles add up to one hundred eighty degrees.
+Vertical angles are opposite angles formed by intersecting lines.
+A polygon is a closed figure with straight sides.
+A triangle has three sides.
+A quadrilateral has four sides.
+A pentagon has five sides.
+A hexagon has six sides.
+An octagon has eight sides.
+A regular polygon has all sides and angles equal.
+An equilateral triangle has all sides equal.
+A scalene triangle has no equal sides.
+A right triangle has one ninety degree angle.
+The hypotenuse is the longest side of a right triangle.
+A rectangle has four right angles.
+A square is a rectangle with all sides equal.
+A parallelogram has opposite sides parallel.
+A rhombus is a parallelogram with all sides equal.
+A trapezoid has exactly one pair of parallel sides.
+The perimeter is the distance around a figure.
+The area is the space inside a two dimensional figure.
+The volume is the space inside a three dimensional object.
+A circle is a set of points equidistant from a center.
+The radius is the distance from center to edge of a circle.
+The diameter is twice the radius.
+The circumference is the distance around a circle.
+Circumference equals pi times diameter.
+Area of a circle equals pi times radius squared.
+A sphere is a three dimensional circle.
+A cylinder has two circular bases.
+A cone has one circular base and a vertex.
+A cube has six square faces.
+A rectangular prism has six rectangular faces.
+A pyramid has a polygon base and triangular sides.

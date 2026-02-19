@@ -1,0 +1,11 @@
+# KeyQuest - Required Dependencies
+
+# Core dependencies (required)
+pygame>=2.0.0
+numpy>=1.19.0
+
+# Accessibility dependencies (highly recommended)
+wxPython>=4.2.0          # For accessible results dialog
+cytolk>=0.2.0            # For screen reader support (Tolk library)
+pyttsx3>=2.90            # For text-to-speech fallback
+darkdetect>=0.8.0        # For automatic theme detection

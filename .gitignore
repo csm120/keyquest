@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# PyInstaller
+build/
+dist/
+*.spec.bak
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Distribution archives (treat as artifacts)
+KeyQuest-Source-*.zip
+source/*.zip
+*.tar.gz
+*.egg-info/
+
+# Logs
+*.log
+tests/logs/*
+!tests/logs/.gitkeep
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+_ul*
+CON
+
+# Local agent/AI configuration (never commit)
+.claude/settings.local.json
+.claude/settings.*.local.json
+.claude/*.local.*
+docs/.claude/settings.local.json
+docs/.claude/settings.*.local.json
+docs/.claude/*.local.*
+
+# Runtime user data (never commit)
+progress.json
