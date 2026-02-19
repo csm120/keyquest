@@ -398,7 +398,7 @@ def build_post(output_path):
     add_hyperlink(
         paragraph,
         'KeyQuest Installer (.exe)',
-        'https://github.com/csm120/KeyQuest/releases/download/v1.0/KeyQuestSetup-1.0.exe',
+        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe',
     )
     paragraph.add_run('.')
 
@@ -408,7 +408,7 @@ def build_post(output_path):
     add_hyperlink(
         paragraph,
         'KeyQuest Portable Build (.zip)',
-        'https://github.com/csm120/KeyQuest/releases/download/v1.0/KeyQuest-1.0-win64.zip',
+        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuest-win64.zip',
     )
     paragraph.add_run('.')
 
