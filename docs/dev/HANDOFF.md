@@ -4,10 +4,28 @@ This is the single starting point for any human or AI working on KeyQuest.
 
 ## Snapshot
 
-- **Last updated**: 2026-02-19 (Version 1.0 release + About menu + Hangman/escape updates)
+- **Last updated**: 2026-02-19 (Version 1.0 published to GitHub + release assets uploaded)
 - **Version**: 1.0 (source of truth: `modules/version.py`)
 - **Platform**: Windows (full accessibility) / Linux (TTS only)
 - **Accessibility**: See user accessibility docs in `docs/user/`.
+
+## Next Session Checklist
+
+1. Open `docs/dev/HANDOFF.md` and `docs/user/CHANGELOG.md` top entry.
+2. Run baseline checks before editing:
+   - `python -m unittest`
+   - `powershell -ExecutionPolicy Bypass -File tools/run_quality_checks.ps1`
+3. If changing user-visible behavior, update:
+   - `README.html` (and pointer `README.md` only if needed)
+   - `docs/user/CHANGELOG.md`
+4. For release work:
+   - Build exe: `cmd /c tools\build\build_exe.bat --nopause`
+   - Build installer: `cmd /c tools\build\build_installer.bat --nopause`
+   - Verify release assets in `dist/`
+5. Before handoff:
+   - Update this handoff file snapshot + recent changes
+   - Commit and push to `main`
+   - If releasing, verify GitHub release page and asset links
 
 ## Quick Start (For New Sessions)
 
@@ -98,6 +116,20 @@ This is the single starting point for any human or AI working on KeyQuest.
   - `tools/build/build_installer.bat`
   - `tools/build.ps1 -Target installer`
 - Updated `README.html` main menu docs with About details and Version 1.0 marker.
+
+### 2026-02-19: GitHub Publish + Release Assets + README Contact Link
+
+- Initialized git repo in workspace and published source to GitHub:
+  - Repo: `https://github.com/csm120/KeyQuest`
+  - Default branch: `main`
+- Created and published release tag `v1.0` with downloadable assets:
+  - `KeyQuestSetup-1.0.exe`
+  - `KeyQuest-1.0-win64.zip`
+  - Release page: `https://github.com/csm120/KeyQuest/releases/tag/v1.0`
+- Updated README feedback links to include email subject:
+  - `mailto:help@webfriendlyhelp.com?subject=KeyQuest%20Feedback`
+- Removed dedicated Hangman item from the user-facing Games list in `README.html` while keeping Hangman implemented in app.
+- Performed a source-comment wording pass for public-facing clarity in a few modules (`dialog_manager`, `currency_manager`, `key_analytics`, `lesson_manager`, `ui/pet_visuals`).
 
 ### 2026-02-19: Hangman UX + Escape Handler Unification
 

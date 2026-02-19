@@ -44,14 +44,14 @@ class WordTypingGame(BaseGame):
     INSTRUCTIONS = (
         "Words appear one at a time. Type the current word and press Enter to submit. "
         "The session ends after 30 seconds. Results show corrected words per minute, "
-        "total words per minute, and accuracy. Press Escape three times during play to return to the main menu and end the "
+        "total words per minute, and accuracy. Press Escape during play to end the "
         "session. In the results dialog, press Space or Escape to close."
     )
     HOTKEYS = """Type the word: Letter keys
 Submit word: Enter
 Correct mistakes: Backspace
 Repeat current word: Ctrl+Space
-Escape x3: Exit to main menu"""
+Escape: End session and return to game menu"""
 
     def __init__(self, screen, fonts, speech, play_sound_func, show_info_dialog_func, session_complete_callback=None):
         """Initialize the Word Typing game."""

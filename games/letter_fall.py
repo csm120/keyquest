@@ -22,13 +22,13 @@ class LetterFallGame(BaseGame):
     INSTRUCTIONS = (
         "Type the letters as they fall before they reach the bottom. Press Tab to hear the "
         "letters currently on screen. Press Control plus Space to hear your score, lives, "
-        "and combo. Press Escape three times during play to return to the main menu. "
+        "and combo. Press Escape during play to pause and return to the game menu. "
         "In the results dialog, press Space or Escape to close."
     )
     HOTKEYS = """Type the falling letters: Letter keys
 List current falling letters: Tab
 Repeat current score: Ctrl+Space
-Escape x3: Exit to main menu"""
+Escape: Pause and return to game menu"""
 
     def __init__(self, screen, fonts, speech, play_sound_func, show_info_dialog_func, session_complete_callback=None):
         """Initialize the Letter Fall game."""

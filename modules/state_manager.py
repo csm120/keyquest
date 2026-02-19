@@ -261,7 +261,7 @@ class Settings:
     owned_items: Set[str] = field(default_factory=set)  # Set of owned permanent items
     inventory: Dict[str, int] = field(default_factory=dict)  # item_id: quantity for consumables
     # Phase 4 Features: Virtual Pet System
-    pet_type: str = ""  # Pet type (robot, dragon, owl, cat, phoenix, tribble)
+    pet_type: str = ""  # Pet type (robot, dragon, owl, cat, dog, phoenix, tribble)
     pet_name: str = ""  # Custom pet name
     pet_xp: int = 0  # Pet's XP (grows with user)
     pet_happiness: int = 50  # Pet happiness (0-100)

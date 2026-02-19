@@ -249,20 +249,20 @@ def recommend_lessons_for_keys(settings, keys: list) -> list:
 
     recommendations = []
 
-    # Home row letters (lessons 1-8)
+    # Home row letters (lessons 0-8)
     home_row = ['a', 's', 'd', 'f', 'j', 'k', 'l', ';']
     if any(k in home_row for k in keys):
-        recommendations.extend([1, 2, 3, 4, 5, 6, 7, 8])
+        recommendations.extend([0, 1, 2, 3, 4, 5, 6, 7, 8])
 
-    # Top row letters (lessons 9-16)
+    # Top row letters (lessons 9-13)
     top_row = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p']
     if any(k in top_row for k in keys):
-        recommendations.extend([9, 10, 11, 12, 13, 14, 15, 16])
+        recommendations.extend([9, 10, 11, 12, 13])
 
-    # Bottom row letters (lessons 17-20)
+    # Bottom row letters (lessons 14-18)
     bottom_row = ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/']
     if any(k in bottom_row for k in keys):
-        recommendations.extend([17, 18, 19, 20])
+        recommendations.extend([14, 15, 16, 17, 18])
 
     # Remove duplicates and sort
     recommendations = sorted(list(set(recommendations)))

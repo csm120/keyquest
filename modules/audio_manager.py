@@ -63,7 +63,7 @@ class AudioManager:
     def make_coin_sound():
         """Generate Mario-style coin sound - TIER 1: Ultra-short for typing rhythm.
 
-        Based on Mario coin: E6 (1319Hz) with B7 harmonic (2637Hz).
+        Based on Mario coin: E6 (1319Hz) with E7 harmonic (2637Hz).
         Duration: ~110ms - still quick, but easier to perceive consistently.
 
         Returns:
@@ -73,9 +73,9 @@ class AudioManager:
         dur_ms = 110  # Short and more audible
         t = np.linspace(0, dur_ms / 1000.0, int(fs * dur_ms / 1000.0), endpoint=False)
 
-        # E6 fundamental with B7 harmonic (perfect fifth, 2 octaves up)
+        # E6 fundamental with E7 harmonic (octave up)
         fundamental = 1319  # E6
-        harmonic = 2637     # B7 (perfect fifth overtone)
+        harmonic = 2637     # E7 (octave overtone)
 
         # Sharp attack envelope for crisp feedback
         envelope = np.exp(-6.0 * t / (dur_ms / 1000.0))
@@ -333,7 +333,7 @@ class AudioManager:
         # Three-note jingle: B5 -> E6 -> B6 (octave jump), all with harmonics
         notes = [
             (988, 1976),    # B5 with B6 harmonic (octave)
-            (1319, 2637),   # E6 with B7 harmonic (perfect fifth, 2 octaves up)
+            (1319, 2637),   # E6 with E7 harmonic (octave up)
             (1976, 3951)    # B6 with B7 harmonic (final high note)
         ]
 
