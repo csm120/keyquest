@@ -479,6 +479,7 @@ def _record_typing_error(app, test_state) -> None:
     pos = len(test_state.typed)
     remaining = test_state.current[pos:]
     app.audio.beep_bad()
+    app.trigger_flash((100, 0, 0), 0.12)
     app.speech.say(
         speech_format.build_remaining_text_feedback(remaining),
         priority=True,

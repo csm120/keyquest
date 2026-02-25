@@ -123,6 +123,16 @@ TITLE_SIZE, TEXT_SIZE, SMALL_SIZE = app_config.TITLE_SIZE, app_config.TEXT_SIZE,
 SYSTEM_THEME = theme_manager.detect_theme()
 BG, FG, ACCENT, HILITE = theme_manager.get_theme_colors(SYSTEM_THEME)
 
+
+def _detect_dpi_scale() -> float:
+    """Return the system DPI scale factor (1.0 = 100%, 1.25 = 125%, etc.)."""
+    try:
+        import ctypes
+        dpi = ctypes.windll.user32.GetDpiForSystem()
+        return max(1.0, dpi / 96.0)
+    except Exception:
+        return 1.0
+
 # Lesson configuration constants moved to modules/lesson_manager.py
 # Access as: lesson_manager.lesson_manager.LESSON_BATCH, lesson_manager.lesson_manager.MIN_WPM, etc.
 
@@ -186,6 +196,14 @@ class KeyQuestApp:
         self._startup_menu_armed = False
         self.escape_guard = EscapePressGuard()
 
+        # Visual flash feedback state (deaf/HoH users — visual equivalent of beep_ok/bad)
+        self._flash_color = (0, 0, 0)
+        self._flash_until = 0.0
+
+        # Escape guard visual state — shows remaining presses needed
+        self._escape_remaining: int = 0
+        self._escape_noun: str = ""
+
         # Initialize managers
         self.audio = audio_manager.AudioManager()
         self.progress_manager = state_manager.ProgressManager()
@@ -233,6 +251,9 @@ class KeyQuestApp:
         self.game_time = 0
 
         self.load_progress()
+
+        # Apply user font scale (or DPI auto-detect) after settings are loaded.
+        self._rebuild_fonts()
 
         # Check and update daily streak
         self.check_and_update_streak()
@@ -425,6 +446,14 @@ class KeyQuestApp:
                     'get_text': lambda: f"Practice Topic: {self.state.settings.sentence_language}",
                     'get_explanation': lambda: menu_handler.get_language_explanation(self.state.settings.sentence_language),
                     'cycle': menu_handler.cycle_language
+                },
+                {
+                    'name': 'font_scale',
+                    'get_value': lambda: self.state.settings.font_scale,
+                    'set_value': lambda v: setattr(self.state.settings, 'font_scale', v),
+                    'get_text': lambda: f"Font Size: {self.state.settings.font_scale}",
+                    'get_explanation': lambda: menu_handler.get_font_scale_explanation(self.state.settings.font_scale),
+                    'cycle': menu_handler.cycle_font_scale
                 }
             ],
             speech_system=self.speech,
@@ -523,6 +552,8 @@ class KeyQuestApp:
             if self.practice_sentences:
                 print(f"First sentence: {self.practice_sentences[0]}")
                 print(f"Last sentence: {self.practice_sentences[-1]}")
+        elif option_name == "font_scale":
+            self._rebuild_fonts()
 
     def _quit_app(self):
         """Quit the application."""
@@ -985,6 +1016,7 @@ class KeyQuestApp:
                 return
             if event.key != pygame.K_ESCAPE:
                 self.escape_guard.reset()
+                self._escape_remaining = 0
             if self.state.mode == "MENU":
                 self.handle_menu_input(event, mods)
             elif self.state.mode == "KEYBOARD_EXPLORER":
@@ -1077,6 +1109,7 @@ class KeyQuestApp:
         policy = self._escape_policy()
         if not policy:
             self.escape_guard.reset()
+            self._escape_remaining = 0
             return False
 
         completed, remaining = self.escape_guard.register_escape(
@@ -1084,11 +1117,17 @@ class KeyQuestApp:
             required_presses=policy["required_presses"],
         )
         if not completed:
+            self._escape_remaining = remaining
+            self._escape_noun = policy["noun"]
             self.speech.say(
                 f"Escape. Press {remaining} more time{'s' if remaining != 1 else ''} to {policy['noun']}.",
                 priority=True,
             )
             return True
+
+        # Sequence complete — clear the visual counter.
+        self._escape_remaining = 0
+        self._escape_noun = ""
 
         if policy["action"] == "finish_practice":
             self.finish_practice()
@@ -1221,6 +1260,38 @@ class KeyQuestApp:
 
         BG, FG, ACCENT, HILITE = theme_manager.get_theme_colors(theme)
 
+    def _rebuild_fonts(self):
+        """Recreate fonts at the user-selected (or DPI-auto) scale factor.
+
+        Called once at startup (after load_progress) and whenever the
+        Font Size option is changed.  Updates self.*_font and pushes the
+        new font objects into every game object so they don't keep stale
+        references.
+        """
+        scale_str = self.state.settings.font_scale
+        if scale_str == "auto":
+            scale = _detect_dpi_scale()
+        else:
+            try:
+                scale = float(scale_str.rstrip("%")) / 100.0
+            except Exception:
+                scale = 1.0
+        scale = max(1.0, min(scale, 2.0))  # clamp to sane range
+
+        title_sz = max(24, round(TITLE_SIZE * scale))
+        text_sz = max(18, round(TEXT_SIZE * scale))
+        small_sz = max(14, round(SMALL_SIZE * scale))
+
+        self.title_font = pygame.freetype.SysFont(FONT_NAME, title_sz)
+        self.text_font = pygame.freetype.SysFont(FONT_NAME, text_sz)
+        self.small_font = pygame.freetype.SysFont(FONT_NAME, small_sz)
+
+        # Propagate to game objects that cache fonts at construction time.
+        for game in self.games:
+            game.title_font = self.title_font
+            game.text_font = self.text_font
+            game.small_font = self.small_font
+
     # ==================== TUTORIAL (IMPROVED) ====================
     def start_tutorial(self):
         self.state.mode = "TUTORIAL"
@@ -1344,8 +1415,8 @@ class KeyQuestApp:
             self.say_menu()
             return
 
+        t = self.state.tutorial
         if event.key == pygame.K_SPACE and input_utils.mod_ctrl(mods):
-            t = self.state.tutorial
             if t.in_intro and t.intro_items:
                 name, desc = t.intro_items[t.intro_index]
                 key_friendly = tutorial_data.FRIENDLY.get(name, name)
@@ -1357,8 +1428,6 @@ class KeyQuestApp:
             else:
                 self.speech.say(f"Press {tutorial_data.FRIENDLY[self.state.tutorial.required_name]}", priority=True, protect_seconds=2.0)
             return
-
-        t = self.state.tutorial
 
         if t.in_intro:
             if event.key == pygame.K_UP and t.intro_items:
@@ -1438,6 +1507,7 @@ class KeyQuestApp:
 
         if correct_key:
             self.audio.beep_ok()
+            self.trigger_flash((0, 80, 0), 0.12)
             t.total_correct += 1
             t.phase_correct += 1
             t.counts_done[t.required_name] += 1
@@ -1449,6 +1519,7 @@ class KeyQuestApp:
             self.load_tutorial_prompt()
         else:
             self.audio.beep_bad()
+            self.trigger_flash((100, 0, 0), 0.12)
             target = t.required_name
             pressed = pressed_name
             t.phase_mistakes += 1
@@ -1896,6 +1967,16 @@ class KeyQuestApp:
                 self.start_lesson()
 
     # ==================== DRAWING ====================
+    def trigger_flash(self, color: tuple, duration: float = 0.12) -> None:
+        """Schedule a brief color overlay for visual keystroke feedback.
+
+        Provides a visual equivalent of beep_ok (green) and beep_bad (red)
+        for deaf or hard-of-hearing users. Safe to call every keystroke —
+        the overlay lasts only ~120 ms and is drawn at low opacity.
+        """
+        self._flash_color = color
+        self._flash_until = time.time() + duration
+
     def draw(self):
         self.screen.fill(BG)
         if self.state.mode == "MENU":
@@ -1938,6 +2019,23 @@ class KeyQuestApp:
             self.draw_free_practice_ready()
         elif self.state.mode == "FREE_PRACTICE":
             self.draw_lesson()  # Reuse lesson drawing
+
+        # Escape press counter — shown while user is mid-sequence (visual complement to speech).
+        if self._escape_remaining > 0:
+            presses = self._escape_remaining
+            noun = self._escape_noun
+            msg = (
+                f"Escape: {presses} more press{'es' if presses != 1 else ''} to {noun}"
+            )
+            esc_surf, _ = self.small_font.render(msg, ACCENT)
+            self.screen.blit(esc_surf, (SCREEN_W // 2 - esc_surf.get_width() // 2, 6))
+
+        # Render keystroke flash overlay last so it appears above all content.
+        if self._flash_until > time.time():
+            from ui.a11y import draw_keystroke_flash
+            elapsed = self._flash_until - time.time()
+            alpha = int(min(60, elapsed * 500))
+            draw_keystroke_flash(self.screen, self._flash_color, alpha, SCREEN_W, SCREEN_H)
 
     def draw_menu(self):
         streak_text = ""
@@ -2150,6 +2248,7 @@ class KeyQuestApp:
             small_font=self.small_font,
             wrap_text=self._wrap_text,
             screen_w=SCREEN_W,
+            screen_h=SCREEN_H,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2264,8 +2363,11 @@ class KeyQuestApp:
         draw_results_screen(
             screen=self.screen,
             text_font=self.text_font,
+            small_font=self.small_font,
             screen_w=SCREEN_W,
+            screen_h=SCREEN_H,
             fg=FG,
+            accent=ACCENT,
             results_text=self.state.results_text,
         )
 

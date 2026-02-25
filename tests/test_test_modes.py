@@ -52,6 +52,9 @@ class _DummyApp:
     def load_next_practice_sentence(self):
         raise AssertionError("load_next_practice_sentence should not be called in this test")
 
+    def trigger_flash(self, color, duration=0.12):
+        pass
+
 
 class _DummyEvent:
     def __init__(self, unicode):

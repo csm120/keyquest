@@ -9,8 +9,8 @@ def show_badge_notifications(app) -> None:
         badge = badge_manager.get_badge_info(badge_id)
 
         message = (
-            f"🏆 Badge Unlocked! 🏆\n\n"
-            f"{badge['emoji']} {badge['name']}\n\n"
+            f"Badge Unlocked!\n\n"
+            f"{badge['name']}\n\n"
             f"{badge['description']}\n\n"
             f"You now have {len(app.state.settings.earned_badges)} "
             f"of {badge_manager.get_badge_count()} badges!"
@@ -31,7 +31,7 @@ def show_level_up_notification(app, xp_result: dict) -> None:
         return
 
     message = (
-        f"🎉 LEVEL UP! 🎉\n\n"
+        f"LEVEL UP!\n\n"
         f"Level {xp_result['new_level']}: {xp_result['level_name']}\n\n"
         f"Total XP: {xp_result['total_xp']:,}\n\n"
         f"Keep practicing to reach the next level!"

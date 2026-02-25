@@ -464,11 +464,13 @@ def process_lesson_typing(app, event) -> None:
             pressed_key_name = lesson_manager.SPECIAL_KEY_NAMES[event.key]
             if pressed_key_name == target:
                 app.audio.beep_ok()
+                app.trigger_flash((0, 80, 0), 0.12)
                 lesson_state.tracker.record_keystroke(target, True)
                 key_analytics.record_keystroke(app.state.settings, target.lower(), True)
                 next_lesson_item(app)
                 return
             app.audio.beep_bad()
+            app.trigger_flash((100, 0, 0), 0.12)
             lesson_state.tracker.record_keystroke(pressed_key_name, False)
             key_analytics.record_keystroke(app.state.settings, pressed_key_name.lower(), False)
             app.speech.say(f"That was {pressed_key_name}. Try {target}.", priority=True)
@@ -487,6 +489,7 @@ def process_lesson_typing(app, event) -> None:
 
     if not target.startswith(typed):
         app.audio.beep_bad()
+        app.trigger_flash((100, 0, 0), 0.12)
         lesson_state.tracker.record_keystroke(ch, False)
         key_analytics.record_keystroke(app.state.settings, ch.lower(), False)
         lesson_state.typed = ""

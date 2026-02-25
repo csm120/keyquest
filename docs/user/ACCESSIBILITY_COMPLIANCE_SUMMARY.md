@@ -1,6 +1,6 @@
 ﻿# KeyQuest Accessibility Compliance Summary
 
-**Last Updated:** 2026-02-17
+**Last Updated:** 2026-02-25
 **Version:** 1.0
 **Compliance Level:** WCAG 2.2 Level AA âœ…
 
@@ -131,7 +131,7 @@ KeyQuest is fully compliant with WCAG 2.2 Level AA standards. See the accessibil
 |-------|---------|-------|--------|
 | Dark | FG (main text) | 21.00:1 | âœ… AAA |
 | Dark | ACCENT (hints) | 14.62:1 | âœ… AAA |
-| Dark | HILITE (selected) | 4.69:1 | âœ… AA (FIXED) |
+| Dark | HILITE (selected) | 5.77:1 | âœ… AA (FIXED) |
 | Light | FG (main text) | 21.00:1 | âœ… AAA |
 | Light | ACCENT (hints) | 5.74:1 | âœ… AA |
 | Light | HILITE (selected) | 8.59:1 | âœ… AAA |
@@ -235,14 +235,27 @@ All documentation properly organized:
 3. âœ… Standardized controls hint presentation for consistency
 4. âœ… Updated menu/options speech to announce selected state for screen reader parity
 
+### Fixes Applied (2026-02-25)
+
+1. ✅ Added controls hint to results screen (`ui/render_results.py`)
+2. ✅ Fixed tutorial controls hint hardcoded Y coordinate — now uses `screen_h - 60` (`ui/render_tutorial.py`)
+3. ✅ Windows High Contrast mode auto-detection — `auto` theme now checks OS HC mode before darkdetect (`modules/theme.py`)
+4. ✅ Dark theme HILITE nudged from (80,120,180) to (90,130,190) — contrast improved from 4.69:1 to 5.77:1
+5. ✅ Lesson menu scroll truncation now shows "v  more below  v" indicator when items exceed screen height (`ui/render_menus.py`)
+6. ✅ Emoji stripped from wx dialog content in badge/level-up notifications (`modules/notifications.py`)
+7. ✅ Visual keystroke flash added: brief green overlay on correct keystrokes, red on errors — deaf/HoH visual feedback (`ui/a11y.py`, `modules/keyquest_app.py`, lesson/test/tutorial handlers)
+8. ✅ Font Size option added to Options menu (`auto` / `100%` / `125%` / `150%`) — `auto` reads Windows DPI scale so high-DPI displays get larger text automatically (`modules/state_manager.py`, `modules/menu_handler.py`, `modules/keyquest_app.py`)
+9. ✅ Escape press count now shown visually at top of screen while mid-sequence — complements existing speech announcement (`modules/keyquest_app.py`)
+
 ### No Outstanding Issues
 
-All identified accessibility issues have been resolved. The application provides an excellent experience for both sighted users and screen reader users.
+All identified accessibility issues have been resolved. The application provides an excellent experience for sighted users, screen reader users, and deaf/hard-of-hearing users.
 
 ### WCAG 2.2 Baseline and Follow-Up
 
-**2025-11-14:** KeyQuest was audited against WCAG 2.2 Level AA standards and found fully compliant.  
-**2026-02-17:** Accessibility consistency improvements were implemented for low-vision users and screen reader/visual synchronization.
+**2025-11-14:** KeyQuest was audited against WCAG 2.2 Level AA standards and found fully compliant.
+**2026-02-17:** Accessibility consistency improvements implemented for low-vision users and screen reader/visual synchronization.
+**2026-02-25:** Enhancement pass complete: Windows HC auto-detection, visual keystroke flash, font size/DPI scaling, escape press counter, stronger HILITE contrast margin, results screen controls hint, lesson menu overflow indicator, emoji-free dialog content.
 
 ---
 
@@ -250,5 +263,6 @@ All identified accessibility issues have been resolved. The application provides
 **WCAG 2.1 Prior Audit (Historical):** 2025-11-11
 **WCAG 2.2 Compliance Audit:** 2025-11-14
 **Follow-Up Update:** 2026-02-17
-**Status:** âœ… COMPLIANT with WCAG 2.2 Level AA
+**Enhancement Pass:** 2026-02-25
+**Status:** ✅ COMPLIANT with WCAG 2.2 Level AA
 

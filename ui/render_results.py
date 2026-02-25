@@ -1,9 +1,15 @@
+from ui.a11y import draw_controls_hint
+
+
 def draw_results_screen(
     *,
     screen,
     text_font,
+    small_font,
     screen_w: int,
+    screen_h: int,
     fg,
+    accent,
     results_text: str,
 ):
     lines = []
@@ -25,4 +31,13 @@ def draw_results_screen(
         surf, _ = text_font.render(ln, fg)
         screen.blit(surf, (screen_w // 2 - surf.get_width() // 2, y))
         y += 40
+
+    draw_controls_hint(
+        screen=screen,
+        small_font=small_font,
+        text="Space/Enter continue; Esc menu",
+        screen_w=screen_w,
+        y=screen_h - 50,
+        accent=accent,
+    )
 

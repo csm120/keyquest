@@ -21,6 +21,7 @@ def draw_tutorial_screen(
     small_font,
     wrap_text,
     screen_w: int,
+    screen_h: int,
     fg,
     accent,
     hilite,
@@ -49,7 +50,7 @@ def draw_tutorial_screen(
             small_font=small_font,
             text="Up/Down review keys; Ctrl+Space repeat; Enter/Space start practice; Esc menu",
             screen_w=screen_w,
-            y=540,
+            y=screen_h - 60,
             accent=accent,
         )
         return

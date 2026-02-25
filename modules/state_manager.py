@@ -222,6 +222,7 @@ class Settings:
     tts_voice: str = ""  # Voice ID (empty = default voice)
     # Visual options
     visual_theme: str = "auto"  # "auto", "dark", "light", "high_contrast"
+    font_scale: str = "auto"  # "auto" (DPI-detected), "100%", "125%", "150%"
     # Sentence language/practice topic (canonical list is in modules/sentences_manager.py)
     sentence_language: str = "English"
     # Daily streak tracking
@@ -325,6 +326,7 @@ class ProgressManager:
             state.settings.speech_mode = data.get("speech_mode", "auto")
             state.settings.typing_sound_intensity = data.get("typing_sound_intensity", "normal")
             state.settings.visual_theme = data.get("visual_theme", "auto")
+            state.settings.font_scale = data.get("font_scale", "auto")
             state.settings.sentence_language = data.get("sentence_language", "English")
 
             # Load TTS options
@@ -401,6 +403,7 @@ class ProgressManager:
             state.settings.speech_mode = "auto"
             state.settings.typing_sound_intensity = "normal"
             state.settings.visual_theme = "auto"
+            state.settings.font_scale = "auto"
             state.settings.sentence_language = "English"
 
     def save(self, state: AppState) -> None:
@@ -417,6 +420,7 @@ class ProgressManager:
                 "speech_mode": state.settings.speech_mode,
                 "typing_sound_intensity": state.settings.typing_sound_intensity,
                 "visual_theme": state.settings.visual_theme,
+                "font_scale": state.settings.font_scale,
                 "sentence_language": state.settings.sentence_language,
                 # TTS options
                 "tts_rate": state.settings.tts_rate,

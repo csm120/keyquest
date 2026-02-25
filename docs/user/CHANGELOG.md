@@ -4,6 +4,50 @@ Canonical handoff / current context: `docs/dev/HANDOFF.md`
 
 Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<line>`) from before the modularization work.
 
+## 2026-02-25 - Accessibility Enhancements
+
+### User Guide Updated (README.html)
+- Options section now lists all 8 settings individually, including the new Font Size option.
+- Quick Start updated to note that the remaining Escape press count is shown on screen.
+- Accessibility section expanded with details on HC auto-detection, font scaling, visual keystroke flash, and the escape counter.
+
+### Font Size / DPI Scaling (Options Menu)
+- A new **Font Size** option in the Options menu lets you choose between `auto`, `100%`, `125%`, and `150%`.
+- `auto` (default) reads your Windows display scale setting and applies it automatically — so users running 125% or 150% DPI get proportionally larger text without any manual configuration.
+- Explicit choices override DPI detection for users who prefer a fixed size regardless of system settings.
+- Font size is saved with your other settings and applied every time the app starts.
+
+### Escape Press Visual Counter
+- When exiting an active mode requires three Escape presses, the remaining press count is now shown visually at the top of the screen (e.g., "Escape: 2 more presses to exit").
+- This is a visual complement to the existing speech announcement — both update together.
+- The counter disappears automatically once exit completes or any other key is pressed.
+
+### Visual Keystroke Feedback (Deaf / Hard-of-Hearing)
+- Correct keystrokes now produce a brief green screen flash in addition to the audio beep.
+- Incorrect keystrokes produce a brief red screen flash in addition to the error beep.
+- Flash is ~120 ms at low opacity — visible but unobtrusive, and well under the WCAG 2.3.1 photosensitivity threshold.
+- Affects: tutorial, lessons, speed test, and sentence practice.
+
+### Windows High Contrast Mode Auto-Detection
+- `Auto` theme setting now detects Windows High Contrast mode at the OS level.
+- Users who enable High Contrast in Windows Settings → Ease of Access no longer need to manually select it in the Options menu — it activates automatically.
+
+### Lesson Menu Overflow Indicator
+- When more lessons are available than fit on screen, a "v  more below  v" indicator is now shown, so users know to keep navigating down.
+
+### Results Screen Controls Hint
+- The results screen now shows the standard controls hint at the bottom ("Space/Enter continue; Esc menu"), consistent with all other screens.
+
+### Dark Theme Contrast Improvement
+- Dark theme highlight color contrast improved from 4.69:1 to 5.77:1 (WCAG AA minimum is 4.5:1), providing a more comfortable margin for low-vision users.
+
+### Cleaner Screen Reader Dialog Text
+- Badge unlock and level-up dialogs no longer include emoji characters in their text content.
+- Screen readers that read dialog text directly no longer expand emoji verbosely (e.g., "trophy emoji Badge Unlocked").
+- Speech announcements, which already used clean text, are unchanged.
+
+---
+
 ## 2026-02-19 - Version 1.0 Release + About Menu
 
 - Marked this milestone as **Version 1.0** (`modules/version.py`).

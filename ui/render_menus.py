@@ -68,6 +68,7 @@ def draw_lesson_menu(
     screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 50))
 
     y = 120
+    truncated = False
     for idx, lesson_num in enumerate(unlocked_lessons):
         if lesson_num < len(lesson_names):
             lesson_name = lesson_names[lesson_num]
@@ -87,7 +88,13 @@ def draw_lesson_menu(
         y += 40
 
         if y > screen_h - 100:
+            if idx < len(unlocked_lessons) - 1:
+                truncated = True
             break
+
+    if truncated:
+        more_surf, _ = small_font.render("v  more below  v", accent)
+        screen.blit(more_surf, (screen_w // 2 - more_surf.get_width() // 2, screen_h - 95))
 
     draw_controls_hint(
         screen=screen,

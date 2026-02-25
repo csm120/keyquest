@@ -4,7 +4,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 
 ## Snapshot
 
-- **Last updated**: 2026-02-19 (Version 1.0 published to GitHub + release assets uploaded)
+- **Last updated**: 2026-02-25 (Accessibility enhancement pass complete — font scale, DPI, escape visual)
 - **Version**: 1.0 (source of truth: `modules/version.py`)
 - **Platform**: Windows (full accessibility) / Linux (TTS only)
 - **Accessibility**: See user accessibility docs in `docs/user/`.
@@ -101,6 +101,76 @@ This is the single starting point for any human or AI working on KeyQuest.
 - Update `docs/user/CHANGELOG.md` for user-visible behavior changes.
 
 ## Recent Changes
+
+### 2026-02-25: Accessibility Enhancement Pass (complete)
+
+All items from the accessibility recommendations audit are now implemented. `docs/dev/ACCESSIBILITY_RECOMMENDATIONS.md` has been deleted. `docs/user/ACCESSIBILITY_COMPLIANCE_SUMMARY.md` updated.
+
+**Final three items completed this session:**
+
+**`modules/state_manager.py`**
+- Added `font_scale: str = "auto"` to `Settings` dataclass; persisted via `load`/`save`.
+
+**`modules/menu_handler.py`**
+- Added `get_font_scale_explanation(scale)` and `cycle_font_scale(current, direction)` helpers.
+
+**`modules/keyquest_app.py`**
+- Added `_detect_dpi_scale()` module-level function (ctypes `GetDpiForSystem` / 96).
+- Added `_rebuild_fonts()` method: recreates `title_font`, `text_font`, `small_font` at the effective scale; propagates new font objects to all cached game instances.
+- `_rebuild_fonts()` called at startup (after `load_progress`) and on Font Size option change.
+- Added `Font Size` option to Options menu (`auto` / `100%` / `125%` / `150%`).
+- Added `_escape_remaining` / `_escape_noun` instance state.
+- `_handle_escape_shortcut()` sets `_escape_remaining` on partial press, clears on completion or reset.
+- `draw()` renders a centered top-of-screen text counter while `_escape_remaining > 0` (visual complement to the existing speech announcement).
+
+**`tests/test_test_modes.py`**
+- Added `trigger_flash` stub to `_DummyApp` (required by `test_modes._record_typing_error`).
+
+**`README.html`**
+- Options section expanded from one line to a full itemized list of all 8 settings (including Font Size).
+- Quick Start Escape note updated to mention the on-screen remaining press counter.
+- Accessibility section expanded with four new bullets: HC auto-detection, font size/DPI scaling, visual keystroke flash, escape press counter.
+
+**Earlier items (same session):**
+
+**`ui/a11y.py`**
+- Added `draw_keystroke_flash(screen, color, alpha, screen_w, screen_h)` — semi-transparent color overlay for visual keystroke feedback.
+
+**`ui/render_results.py`**
+- Added `small_font`, `screen_h`, `accent` parameters.
+- Added `draw_controls_hint()` at bottom ("Space/Enter continue; Esc menu") — this was the only render screen missing a controls hint.
+
+**`ui/render_tutorial.py`**
+- Added `screen_h` parameter.
+- Fixed tutorial intro controls hint Y from hardcoded `540` to `screen_h - 60`, matching all other screens.
+
+**`ui/render_menus.py`**
+- `draw_lesson_menu()`: silently truncated lesson list now shows "v  more below  v" when items exceed screen height.
+
+**`modules/theme.py`**
+- `detect_theme()` now checks Windows High Contrast mode (via `ctypes` / `SPI_GETHIGHCONTRAST`) before `darkdetect`. Users with HC enabled in Windows Settings get the in-app `high_contrast` theme automatically.
+- Dark theme HILITE nudged from `(80, 120, 180)` → `(90, 130, 190)`: contrast ratio improved from 4.69:1 to 5.77:1, giving comfortable margin above the 4.5:1 WCAG AA minimum.
+
+**`modules/notifications.py`**
+- Removed emoji characters (`🏆`, `🎉`, `badge['emoji']` prefix) from badge and level-up dialog text content. Screen readers that intercept wx TextCtrl content directly no longer expand emoji verbosely. Speech announcement paths (which already used clean text) unchanged.
+
+**`modules/keyquest_app.py`**
+- Added `_flash_color` / `_flash_until` state and `trigger_flash(color, duration=0.12)` method.
+- `draw()` renders a fading flash overlay after all content when a flash is active.
+- `draw_results()` call updated with new `small_font`, `screen_h`, `accent` params.
+- `draw_tutorial()` call updated with new `screen_h` param.
+- Tutorial correct/incorrect handlers call `self.trigger_flash()` (green / red).
+
+**`modules/lesson_mode.py`**
+- `process_lesson_typing()`: calls `app.trigger_flash((0, 80, 0), 0.12)` on correct keystroke, `app.trigger_flash((100, 0, 0), 0.12)` on error.
+
+**`modules/test_modes.py`**
+- `_record_typing_error()`: calls `app.trigger_flash((100, 0, 0), 0.12)` on typing error.
+
+**Not implemented (future work — documented in `docs/dev/ACCESSIBILITY_RECOMMENDATIONS.md`):**
+- User-adjustable font size (`modules/config.py`) — requires Options menu entry + font re-creation on change.
+- DPI scaling — should be paired with font size work; risk of layout regressions across all screens.
+- Escape guard visual count — speech already announces remaining presses; visual overlay is low priority.
 
 ### 2026-02-19: Version 1.0 Release + About Screen
 

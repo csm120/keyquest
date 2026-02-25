@@ -164,6 +164,33 @@ def cycle_speech_mode(current_mode: str, direction: str = "right") -> str:
     return modes[new_idx]
 
 
+def get_font_scale_explanation(scale: str) -> str:
+    """Return a description of the current font scale setting."""
+    if scale == "auto":
+        return "Automatically matches your display's DPI scaling."
+    if scale == "100%":
+        return "Default text size."
+    if scale == "125%":
+        return "Medium larger text, good for HiDPI displays."
+    if scale == "150%":
+        return "Large text, easiest to read at a distance."
+    return ""
+
+
+def cycle_font_scale(current_scale: str, direction: str = "right") -> str:
+    """Cycle through font scale options."""
+    scales = ["auto", "100%", "125%", "150%"]
+    try:
+        current_idx = scales.index(current_scale)
+    except ValueError:
+        current_idx = 0
+    if direction == "right":
+        new_idx = (current_idx + 1) % len(scales)
+    else:
+        new_idx = (current_idx - 1) % len(scales)
+    return scales[new_idx]
+
+
 def cycle_theme(current_theme: str, direction: str = "right") -> str:
     """Cycle through visual theme options.
 
