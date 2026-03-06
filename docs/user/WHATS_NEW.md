@@ -1,6 +1,6 @@
 # New in Key Quest
 
-## Friday March 6th 2026
+## Friday March 6th 2026 at 4:47PM
 
 KeyQuest now has a clearer help and update experience.
 
@@ -18,10 +18,11 @@ Typing reminders are clearer.
 
 The screen is easier to follow while you type and move through menus.
 
-- Long typing prompts and your typed text now wrap instead of running off in one long line.
-- Menus keep the current selection in view more clearly so you do not have to visually hunt through a long list.
-- KeyQuest now shows when there are more menu items above or below the part you can currently see.
-- Several screens use stronger spacing and grouping so the active area is easier to find.
+- Long sentences no longer try to stay on one line. They break across lines so they are easier to read.
+- Your typed text can also continue onto the next line instead of getting cramped.
+- Long menus are easier to follow because the current item stays in view more clearly.
+- KeyQuest now tells you visually when there are more menu items above or below the part you are looking at.
+- Several screens use stronger spacing and grouping so the part you should pay attention to stands out better.
 - The guide and What's New page are being kept more current so it is easier to see what changed.
 
 ## Wednesday February 25th 2026
