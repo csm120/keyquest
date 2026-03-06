@@ -1,10 +1,22 @@
-# KeyQuest Readme
+# KeyQuest
 
-The user-facing guide is now in `README.html`.
+KeyQuest is an accessible typing practice program for keyboard, screen reader, and low-vision users.
 
-Open `README.html` in a web browser for the plain-language version.
+## For Users
 
-Recent user-facing updates are also tracked in `docs/user/CHANGELOG.md`.
+Open [README.html](README.html) in a web browser for the plain-language guide.
 
-Website: https://webfriendlyhelp.com  
-Feedback: [help@webfriendlyhelp.com](mailto:help@webfriendlyhelp.com?subject=KeyQuest%20Feedback)
+Recent user-facing changes are tracked in [WHATS_NEW.md](docs/user/WHATS_NEW.md).
+
+## For Contributors
+
+Developer notes and session context live under [docs/dev](docs/dev).
+
+- Start with [SESSION_START_GUIDE.md](docs/dev/SESSION_START_GUIDE.md)
+- Current project context is in [HANDOFF.md](docs/dev/HANDOFF.md)
+- Detailed project history is in [CHANGELOG.md](docs/dev/CHANGELOG.md)
+
+## Contact
+
+- Website: webfriendlyhelp.com
+- Feedback: help@webfriendlyhelp.com

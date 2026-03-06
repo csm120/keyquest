@@ -101,6 +101,10 @@ from ui.render_tutorial import draw_tutorial_screen
 from ui.text_wrap import wrap_text
 from ui.render_updating import draw_updating_screen
 
+
+PAGES_GUIDE_URL = "https://csm120.github.io/KeyQuest/"
+PAGES_CHANGELOG_URL = "https://csm120.github.io/KeyQuest/changelog.html"
+
 # Optional wxPython for accessible dialogs
 try:
     import wx
@@ -530,6 +534,8 @@ class KeyQuestApp:
             self.start_update_check(manual=True)
         elif choice == "Key Quest Instructions":
             self.open_keyquest_instructions()
+        elif choice == "New in Key Quest":
+            self.open_keyquest_whats_new()
         elif choice == "About":
             self.show_about_menu()
         elif choice == "Quit":
@@ -543,17 +549,20 @@ class KeyQuestApp:
         )
 
     def open_keyquest_instructions(self):
-        """Open the user instructions in the default browser."""
-        readme_path = os.path.join(get_app_dir(), "README.html")
-        if not os.path.exists(readme_path):
-            self.speech.say("Key Quest Instructions file was not found.", priority=True)
-            return
-
+        """Open the published user instructions in the default browser."""
         self.speech.say("Opening Key Quest Instructions.", priority=True)
         try:
-            webbrowser.open(readme_path, new=2)
+            webbrowser.open(PAGES_GUIDE_URL, new=2)
         except Exception:
             self.speech.say("Unable to open Key Quest Instructions.", priority=True)
+
+    def open_keyquest_whats_new(self):
+        """Open the published changelog page in the default browser."""
+        self.speech.say("Opening New in Key Quest.", priority=True)
+        try:
+            webbrowser.open(PAGES_CHANGELOG_URL, new=2)
+        except Exception:
+            self.speech.say("Unable to open New in Key Quest.", priority=True)
 
     def _handle_about_select(self, item):
         item_id = item.get("id", "")
@@ -2719,5 +2728,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 

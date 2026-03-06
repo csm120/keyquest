@@ -119,6 +119,7 @@ class TestProgressManager(unittest.TestCase):
         self.assertIn("Pet Shop: P", items)
         self.assertIn("Badges: B", items)
         self.assertIn("Check for Updates: U", items)
+        self.assertIn("New in Key Quest: N", items)
         self.assertIn("About: A", items)
         self.assertNotIn("View Quests: V", items)
         self.assertNotIn("View Badges: V", items)
@@ -127,6 +128,8 @@ class TestProgressManager(unittest.TestCase):
         self.assertLess(items.index("Quests: Q"), items.index("Pets: P"))
         self.assertLess(items.index("Pets: P"), items.index("Pet Shop: P"))
         self.assertLess(items.index("Check for Updates: U"), items.index("Key Quest Instructions: I"))
+        self.assertLess(items.index("Key Quest Instructions: I"), items.index("New in Key Quest: N"))
+        self.assertLess(items.index("New in Key Quest: N"), items.index("About: A"))
         self.assertLess(items.index("Key Quest Instructions: I"), items.index("About: A"))
         self.assertEqual(items[-1], "Quit: Q")
 

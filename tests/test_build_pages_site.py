@@ -21,6 +21,11 @@ class TestBuildPagesSite(unittest.TestCase):
         html = MODULE.build_index_page()
         self.assertIn('href="changelog.html"', html)
 
+    def test_build_changelog_page_uses_user_friendly_title(self):
+        html = MODULE.build_changelog_page()
+        self.assertIn("<title>New in Key Quest</title>", html)
+        self.assertIn("Back to the KeyQuest User Guide", html)
+
 
 if __name__ == "__main__":
     unittest.main()

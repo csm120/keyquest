@@ -10,7 +10,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_DIR = REPO_ROOT / "site"
 README_HTML = REPO_ROOT / "README.html"
-CHANGELOG_MD = REPO_ROOT / "docs" / "user" / "CHANGELOG.md"
+CHANGELOG_MD = REPO_ROOT / "docs" / "user" / "WHATS_NEW.md"
 
 
 def _inline_markup(text: str) -> str:
@@ -115,7 +115,7 @@ def build_changelog_page() -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KeyQuest Changelog</title>
+  <title>New in Key Quest</title>
   <style>
     body {{
       font-family: Arial, sans-serif;
@@ -154,7 +154,7 @@ def build_changelog_page() -> str:
 </head>
 <body>
   <main>
-    <p><a href="index.html">Back to User Guide</a></p>
+    <p><a href="index.html">Back to the KeyQuest User Guide</a></p>
     {body}
   </main>
 </body>
@@ -164,11 +164,10 @@ def build_changelog_page() -> str:
 
 def build_index_page() -> str:
     source = README_HTML.read_text(encoding="utf-8")
-    nav_link = '<li><a href="changelog.html">Changelog</a></li>'
-    if nav_link not in source:
+    if 'href="changelog.html"' not in source:
         source = source.replace(
             '<li><a href="#help">Need Help</a></li>',
-            '<li><a href="changelog.html">Changelog</a></li>\n      <li><a href="#help">Need Help</a></li>',
+            '<li><a href="changelog.html">New in Key Quest</a></li>\n      <li><a href="#help">Need Help</a></li>',
         )
     return source
 

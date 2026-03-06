@@ -283,7 +283,7 @@ class AppState:
     free_practice: FreePracticeState = field(default_factory=FreePracticeState)
     results_text: str = ""
     backend_label: str = ""
-    menu_items: list = field(default_factory=lambda: ["Tutorial: T", "Keyboard Explorer: K", "Lessons: L", "Free Practice: F", "Speed Test: S", "Sentence Practice: S", "Games: G", "Quests: Q", "Pets: P", "Pet Shop: P", "Badges: B", "Progress Dashboard: P", "Daily Challenge: D", "Key Performance: K", "Options: O", "Learn Sounds: L", "Check for Updates: U", "Key Quest Instructions: I", "About: A", "Quit: Q"])
+    menu_items: list = field(default_factory=lambda: ["Tutorial: T", "Keyboard Explorer: K", "Lessons: L", "Free Practice: F", "Speed Test: S", "Sentence Practice: S", "Games: G", "Quests: Q", "Pets: P", "Pet Shop: P", "Badges: B", "Progress Dashboard: P", "Daily Challenge: D", "Key Performance: K", "Options: O", "Learn Sounds: L", "Check for Updates: U", "Key Quest Instructions: I", "New in Key Quest: N", "About: A", "Quit: Q"])
     menu_index: int = 0
     lesson_menu_index: int = 0  # Index in lesson submenu
     options_index: int = 0  # Index in options menu

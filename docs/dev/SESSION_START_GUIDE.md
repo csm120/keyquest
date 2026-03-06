@@ -9,7 +9,7 @@ Tell the assistant: **"Read docs/dev/HANDOFF.md"**.
 ## For the Assistant
 
 1. Read `docs/dev/HANDOFF.md` first.
-2. Read the top entry in `docs/user/CHANGELOG.md`.
+2. Read the top entry in `docs/dev/CHANGELOG.md`.
 3. Read additional docs only if the task needs them.
 
 ## Current Project Status
@@ -43,5 +43,5 @@ Tell the assistant: **"Read docs/dev/HANDOFF.md"**.
 
 - Keep speech and visual text aligned.
 - Use `priority=True` + `protect_seconds` for important announcements.
-- Update `docs/user/CHANGELOG.md` and `docs/dev/HANDOFF.md` for meaningful behavior changes.
+- Update `docs/dev/CHANGELOG.md`, `docs/user/WHATS_NEW.md`, and `docs/dev/HANDOFF.md` for meaningful behavior changes.
 - Prefer updating existing docs instead of creating new one-off markdown files.

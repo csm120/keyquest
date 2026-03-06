@@ -133,10 +133,10 @@ if os.path.exists(readme_html_src):
     shutil.copy(readme_html_src, os.path.join(docs_dst, 'README.html'))
     print("Copied README.html to distribution docs")
 
-changelog_src = os.path.join(REPO_ROOT, 'docs', 'user', 'CHANGELOG.md')
-if os.path.exists(changelog_src):
-    shutil.copy(changelog_src, os.path.join(docs_dst, 'CHANGELOG.md'))
-    print("Copied CHANGELOG.md to distribution docs")
+whats_new_src = os.path.join(REPO_ROOT, 'docs', 'user', 'WHATS_NEW.md')
+if os.path.exists(whats_new_src):
+    shutil.copy(whats_new_src, os.path.join(docs_dst, 'WHATS_NEW.md'))
+    print("Copied WHATS_NEW.md to distribution docs")
 
 # Copy readmes to root for easy access
 if os.path.exists(readme_src):

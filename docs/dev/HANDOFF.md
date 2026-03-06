@@ -11,13 +11,13 @@ This is the single starting point for any human or AI working on KeyQuest.
 
 ## Next Session Checklist
 
-1. Open `docs/dev/HANDOFF.md` and `docs/user/CHANGELOG.md` top entry.
+1. Open `docs/dev/HANDOFF.md` and `docs/dev/CHANGELOG.md` top entry.
 2. Run baseline checks before editing:
    - `python -m unittest`
    - `powershell -ExecutionPolicy Bypass -File tools/run_quality_checks.ps1`
 3. If changing user-visible behavior, update:
    - `README.html` (and pointer `README.md` only if needed)
-   - `docs/user/CHANGELOG.md`
+   - `docs/dev/CHANGELOG.md`
 4. For release work:
    - Build exe: `cmd /c tools\build\build_exe.bat --nopause`
    - Build installer: `cmd /c tools\build\build_installer.bat --nopause`
@@ -30,7 +30,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 ## Quick Start (For New Sessions)
 
 1. Read this file.
-2. Read the top entry in `docs/user/CHANGELOG.md`.
+2. Read the top entry in `docs/dev/CHANGELOG.md`.
 3. Start implementation from `modules/keyquest_app.py` and the relevant `modules/*` or `games/*` file.
 
 ## Repo Map (Where Things Live)
@@ -57,7 +57,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 - Single build entrypoint:
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target all -Clean` (exe + source)
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target installer` (installer only)
-- EXE packaging docs policy: include `README.md`, `README.html`, and `CHANGELOG.md` under `dist/KeyQuest/docs/`.
+- EXE packaging docs policy: include `README.md`, `README.html`, and user-facing docs under `dist/KeyQuest/docs/`.
 
 ## Current Status (High Level)
 
@@ -98,7 +98,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 - Use `self.speech.say("...", priority=True, protect_seconds=2.0)` for important announcements.
 - Keep visual and spoken content aligned.
 - Use `get_app_dir()` for runtime-safe path resolution (source and frozen exe).
-- Update `docs/user/CHANGELOG.md` for user-visible behavior changes.
+- Update `docs/dev/CHANGELOG.md`, `docs/user/WHATS_NEW.md`, and `docs/dev/HANDOFF.md` for meaningful behavior changes.
 
 ## Recent Changes
 
@@ -149,10 +149,10 @@ All items from the accessibility recommendations audit are now implemented. `doc
 
 **`modules/theme.py`**
 - `detect_theme()` now checks Windows High Contrast mode (via `ctypes` / `SPI_GETHIGHCONTRAST`) before `darkdetect`. Users with HC enabled in Windows Settings get the in-app `high_contrast` theme automatically.
-- Dark theme HILITE nudged from `(80, 120, 180)` → `(90, 130, 190)`: contrast ratio improved from 4.69:1 to 5.77:1, giving comfortable margin above the 4.5:1 WCAG AA minimum.
+- Dark theme HILITE nudged from `(80, 120, 180)` ? `(90, 130, 190)`: contrast ratio improved from 4.69:1 to 5.77:1, giving comfortable margin above the 4.5:1 WCAG AA minimum.
 
 **`modules/notifications.py`**
-- Removed emoji characters (`🏆`, `🎉`, `badge['emoji']` prefix) from badge and level-up dialog text content. Screen readers that intercept wx TextCtrl content directly no longer expand emoji verbosely. Speech announcement paths (which already used clean text) unchanged.
+- Removed emoji characters (`??`, `??`, `badge['emoji']` prefix) from badge and level-up dialog text content. Screen readers that intercept wx TextCtrl content directly no longer expand emoji verbosely. Speech announcement paths (which already used clean text) unchanged.
 
 **`modules/keyquest_app.py`**
 - Added `_flash_color` / `_flash_until` state and `trigger_flash(color, duration=0.12)` method.
@@ -216,7 +216,7 @@ All items from the accessibility recommendations audit are now implemented. `doc
   - Updated word selection to favor common lengths while still allowing short and rare very long words.
 - Documentation:
   - Updated `README.html` Hangman controls/details.
-  - Updated `docs/user/CHANGELOG.md` with this change set.
+  - Updated `docs/dev/CHANGELOG.md` with this change set.
 
 ### 2026-02-18: User Guide HTML + Packaging + Escape/Hotkey Doc Alignment
 
@@ -224,7 +224,7 @@ All items from the accessibility recommendations audit are now implemented. `doc
   - Replaced user-facing readme content with `README.html` (plain-language, main-menu organized).
   - Added WCAG-oriented page structure for the guide (landmarks, skip link, focus-visible styles).
   - Simplified `README.md` to a pointer to `README.html`.
-  - Updated `docs/user/CHANGELOG.md` with latest Hangman/readme/build notes.
+  - Updated `docs/dev/CHANGELOG.md` with latest Hangman/readme/build notes.
 - Build/distribution:
   - Updated `tools/build/KeyQuest-RootFolders.spec` to copy `README.html` to:
     - `dist/KeyQuest/README.html`
@@ -247,7 +247,7 @@ All items from the accessibility recommendations audit are now implemented. `doc
 - Tests:
   - Updated/added coverage in `tests/test_speech_format.py`, `tests/test_lesson_mode.py`, and `tests/test_test_modes.py`.
 - Docs:
-  - Updated `README.md` and `docs/user/CHANGELOG.md` to match implemented behavior.
+  - Updated `README.md` and `docs/dev/CHANGELOG.md` to match implemented behavior.
 
 ### 2026-02-14: Accessibility + Structure Follow-Through
 
@@ -258,7 +258,7 @@ All items from the accessibility recommendations audit are now implemented. `doc
 - Added adaptive tutorial flow (space-first onboarding, phase pacing based on performance, extra reps for troublesome keys).
 - Added typing sound intensity option (`subtle` / `normal` / `strong`) with persistence.
 - Updated PyInstaller spec for reorganized repo layout and stabilized Python 3.9 compatibility.
-- Updated exe distribution docs policy to include only `README.md` and `CHANGELOG.md` in `dist/KeyQuest/docs/`.
+- Updated exe distribution docs policy to include `README.md`, `README.html`, and user-facing docs in `dist/KeyQuest/docs/`.
 
 ### 2026-02-14: Startup Speech and Exit UX Follow-Up
 
@@ -270,4 +270,6 @@ All items from the accessibility recommendations audit are now implemented. `doc
 - `modules/speech_manager.py`:
   - Added fixed duplicate-speech debounce (`0.25s`) for identical rapid repeats.
 
-For full details, see the top entry in `docs/user/CHANGELOG.md`.
+For full details, see the top entry in `docs/dev/CHANGELOG.md`.
+
+

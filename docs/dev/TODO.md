@@ -1,6 +1,6 @@
 # KeyQuest - TODO (Living Checklist)
 
-This file tracks **pending** work only. When an item is completed, remove it (or move it into the changelog: `docs/user/CHANGELOG.md`).
+This file tracks **pending** work only. When an item is completed, remove it (or move it into the changelog: `docs/dev/CHANGELOG.md`).
 
 ## Current Focus
 
