@@ -355,7 +355,7 @@ Esc x3: Exit to main menu"""
         self.sentence_index = 0
         self.sentence_typed = ""
         self.sentence_correct = 0
-        self.sentence_feedback = "Type the sentence shown."
+        self.sentence_feedback = "Type the sentence exactly as shown, including capitals and punctuation."
 
     def _choose_word(self) -> tuple[str, str]:
         buckets = load_candidate_length_buckets()
@@ -600,9 +600,9 @@ Esc x3: Exit to main menu"""
         self.sentence_index = 0
         self.sentence_typed = ""
         self.sentence_correct = 0
-        self.sentence_feedback = "Type the sentence shown and press Enter."
+        self.sentence_feedback = "Type the sentence exactly as shown, including capitals and punctuation, then press Enter."
         self.speech.say(
-            "Sentence practice started. Type each sentence and press Enter.",
+            "Sentence practice started. Type each sentence exactly as shown, including capitalization and punctuation, then press Enter.",
             priority=True,
             protect_seconds=2.0,
         )
@@ -613,7 +613,7 @@ Esc x3: Exit to main menu"""
             return
         current = self.sentence_items[self.sentence_index]
         self.speech.say(
-            f"Sentence {self.sentence_index + 1} of {len(self.sentence_items)}. {current}",
+            f"Sentence {self.sentence_index + 1} of {len(self.sentence_items)}. Type it exactly as shown. {current}",
             priority=True,
             protect_seconds=2.5,
         )
@@ -821,7 +821,7 @@ Esc x3: Exit to main menu"""
             return None
         if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
             target = self.sentence_items[self.sentence_index]
-            if self.sentence_typed.strip().lower() == target.lower():
+            if self.sentence_typed == target:
                 self.sentence_correct += 1
                 self.sentence_feedback = "Correct sentence."
                 self.play_sound(sounds.level_complete())
@@ -954,14 +954,14 @@ Esc x3: Exit to main menu"""
         typed_label, _ = self.small_font.render("You typed:", self.ACCENT)
         self.screen.blit(typed_label, (60, 300))
         typed_value = self.sentence_typed if self.sentence_typed else "_"
-        typed_color = self.GOOD if current.lower().startswith(self.sentence_typed.lower()) else self.DANGER
+        typed_color = self.GOOD if current.startswith(self.sentence_typed) else self.DANGER
         typed_surf, _ = self.text_font.render(typed_value, typed_color)
         self.screen.blit(typed_surf, (60, 330))
 
         feedback_surf, _ = self.small_font.render(self.sentence_feedback, self.FG)
         self.screen.blit(feedback_surf, (60, 386))
 
-        hint, _ = self.small_font.render("Enter submit; Ctrl+Space remaining text; Esc back", self.ACCENT)
+        hint, _ = self.small_font.render("Match capitals and punctuation. Enter submit; Ctrl+Space remaining text; Esc back", self.ACCENT)
         self.screen.blit(hint, (60, 560))
 
     def draw(self):

@@ -21,6 +21,7 @@ class TestProgressManager(unittest.TestCase):
                         "typing_sound_intensity": "strong",
                         "visual_theme": "dark",
                         "sentence_language": "Spanish",
+                        "auto_update_check": False,
                         "lesson_stars": {"1": 2},
                         "lesson_best_wpm": {"1": 25.5},
                         "lesson_best_accuracy": {"1": 92.0},
@@ -42,6 +43,7 @@ class TestProgressManager(unittest.TestCase):
         self.assertEqual(state.settings.typing_sound_intensity, "strong")
         self.assertEqual(state.settings.visual_theme, "dark")
         self.assertEqual(state.settings.sentence_language, "Spanish")
+        self.assertFalse(state.settings.auto_update_check)
         self.assertEqual(state.settings.lesson_stars[1], 2)
         self.assertAlmostEqual(state.settings.lesson_best_wpm[1], 25.5)
         self.assertAlmostEqual(state.settings.lesson_best_accuracy[1], 92.0)
@@ -83,6 +85,7 @@ class TestProgressManager(unittest.TestCase):
         self.assertEqual(state.settings.speech_mode, "auto")
         self.assertEqual(state.settings.visual_theme, "auto")
         self.assertEqual(state.settings.sentence_language, "English")
+        self.assertTrue(state.settings.auto_update_check)
 
     def test_save_writes_schema_and_keys(self):
         state = AppState()
@@ -91,6 +94,7 @@ class TestProgressManager(unittest.TestCase):
         state.settings.earned_badges = {"b1"}
         state.settings.owned_items = {"item_a"}
         state.settings.typing_sound_intensity = "subtle"
+        state.settings.auto_update_check = False
 
         with tempfile.TemporaryDirectory() as tmpdir:
             path = os.path.join(tmpdir, "progress.json")
@@ -101,6 +105,7 @@ class TestProgressManager(unittest.TestCase):
         self.assertEqual(saved["schema_version"], PROGRESS_SCHEMA_VERSION)
         self.assertEqual(saved["current_lesson"], 4)
         self.assertEqual(saved["typing_sound_intensity"], "subtle")
+        self.assertFalse(saved["auto_update_check"])
         self.assertEqual(saved["unlocked_lessons"], [0, 2, 4])
         self.assertEqual(saved["earned_badges"], ["b1"])
         self.assertEqual(saved["owned_items"], ["item_a"])
@@ -113,6 +118,7 @@ class TestProgressManager(unittest.TestCase):
         self.assertIn("Pets: P", items)
         self.assertIn("Pet Shop: P", items)
         self.assertIn("Badges: B", items)
+        self.assertIn("Check for Updates: U", items)
         self.assertIn("About: A", items)
         self.assertNotIn("View Quests: V", items)
         self.assertNotIn("View Badges: V", items)
@@ -120,6 +126,8 @@ class TestProgressManager(unittest.TestCase):
         self.assertLess(items.index("Games: G"), items.index("Quests: Q"))
         self.assertLess(items.index("Quests: Q"), items.index("Pets: P"))
         self.assertLess(items.index("Pets: P"), items.index("Pet Shop: P"))
+        self.assertLess(items.index("Quit: Q"), items.index("Check for Updates: U"))
+        self.assertLess(items.index("Check for Updates: U"), items.index("Key Quest Instructions: I"))
         self.assertEqual(items[-1], "About: A")
 
 

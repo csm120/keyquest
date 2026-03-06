@@ -36,10 +36,12 @@ import os
 import time
 import random
 import threading
+import subprocess
 import traceback
 import json
 import webbrowser
 from collections import Counter
+from pathlib import Path
 from typing import Optional, Tuple
 
 # Program modules
@@ -81,6 +83,7 @@ from modules import pet_mode
 from modules import pet_manager
 from modules import progress_views
 from modules import notifications
+from modules import update_manager
 from modules.version import __version__
 from ui.render_menus import draw_main_menu, draw_lesson_menu, draw_games_menu
 from ui.render_shop import draw_shop
@@ -96,6 +99,7 @@ from ui.render_keyboard_explorer import draw_keyboard_explorer_screen
 from ui.render_free_practice_ready import draw_free_practice_ready_screen
 from ui.render_tutorial import draw_tutorial_screen
 from ui.text_wrap import wrap_text
+from ui.render_updating import draw_updating_screen
 
 # Optional wxPython for accessible dialogs
 try:
@@ -195,6 +199,19 @@ class KeyQuestApp:
         self._startup_menu_event = pygame.USEREVENT + 1
         self._startup_menu_armed = False
         self.escape_guard = EscapePressGuard()
+        self._self_update_supported = update_manager.can_self_update()
+        self._portable_update_mode = self._self_update_supported and update_manager.is_portable_layout(get_app_dir())
+        self._update_lock = threading.Lock()
+        self._update_check_thread = None
+        self._update_check_result = None
+        self._update_download_thread = None
+        self._update_download_result = None
+        self._pending_update_release = None
+        self._pending_update_manual = False
+        self._update_status = "Ready to check for updates."
+        self._update_downloaded_bytes = 0
+        self._update_total_bytes = 0
+        self._update_error_message = ""
 
         # Visual flash feedback state (deaf/HoH users — visual equivalent of beep_ok/bad)
         self._flash_color = (0, 0, 0)
@@ -273,6 +290,7 @@ class KeyQuestApp:
 
         # Initialize menu system
         self._init_menus()
+        self._start_startup_update_check_if_enabled()
 
     def _init_menus(self):
         """Initialize all menu objects."""
@@ -432,6 +450,14 @@ class KeyQuestApp:
                     'cycle': lambda v, d: menu_handler.cycle_tts_voice(v, self.speech.get_available_voices(), d)
                 },
                 {
+                    'name': 'auto_update_check',
+                    'get_value': lambda: self.state.settings.auto_update_check,
+                    'set_value': lambda v: setattr(self.state.settings, 'auto_update_check', v),
+                    'get_text': lambda: f"Automatic Updates: {'On' if self.state.settings.auto_update_check else 'Off'}",
+                    'get_explanation': lambda: menu_handler.get_auto_update_explanation(self.state.settings.auto_update_check),
+                    'cycle': menu_handler.cycle_bool
+                },
+                {
                     'name': 'visual_theme',
                     'get_value': lambda: self.state.settings.visual_theme,
                     'set_value': lambda v: setattr(self.state.settings, 'visual_theme', v),
@@ -500,6 +526,10 @@ class KeyQuestApp:
             self.show_options_menu()
         elif choice == "Learn Sounds":
             self.show_learn_sounds_menu()
+        elif choice == "Check for Updates":
+            self.start_update_check(manual=True)
+        elif choice == "Key Quest Instructions":
+            self.open_keyquest_instructions()
         elif choice == "About":
             self.show_about_menu()
         elif choice == "Quit":
@@ -511,6 +541,19 @@ class KeyQuestApp:
             "Use Up and Down to choose. Press Enter or Space to select. "
             "Press Escape to return to main menu."
         )
+
+    def open_keyquest_instructions(self):
+        """Open the user instructions in the default browser."""
+        readme_path = os.path.join(get_app_dir(), "README.html")
+        if not os.path.exists(readme_path):
+            self.speech.say("Key Quest Instructions file was not found.", priority=True)
+            return
+
+        self.speech.say("Opening Key Quest Instructions.", priority=True)
+        try:
+            webbrowser.open(readme_path, new=2)
+        except Exception:
+            self.speech.say("Unable to open Key Quest Instructions.", priority=True)
 
     def _handle_about_select(self, item):
         item_id = item.get("id", "")
@@ -543,6 +586,8 @@ class KeyQuestApp:
             self.apply_tts_settings()
         elif option_name == "tts_voice":
             self.apply_tts_settings()
+        elif option_name == "auto_update_check":
+            self.save_progress()
         elif option_name == "visual_theme":
             self.apply_visual_theme()
         elif option_name == "sentence_language":
@@ -585,6 +630,7 @@ class KeyQuestApp:
             # If announcement fails (e.g., after wx dialog), log but don't crash
             print(f"Warning: Menu announcement failed: {e}")
             # Will be announced on next user interaction anyway
+        self._begin_pending_update_if_ready()
 
     def _return_to_main_menu_and_save(self):
         """Return to main menu and save progress."""
@@ -684,6 +730,263 @@ class KeyQuestApp:
     def show_info_dialog(self, title: str, content: str):
         """Show informational content in an accessible dialog (uses universal dialog system)."""
         dialog_manager.show_info_dialog(title, content)
+
+    def _start_startup_update_check_if_enabled(self):
+        """Start a background update check when installed and enabled."""
+        if not self._self_update_supported:
+            return
+        if not self.state.settings.auto_update_check:
+            return
+        self.start_update_check(manual=False)
+
+    def start_update_check(self, manual: bool):
+        """Start a GitHub release check in the background."""
+        if not self._self_update_supported:
+            if manual:
+                self.speech.say("Automatic updating is only available in the installed Windows app.", priority=True)
+            return
+
+        if self.state.mode == "UPDATING":
+            if manual:
+                self.speech.say(self._update_status, priority=True)
+            return
+
+        if self._update_check_thread and self._update_check_thread.is_alive():
+            if manual:
+                self.speech.say("Already checking for updates.", priority=True)
+            return
+
+        self._update_error_message = ""
+        self._update_status = "Checking GitHub for updates."
+        self._update_check_thread = threading.Thread(
+            target=self._check_for_updates_worker,
+            args=(manual,),
+            daemon=True,
+        )
+        self._update_check_thread.start()
+        if manual:
+            self.speech.say("Checking for updates.", priority=True)
+
+    def _check_for_updates_worker(self, manual: bool):
+        """Worker that queries the latest GitHub release."""
+        try:
+            release = update_manager.fetch_latest_release()
+            version = update_manager.parse_release_version(release)
+            asset = (
+                update_manager.select_portable_asset(release)
+                if self._portable_update_mode
+                else update_manager.select_installer_asset(release)
+            )
+            if not version or not update_manager.is_newer_version(__version__, version):
+                result = {"status": "up_to_date", "manual": manual}
+            elif not asset:
+                result = {
+                    "status": "missing_asset",
+                    "manual": manual,
+                    "version": version,
+                    "asset_kind": "portable zip" if self._portable_update_mode else "installer",
+                }
+            else:
+                result = {
+                    "status": "update_available",
+                    "manual": manual,
+                    "version": version,
+                    "release": release,
+                    "asset": asset,
+                    "asset_kind": "portable zip" if self._portable_update_mode else "installer",
+                }
+        except Exception as e:
+            result = {"status": "error", "manual": manual, "message": str(e)}
+
+        with self._update_lock:
+            self._update_check_result = result
+
+    def _begin_pending_update_if_ready(self):
+        """Start a deferred update once the user is back at the main menu."""
+        if self.state.mode != "MENU":
+            return
+        if not self._pending_update_release:
+            return
+
+        payload = self._pending_update_release
+        self._pending_update_release = None
+        self._begin_update_download(payload)
+
+    def _begin_update_download(self, payload: dict):
+        """Start downloading a discovered installer update."""
+        if self.state.mode == "UPDATING":
+            return
+
+        version = payload["version"]
+        asset = payload["asset"]
+        self.state.mode = "UPDATING"
+        self._update_downloaded_bytes = 0
+        self._update_total_bytes = int(asset.get("size", 0) or 0)
+        self._update_status = (
+            f"Update available: KeyQuest {version}. Downloading and installing now. "
+            "Keyboard and mouse input are disabled in KeyQuest during the update."
+        )
+        self.speech.say(
+            f"Update available. Downloading and installing KeyQuest version {version} now. "
+            "KeyQuest input is disabled during the update.",
+            priority=True,
+            protect_seconds=3.5,
+        )
+
+        self._update_download_thread = threading.Thread(
+            target=self._download_update_worker,
+            args=(payload,),
+            daemon=True,
+        )
+        self._update_download_thread.start()
+
+    def _download_update_worker(self, payload: dict):
+        """Worker that downloads the update installer."""
+        try:
+            version = payload["version"]
+            asset = payload["asset"]
+            download_url = asset.get("browser_download_url")
+            if not download_url:
+                raise RuntimeError("Release installer did not include a download URL.")
+
+            destination = update_manager.get_updates_dir() / update_manager.build_installer_filename(version)
+            if self._portable_update_mode:
+                destination = update_manager.get_updates_dir() / update_manager.build_portable_zip_filename(version)
+
+            def _progress(downloaded: int, total: int):
+                with self._update_lock:
+                    self._update_downloaded_bytes = downloaded
+                    self._update_total_bytes = total
+                    if total > 0:
+                        percent = int((downloaded / total) * 100)
+                        self._update_status = f"Downloading update: {percent}% complete."
+                    else:
+                        self._update_status = f"Downloading update: {downloaded // 1024} KB received."
+
+            installer_path = update_manager.download_file(
+                download_url,
+                destination,
+                progress_callback=_progress,
+            )
+            result = {"status": "downloaded", "version": version, "download_path": str(installer_path)}
+        except Exception as e:
+            result = {"status": "error", "message": str(e)}
+
+        with self._update_lock:
+            self._update_download_result = result
+
+    def _poll_update_work(self):
+        """Process any completed update background work on the main thread."""
+        check_result = None
+        download_result = None
+        with self._update_lock:
+            if self._update_check_result is not None:
+                check_result = self._update_check_result
+                self._update_check_result = None
+            if self._update_download_result is not None:
+                download_result = self._update_download_result
+                self._update_download_result = None
+
+        if check_result is not None:
+            self._handle_update_check_result(check_result)
+        if download_result is not None:
+            self._handle_update_download_result(download_result)
+
+    def _handle_update_check_result(self, result: dict):
+        """Handle update-check completion."""
+        status = result.get("status")
+        manual = bool(result.get("manual"))
+
+        if status == "up_to_date":
+            self._update_status = "KeyQuest is up to date."
+            if manual:
+                self.speech.say("KeyQuest is up to date.", priority=True)
+            return
+
+        if status == "missing_asset":
+            asset_kind = result.get("asset_kind", "update file")
+            self._update_status = f"An update was found, but no {asset_kind} asset was attached to the release."
+            if manual:
+                self.speech.say(f"An update was found, but the release does not include the expected {asset_kind} yet.", priority=True)
+            return
+
+        if status == "error":
+            self._update_error_message = result.get("message", "Unknown update error.")
+            self._update_status = "Update check failed."
+            if manual:
+                self.speech.say(f"Update check failed. {self._update_error_message}", priority=True)
+            return
+
+        if status != "update_available":
+            return
+
+        if self.state.mode == "MENU":
+            self._begin_update_download(result)
+            return
+
+        self._pending_update_release = result
+        self._pending_update_manual = manual
+
+    def _handle_update_download_result(self, result: dict):
+        """Handle update download completion."""
+        status = result.get("status")
+        if status == "error":
+            self._update_error_message = result.get("message", "Unknown update download error.")
+            self._update_status = "Update download failed."
+            self.state.mode = "MENU"
+            self.speech.say(f"Update download failed. {self._update_error_message}", priority=True)
+            self.main_menu.announce_current()
+            return
+
+        if status == "downloaded":
+            self._launch_downloaded_update(result["download_path"], result["version"])
+
+    def _launch_downloaded_update(self, download_path: str, version: str):
+        """Launch the correct update handoff and then exit the app."""
+        app_exe_path = sys.executable if getattr(sys, "frozen", False) else os.path.join(get_app_dir(), "KeyQuest.exe")
+        if self._portable_update_mode:
+            launcher_path = update_manager.create_portable_update_launcher(
+                zip_path=Path(download_path),
+                app_dir=get_app_dir(),
+                app_exe_path=app_exe_path,
+                current_pid=os.getpid(),
+            )
+        else:
+            launcher_path = update_manager.create_update_launcher(
+                installer_path=Path(download_path),
+                app_dir=get_app_dir(),
+                app_exe_path=app_exe_path,
+                current_pid=os.getpid(),
+            )
+
+        creationflags = 0
+        creationflags |= getattr(subprocess, "DETACHED_PROCESS", 0)
+        creationflags |= getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+
+        try:
+            subprocess.Popen(
+                ["cmd", "/c", str(launcher_path)],
+                creationflags=creationflags,
+                close_fds=True,
+            )
+        except Exception as e:
+            self.state.mode = "MENU"
+            self._update_status = "Unable to launch the updater."
+            self.speech.say(f"Unable to launch the update helper. {e}", priority=True)
+            self.main_menu.announce_current()
+            return
+
+        action_text = "Installing" if not self._portable_update_mode else "Applying portable update for"
+        self._update_status = f"{action_text} KeyQuest {version}. KeyQuest will restart automatically."
+        self.save_progress()
+        self.speech.say(
+            f"{action_text} KeyQuest version {version}. KeyQuest will restart automatically.",
+            priority=True,
+            protect_seconds=2.0,
+        )
+        pygame.time.wait(750)
+        pygame.quit()
+        sys.exit(0)
 
     def show_badge_notifications(self):
         """Show any pending badge unlock notifications."""
@@ -953,6 +1256,7 @@ class KeyQuestApp:
         while True:
             dt = self.clock.tick(60) / 1000.0  # Delta time in seconds
             self._refresh_auto_speech_backend()
+            self._poll_update_work()
             for event in pygame.event.get():
                 try:
                     self.handle_event(event)
@@ -999,6 +1303,11 @@ class KeyQuestApp:
             )
 
     def handle_event(self, event):
+        if self.state.mode == "UPDATING":
+            if event.type == self._startup_menu_event:
+                pygame.time.set_timer(self._startup_menu_event, 0)
+                self._startup_menu_armed = False
+            return
         if event.type == pygame.QUIT:
             self._quit_app()
         if event.type == self._startup_menu_event:
@@ -1362,8 +1671,9 @@ class KeyQuestApp:
             key_name, desc = t.intro_items[t.intro_index]
             key_friendly = tutorial_data.FRIENDLY.get(key_name, key_name)
             self.speech.say(
-                f"{phase_title} intro. {key_friendly}. {desc} "
-                f"Use Up and Down arrows to review. Press Enter or Space to start practice.",
+                f"{phase_title} tutorial. Review the key location before practice starts. "
+                f"Item {t.intro_index + 1} of {len(t.intro_items)}. {key_friendly}. {desc} "
+                f"Use Up and Down arrows to review each instruction. Press Enter or Space when you are ready to start practice.",
                 priority=True,
                 protect_seconds=4.0,
             )
@@ -1421,7 +1731,7 @@ class KeyQuestApp:
                 name, desc = t.intro_items[t.intro_index]
                 key_friendly = tutorial_data.FRIENDLY.get(name, name)
                 self.speech.say(
-                    f"{key_friendly}. {desc}. Press Enter or Space to start practice.",
+                    f"{key_friendly}. {desc}. Press Enter or Space when you are ready to start practice.",
                     priority=True,
                     protect_seconds=3.0,
                 )
@@ -2013,6 +2323,8 @@ class KeyQuestApp:
             self.draw_learn_sounds_menu()
         elif self.state.mode == "ABOUT":
             self.draw_about()
+        elif self.state.mode == "UPDATING":
+            self.draw_updating()
         elif self.state.mode == "GAME":
             self.draw_game()
         elif self.state.mode == "FREE_PRACTICE_READY":
@@ -2129,6 +2441,23 @@ class KeyQuestApp:
 
         hint, _ = self.small_font.render("Enter select; Escape back", ACCENT)
         self.screen.blit(hint, (80, SCREEN_H - 60))
+
+    def draw_updating(self):
+        draw_updating_screen(
+            screen=self.screen,
+            title_font=self.title_font,
+            text_font=self.text_font,
+            small_font=self.small_font,
+            wrap_text=self._wrap_text,
+            screen_w=SCREEN_W,
+            screen_h=SCREEN_H,
+            fg=FG,
+            accent=ACCENT,
+            hilite=HILITE,
+            status_text=self._update_status,
+            downloaded_bytes=self._update_downloaded_bytes,
+            total_bytes=self._update_total_bytes,
+        )
 
     def draw_shop(self):
         """Draw the shop interface."""
@@ -2390,10 +2719,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
 
 

@@ -48,7 +48,7 @@ def draw_tutorial_screen(
         draw_controls_hint(
             screen=screen,
             small_font=small_font,
-            text="Up/Down review keys; Ctrl+Space repeat; Enter/Space start practice; Esc menu",
+            text="Review with Up/Down, then press Enter or Space to begin practice. Ctrl+Space repeats. Esc returns to menu.",
             screen_w=screen_w,
             y=screen_h - 60,
             accent=accent,

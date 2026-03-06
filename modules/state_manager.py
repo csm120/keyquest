@@ -225,6 +225,7 @@ class Settings:
     font_scale: str = "auto"  # "auto" (DPI-detected), "100%", "125%", "150%"
     # Sentence language/practice topic (canonical list is in modules/sentences_manager.py)
     sentence_language: str = "English"
+    auto_update_check: bool = True  # Check GitHub releases on startup when installed
     # Daily streak tracking
     current_streak: int = 0  # Current streak in days
     last_practice_date: str = ""  # Last practice date in YYYY-MM-DD format
@@ -282,7 +283,7 @@ class AppState:
     free_practice: FreePracticeState = field(default_factory=FreePracticeState)
     results_text: str = ""
     backend_label: str = ""
-    menu_items: list = field(default_factory=lambda: ["Tutorial: T", "Keyboard Explorer: K", "Lessons: L", "Free Practice: F", "Speed Test: S", "Sentence Practice: S", "Games: G", "Quests: Q", "Pets: P", "Pet Shop: P", "Badges: B", "Progress Dashboard: P", "Daily Challenge: D", "Key Performance: K", "Options: O", "Learn Sounds: L", "Quit: Q", "About: A"])
+    menu_items: list = field(default_factory=lambda: ["Tutorial: T", "Keyboard Explorer: K", "Lessons: L", "Free Practice: F", "Speed Test: S", "Sentence Practice: S", "Games: G", "Quests: Q", "Pets: P", "Pet Shop: P", "Badges: B", "Progress Dashboard: P", "Daily Challenge: D", "Key Performance: K", "Options: O", "Learn Sounds: L", "Quit: Q", "Check for Updates: U", "Key Quest Instructions: I", "About: A"])
     menu_index: int = 0
     lesson_menu_index: int = 0  # Index in lesson submenu
     options_index: int = 0  # Index in options menu
@@ -328,6 +329,7 @@ class ProgressManager:
             state.settings.visual_theme = data.get("visual_theme", "auto")
             state.settings.font_scale = data.get("font_scale", "auto")
             state.settings.sentence_language = data.get("sentence_language", "English")
+            state.settings.auto_update_check = data.get("auto_update_check", True)
 
             # Load TTS options
             state.settings.tts_rate = data.get("tts_rate", 200)
@@ -405,6 +407,7 @@ class ProgressManager:
             state.settings.visual_theme = "auto"
             state.settings.font_scale = "auto"
             state.settings.sentence_language = "English"
+            state.settings.auto_update_check = True
 
     def save(self, state: AppState) -> None:
         """Save progress to file.
@@ -422,6 +425,7 @@ class ProgressManager:
                 "visual_theme": state.settings.visual_theme,
                 "font_scale": state.settings.font_scale,
                 "sentence_language": state.settings.sentence_language,
+                "auto_update_check": state.settings.auto_update_check,
                 # TTS options
                 "tts_rate": state.settings.tts_rate,
                 "tts_volume": state.settings.tts_volume,

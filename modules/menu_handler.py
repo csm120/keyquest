@@ -65,6 +65,13 @@ def get_typing_sound_intensity_explanation(intensity: str) -> str:
     return explanations.get(intensity, "")
 
 
+def get_auto_update_explanation(enabled: bool) -> str:
+    """Get explanation for the automatic update setting."""
+    if enabled:
+        return "Checks GitHub for a new installer at startup and installs it automatically from the menu."
+    return "Does not check for updates automatically. Use Check for Updates from the main menu."
+
+
 def get_voice_name_from_id(voice_id: str, available_voices: list) -> str:
     """Get voice name from voice ID.
 
@@ -300,6 +307,11 @@ def cycle_tts_voice(current_voice_id: str, available_voices: list, direction: st
         new_idx = (current_idx - 1) % len(voice_ids)
 
     return voice_ids[new_idx]
+
+
+def cycle_bool(current_value: bool, direction: str = "right") -> bool:
+    """Toggle a boolean option."""
+    return not bool(current_value)
 
 
 def cycle_typing_sound_intensity(current_intensity: str, direction: str = "right") -> str:

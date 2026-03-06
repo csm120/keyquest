@@ -1,4 +1,5 @@
 import unittest
+import pygame
 
 from games.hangman import (
     HangmanGame,
@@ -69,8 +70,20 @@ class TestHangmanGuessAccounting(unittest.TestCase):
         game.sentence_index = 0
         game.sentence_typed = "Typing "
         game.announce_sentence_remaining()
-        self.assertIn("Missing:", game.speech.last_message)
-        self.assertIn("Remaining text:", game.speech.last_message)
+        self.assertIn("Type:", game.speech.last_message)
+        self.assertIn("Then:", game.speech.last_message)
+
+    def test_sentence_practice_requires_exact_capitals_and_punctuation(self):
+        game = self._build_game()
+        game.mode = "SENTENCE_PRACTICE"
+        game.sentence_items = ["Typing tomorrow is useful."]
+        game.sentence_index = 0
+        game.sentence_typed = "typing tomorrow is useful"
+        event = type("_Evt", (), {"key": pygame.K_RETURN, "unicode": ""})()
+
+        game.handle_sentence_practice_input(event, 0)
+
+        self.assertEqual(game.sentence_feedback, "Sentence does not match. Try again.")
 
     def test_copy_word_and_definition_payload(self):
         game = self._build_game()

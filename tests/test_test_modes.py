@@ -71,7 +71,7 @@ class TestTestModesAnnouncements(unittest.TestCase):
         self.assertEqual(app.state.test.total_chars, 1)
         self.assertEqual(
             app.speech.messages[-1],
-            "Missing: a, a, space, b, b. Remaining text: aa bb",
+            "Type: a, a. Then: bb",
         )
 
     def test_sentence_practice_mistake_spells_then_reads_remaining(self):
@@ -82,7 +82,7 @@ class TestTestModesAnnouncements(unittest.TestCase):
         self.assertEqual(app.state.test.total_chars, 1)
         self.assertEqual(
             app.speech.messages[-1],
-            "Missing: a, t, space, s, a, t. Remaining text: at sat",
+            "Type: a, t. Then: sat",
         )
 
     def test_repeat_remaining_uses_same_feedback_format(self):
@@ -90,7 +90,7 @@ class TestTestModesAnnouncements(unittest.TestCase):
         test_modes.speak_test_remaining(app)
         self.assertEqual(
             app.speech.messages[-1],
-            "Missing: a, space, b, b. Remaining text: a bb",
+            "Type: a. Then: bb",
         )
 
 

@@ -36,15 +36,26 @@ if not defined ISCC_PATH (
 )
 
 set "APP_VERSION="
-for /f "tokens=2 delims==" %%A in ('findstr /R /C:"__version__ *= *\".*\"" modules\version.py') do (
-    set "APP_VERSION=%%~A"
+for /f "usebackq delims=" %%A in (`python -c "from modules.version import __version__; print(__version__)" 2^>nul`) do (
+    set "APP_VERSION=%%A"
 )
-set "APP_VERSION=%APP_VERSION:"=%"
-set "APP_VERSION=%APP_VERSION: =%"
+if "%APP_VERSION%"=="" (
+    for /f "tokens=2 delims==" %%A in ('findstr /R /C:"__version__ *= *\".*\"" modules\version.py') do (
+        set "APP_VERSION=%%~A"
+    )
+    set "APP_VERSION=%APP_VERSION:"=%"
+    set "APP_VERSION=%APP_VERSION: =%"
+)
 if "%APP_VERSION%"=="" set "APP_VERSION=1.0"
 
+set "APP_VERSION_NUMERIC="
+for /f "usebackq delims=" %%A in (`python -c "from modules.version import __version__; raw = ''.join(ch if (ch.isdigit() or ch=='.') else ' ' for ch in __version__); parts = [p for p in raw.split() if p]; joined = '.'.join('.'.join(parts).split('.')); nums = [p for p in joined.split('.') if p.isdigit()][:4]; nums += ['0'] * (4 - len(nums)); print('.'.join(nums[:4]) if nums else '1.0.0.0')" 2^>nul`) do (
+    set "APP_VERSION_NUMERIC=%%A"
+)
+if "%APP_VERSION_NUMERIC%"=="" set "APP_VERSION_NUMERIC=1.0.0.0"
+
 echo Building installer version %APP_VERSION% ...
-"%ISCC_PATH%" /DMyAppVersion=%APP_VERSION% tools\build\installer\KeyQuest.iss
+"%ISCC_PATH%" /DMyAppVersion=%APP_VERSION% /DMyAppVersionNumeric=%APP_VERSION_NUMERIC% tools\build\installer\KeyQuest.iss
 if errorlevel 1 goto :fail
 
 echo.

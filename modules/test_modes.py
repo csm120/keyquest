@@ -91,7 +91,7 @@ def begin_test_typing(app) -> None:
     minutes = t.duration_seconds // 60
     plural = "minute" if minutes == 1 else "minutes"
     app.speech.say(
-        f"Speed test. {minutes} {plural}. Control Space repeats the remaining text.",
+        f"Speed test. {minutes} {plural}. Type each sentence exactly as shown, including capitalization and punctuation. Control Space repeats the remaining text.",
         priority=True,
         protect_seconds=3.0,
     )
@@ -328,7 +328,7 @@ def _begin_practice_session(app, topic: str) -> None:
         app.state.test.remaining = random.sample(app.speed_test_sentences, k=len(app.speed_test_sentences))
 
     app.speech.say(
-        f"Sentence practice. Topic {topic}. Control Space repeats. Escape, press 3 times to finish.",
+        f"Sentence practice. Topic {topic}. Type each sentence exactly as shown, including capitalization and punctuation. Control Space repeats. Escape, press 3 times to finish.",
         priority=True,
         protect_seconds=3.0,
     )

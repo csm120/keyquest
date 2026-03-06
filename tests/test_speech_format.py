@@ -26,7 +26,14 @@ class TestSpeechFormat(unittest.TestCase):
 
     def test_build_remaining_text_feedback(self):
         msg = speech_format.build_remaining_text_feedback("a a")
-        self.assertEqual(msg, "Missing: a, space, a. Remaining text: a a")
+        self.assertEqual(msg, "Type: a. Then: a")
+
+    def test_build_remaining_text_feedback_preserves_caps_and_punctuation_in_first_word(self):
+        msg = speech_format.build_remaining_text_feedback("Hello, world.")
+        self.assertEqual(
+            msg,
+            "Type: capital h, e, l, l, o, comma. Then: world.",
+        )
 
 
 if __name__ == "__main__":

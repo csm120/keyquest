@@ -11,11 +11,17 @@
   #define MyAppVersion "1.0"
 #endif
 
+#ifndef MyAppVersionNumeric
+  #define MyAppVersionNumeric "1.0.0.0"
+#endif
+
 [Setup]
 AppId={{8EE865FD-6D3E-46F9-A36B-4A2A383B8C25}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName}
+VersionInfoVersion={#MyAppVersionNumeric}
+VersionInfoProductVersion={#MyAppVersionNumeric}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}

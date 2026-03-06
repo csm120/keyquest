@@ -23,6 +23,8 @@ def to_speakable_token(ch: str) -> str:
     """Convert one character to a speech-friendly token."""
     if ch in SPECIAL_CHAR_NAMES:
         return SPECIAL_CHAR_NAMES[ch]
+    if ch.isalpha() and ch.isupper():
+        return f"capital {ch.lower()}"
     return ch.lower()
 
 
@@ -51,5 +53,12 @@ def build_remaining_text_feedback(remaining: str) -> str:
     """Build consistent mismatch/remaining feedback."""
     if not remaining:
         return "Nothing remaining."
-    spelled = spell_text(remaining)
-    return f"Missing: {spelled}. Remaining text: {remaining}"
+
+    parts = remaining.split(" ", 1)
+    first_word = parts[0]
+    rest = parts[1] if len(parts) > 1 else ""
+    spelled_first_word = spell_text(first_word)
+
+    if rest:
+        return f"Type: {spelled_first_word}. Then: {rest}"
+    return f"Type: {spelled_first_word}."

@@ -4,6 +4,48 @@ Canonical handoff / current context: `docs/dev/HANDOFF.md`
 
 Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<line>`) from before the modularization work.
 
+## 2026-03-06 - Sentence Feedback, Instructions Menu, and Automatic Updating
+
+### Sentence Typing Guidance
+- Sentence typing now explicitly tells users that capitalization and punctuation must match exactly.
+- Updated spoken and on-screen guidance in Speed Test, Sentence Practice, and Hangman sentence practice.
+- Hangman sentence practice now checks exact sentence text instead of case-insensitive matching.
+
+### Remaining-Text Speech Format
+- Sentence typing mistakes and `Ctrl+Space` repeat now use a clearer shared format:
+  - `Type: [spelled first missing word]. Then: [rest of sentence]`
+- Capital letters are announced as `capital x`, and punctuation is named when spelling the first missing word.
+- This behavior is centralized in `modules/speech_format.py` so all sentence-style modes stay consistent.
+
+### Main Menu and Instructions
+- Added `Key Quest Instructions` to the Main Menu above `About`.
+- Added `Check for Updates` near the bottom of the Main Menu, directly above `Key Quest Instructions`.
+- Updated `README.html` to document:
+  - exact sentence matching for capitals and punctuation
+  - the new `Check for Updates` menu item
+  - the new `Key Quest Instructions` menu item
+  - the new `Automatic Updates` option
+
+### Automatic Updating
+- Added a GitHub-release-based updater for installed and portable Windows builds.
+- KeyQuest can now:
+  - check GitHub for a newer release at startup
+  - download `KeyQuestSetup.exe` for installed builds or `KeyQuest-win64.zip` for portable builds
+  - launch the installer silently or update the portable folder in place
+  - restart the app automatically after install completes
+- Added `Automatic Updates` to Options so startup checks can be turned on or off.
+- Added a dedicated in-app updating screen that blocks normal KeyQuest input while the update is in progress.
+- Both update paths preserve `progress.json`.
+- Sentence files now merge during updates for both installed and portable builds:
+  - same-name sentence files are merged line-by-line
+  - existing user lines stay first
+  - new release lines are appended if they are not already present
+  - exact duplicate lines are removed
+
+### Release Build Automation
+- Added a real GitHub Actions release workflow under `.github/workflows/` to build and publish `KeyQuestSetup.exe` from version tags.
+- Installer build metadata now uses the app version from `modules/version.py`, including Windows numeric version fields.
+
 ## 2026-02-25 - Accessibility Enhancements
 
 ### User Guide Updated (README.html)

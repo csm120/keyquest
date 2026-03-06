@@ -35,7 +35,7 @@ def draw_test_screen(
     draw_controls_hint(
         screen=screen,
         small_font=small_font,
-        text="Ctrl+Space repeat; Esc menu",
+        text="Match capitals and punctuation exactly. Ctrl+Space repeat; Esc menu",
         screen_w=screen_w,
         y=350,
         accent=accent,
@@ -83,7 +83,7 @@ def draw_practice_screen(
     draw_controls_hint(
         screen=screen,
         small_font=small_font,
-        text="Ctrl+Space repeat; Esc x3 finish",
+        text="Match capitals and punctuation exactly. Ctrl+Space repeat; Esc x3 finish",
         screen_w=screen_w,
         y=400,
         accent=accent,

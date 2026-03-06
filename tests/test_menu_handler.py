@@ -10,6 +10,10 @@ class TestMenuHandler(unittest.TestCase):
         self.assertEqual(menu_handler.cycle_typing_sound_intensity("strong", "right"), "subtle")
         self.assertEqual(menu_handler.cycle_typing_sound_intensity("normal", "left"), "subtle")
 
+    def test_cycle_bool_toggles_value(self):
+        self.assertFalse(menu_handler.cycle_bool(True))
+        self.assertTrue(menu_handler.cycle_bool(False))
+
 
 if __name__ == "__main__":
     unittest.main()

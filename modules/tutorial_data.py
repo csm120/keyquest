@@ -49,17 +49,17 @@ TACTILE_GUIDE = {
         "Rest both thumbs near the bottom row and sweep gently left and right until you feel the longest key."
     ),
     "up": (
-        "Find the arrow key cluster. It feels like an upside-down T shape. "
-        "Up Arrow is the top key in that cluster."
+        "Find the arrow key cluster near the bottom-right area of the keyboard. It feels like an upside-down T shape. "
+        "Up Arrow is the single key on the top of that cluster."
     ),
     "down": (
-        "In the arrow cluster, Down Arrow is the center key on the bottom row, directly below Up."
+        "In the arrow key cluster, Down Arrow is the center key on the bottom row, directly below Up Arrow."
     ),
     "left": (
-        "In the arrow cluster bottom row, Left Arrow is to the left of Down."
+        "In the arrow key cluster bottom row, Left Arrow is immediately to the left of Down Arrow."
     ),
     "right": (
-        "In the arrow cluster bottom row, Right Arrow is to the right of Down."
+        "In the arrow key cluster bottom row, Right Arrow is immediately to the right of Down Arrow."
     ),
     "enter": (
         "Enter is on the right side of the main letter keys. "

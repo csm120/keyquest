@@ -80,6 +80,7 @@ def draw_practice_setup_screen(
             y += 55
 
         instructions = [
+            "Sentences must match capitals and punctuation exactly",
             "Up/Down: Change option",
             "Enter/Space: Select",
             "Escape: Return to menu",
@@ -108,6 +109,7 @@ def draw_practice_setup_screen(
             y += 38
 
         instructions = [
+            "Sentences must match capitals and punctuation exactly",
             "Up/Down: Browse files",
             "Enter/Space: Start with selected file",
             "Escape: Back to previous menu",
