@@ -25,6 +25,14 @@ Notes:
 - Build an `.exe` (PyInstaller): run `tools/build/build_exe.bat` (uses `tools/build/KeyQuest-RootFolders.spec`).
 - Build a Windows installer (`.exe`): install Inno Setup 6, then run `tools/build/build_installer.bat` (uses `tools/build/installer/KeyQuest.iss` and outputs to `dist/installer/`).
 - Create a source ZIP for sharing: run `tools/build/create_source_package.bat` (outputs to `source/`).
+- Run a full release from `main` after bumping `modules/version.py`: `powershell -ExecutionPolicy Bypass -File tools/release.ps1`
+  - Rebuilds `site/`
+  - Runs tests by default
+  - Rebuilds local `dist/` outputs by default
+  - Commits and pushes `main`
+  - Creates and pushes the matching `v<version>` tag from `modules/version.py`
+  - Triggers GitHub Pages and the GitHub Release workflow so the in-app updater can see the new version
+  - Use `-DryRun` to verify the release steps without committing, pushing, or tagging
 - Optional single entrypoint (logs to `tests/logs/`):
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target all -Clean` (exe + source)
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target installer` (installer only)

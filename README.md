@@ -17,6 +17,8 @@ Developer notes and session context live under [docs/dev](docs/dev).
 - Detailed project history is in [CHANGELOG.md](docs/dev/CHANGELOG.md)
 - Desktop accessibility direction is in [DESKTOP_ACCESSIBILITY_RESEARCH.md](docs/dev/DESKTOP_ACCESSIBILITY_RESEARCH.md)
 - Manual screen reader checks are in [SCREEN_READER_SMOKE_TESTS.md](docs/dev/SCREEN_READER_SMOKE_TESTS.md)
+- For a full release that updates GitHub Pages, the installer, the portable ZIP, and the in-app updater target, run `powershell -ExecutionPolicy Bypass -File tools/release.ps1` after updating `modules/version.py` to a new version number.
+  - Add `-DryRun` first if you want to verify the workflow without pushing or tagging.
 
 ## Contact
 

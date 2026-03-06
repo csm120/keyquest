@@ -6,6 +6,14 @@ Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<
 
 ## 2026-03-06 - Sentence Feedback, Instructions Menu, Automatic Updating, and Visual Accessibility
 
+### Release Workflow
+- Added `tools/release.ps1` as the single release entrypoint for shipping a new version.
+- The release script rebuilds the Pages site, runs tests, refreshes local installer and portable outputs, commits and pushes `main`, then creates and pushes the matching version tag.
+- That means one release action now updates:
+  - local `dist/` outputs
+  - GitHub Pages HTML
+  - GitHub release assets used by the in-app updater
+
 ### Sentence Typing Guidance
 - Sentence typing now explicitly tells users that capitalization and punctuation must match exactly.
 - Updated spoken and on-screen guidance in Speed Test, Sentence Practice, and Hangman sentence practice.

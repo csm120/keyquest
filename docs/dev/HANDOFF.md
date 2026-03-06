@@ -19,9 +19,10 @@ This is the single starting point for any human or AI working on KeyQuest.
    - `README.html` (and pointer `README.md` only if needed)
    - `docs/dev/CHANGELOG.md`
 4. For release work:
-   - Build exe: `cmd /c tools\build\build_exe.bat --nopause`
-   - Build installer: `cmd /c tools\build\build_installer.bat --nopause`
-   - Verify release assets in `dist/`
+   - Update `modules/version.py` first
+   - Run `powershell -ExecutionPolicy Bypass -File tools/release.ps1`
+   - Verify release assets in local `dist/`
+   - Verify GitHub Pages and the GitHub Release workflow completed successfully
 5. Before handoff:
    - Update this handoff file snapshot + recent changes
    - Commit and push to `main`
@@ -53,6 +54,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 - Local quality checks: `powershell -ExecutionPolicy Bypass -File tools/run_quality_checks.ps1`
 - Build exe: `tools/build/build_exe.bat`
 - Build installer: `tools/build/build_installer.bat` (requires Inno Setup 6)
+- Full release: `powershell -ExecutionPolicy Bypass -File tools/release.ps1`
 - Build source package: `tools/build/create_source_package.bat`
 - Single build entrypoint:
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target all -Clean` (exe + source)
