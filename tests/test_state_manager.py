@@ -20,6 +20,7 @@ class TestProgressManager(unittest.TestCase):
                         "speech_mode": "tts",
                         "typing_sound_intensity": "strong",
                         "visual_theme": "dark",
+                        "focus_assist": True,
                         "sentence_language": "Spanish",
                         "auto_update_check": False,
                         "lesson_stars": {"1": 2},
@@ -42,6 +43,7 @@ class TestProgressManager(unittest.TestCase):
         self.assertEqual(state.settings.speech_mode, "tts")
         self.assertEqual(state.settings.typing_sound_intensity, "strong")
         self.assertEqual(state.settings.visual_theme, "dark")
+        self.assertTrue(state.settings.focus_assist)
         self.assertEqual(state.settings.sentence_language, "Spanish")
         self.assertFalse(state.settings.auto_update_check)
         self.assertEqual(state.settings.lesson_stars[1], 2)
@@ -94,6 +96,7 @@ class TestProgressManager(unittest.TestCase):
         state.settings.earned_badges = {"b1"}
         state.settings.owned_items = {"item_a"}
         state.settings.typing_sound_intensity = "subtle"
+        state.settings.focus_assist = True
         state.settings.auto_update_check = False
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -105,6 +108,7 @@ class TestProgressManager(unittest.TestCase):
         self.assertEqual(saved["schema_version"], PROGRESS_SCHEMA_VERSION)
         self.assertEqual(saved["current_lesson"], 4)
         self.assertEqual(saved["typing_sound_intensity"], "subtle")
+        self.assertTrue(saved["focus_assist"])
         self.assertFalse(saved["auto_update_check"])
         self.assertEqual(saved["unlocked_lessons"], [0, 2, 4])
         self.assertEqual(saved["earned_badges"], ["b1"])

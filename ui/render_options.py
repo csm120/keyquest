@@ -1,4 +1,4 @@
-from ui.a11y import draw_controls_hint, draw_focus_frame
+from ui.a11y import draw_controls_hint, draw_focus_frame, get_visible_window
 
 
 def draw_options(
@@ -19,8 +19,16 @@ def draw_options(
     title_surf, _ = title_font.render(title, fg)
     screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 50))
 
+    visible_count = max(6, min(8, (screen_h - 220) // 50))
+    start, end = get_visible_window(len(options), current_index, visible_count)
+
     y = 120
-    for idx, option in enumerate(options):
+    if start > 0:
+        more_above_surf, _ = small_font.render("^  more above  ^", accent)
+        screen.blit(more_above_surf, (screen_w // 2 - more_above_surf.get_width() // 2, 90))
+
+    for idx in range(start, end):
+        option = options[idx]
         selected = idx == current_index
         color = hilite if selected else fg
         option_text = f"> {option}" if selected else f"  {option}"
@@ -31,6 +39,10 @@ def draw_options(
         if selected:
             draw_focus_frame(screen, option_rect, hilite, accent)
         y += 50
+
+    if end < len(options):
+        more_below_surf, _ = small_font.render("v  more below  v", accent)
+        screen.blit(more_below_surf, (screen_w // 2 - more_below_surf.get_width() // 2, min(screen_h - 95, y - 8)))
 
     draw_controls_hint(
         screen=screen,

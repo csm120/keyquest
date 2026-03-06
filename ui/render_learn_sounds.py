@@ -1,4 +1,5 @@
-from ui.a11y import draw_controls_hint, draw_focus_frame
+from ui.a11y import draw_controls_hint, draw_focus_frame, get_visible_window
+from ui.text_wrap import wrap_text
 
 
 def draw_learn_sounds_menu(
@@ -18,8 +19,16 @@ def draw_learn_sounds_menu(
     title_surf, _ = title_font.render("Learn Sounds", fg)
     screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 50))
 
+    visible_count = max(4, min(6, (screen_h - 250) // 70))
+    start, end = get_visible_window(len(sound_items), current_index, visible_count)
+
     y = 120
-    for idx, sound_item in enumerate(sound_items):
+    if start > 0:
+        more_above_surf, _ = small_font.render("^  more above  ^", accent)
+        screen.blit(more_above_surf, (screen_w // 2 - more_above_surf.get_width() // 2, 90))
+
+    for idx in range(start, end):
+        sound_item = sound_items[idx]
         text = sound_item["name"]
         selected = idx == current_index
         color = hilite if selected else fg
@@ -34,12 +43,15 @@ def draw_learn_sounds_menu(
 
         if selected:
             desc = sound_item.get("description", "")
-            desc_surf, _ = small_font.render(desc, accent)
-            screen.blit(desc_surf, (screen_w // 2 - desc_surf.get_width() // 2, y))
-            y += 30
+            for line in wrap_text(small_font, desc, screen_w - 120, accent):
+                desc_surf, _ = small_font.render(line, accent)
+                screen.blit(desc_surf, (screen_w // 2 - desc_surf.get_width() // 2, y))
+                y += 22
+            y += 6
 
-        if y > screen_h - 150:
-            break
+    if end < len(sound_items):
+        more_surf, _ = small_font.render("v  more below  v", accent)
+        screen.blit(more_surf, (screen_w // 2 - more_surf.get_width() // 2, min(screen_h - 95, y - 8)))
 
     draw_controls_hint(
         screen=screen,

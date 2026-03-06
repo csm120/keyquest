@@ -16,6 +16,13 @@ Typing reminders are clearer.
 - If you make a sentence mistake, KeyQuest gives a simpler spoken hint about what to type next.
 - Quit now stays at the very end of the Main Menu.
 
+The screen is easier to follow while you type and move through menus.
+
+- Long typing prompts and your typed text now wrap instead of running off in one long line.
+- Menus keep the current selection in view more clearly so you do not have to visually hunt through a long list.
+- KeyQuest now shows when there are more menu items above or below the part you can currently see.
+- Several screens use stronger spacing and grouping so the active area is easier to find.
+
 ## Wednesday February 25th 2026
 
 Reading and visual support are better.

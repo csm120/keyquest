@@ -1,6 +1,7 @@
 from modules import currency_manager
 from modules import shop_manager
-from ui.a11y import draw_controls_hint, draw_focus_frame
+from ui.a11y import draw_controls_hint, draw_focus_frame, get_visible_window
+from ui.text_wrap import wrap_text
 
 
 def draw_shop(
@@ -31,7 +32,14 @@ def draw_shop(
 
     y = 150
     if shop_view == "categories":
-        for idx, cat_id in enumerate(shop_categories):
+        visible_count = max(4, min(6, (screen_h - 260) // 70))
+        start, end = get_visible_window(len(shop_categories), shop_category_index, visible_count)
+        if start > 0:
+            more_above_surf, _ = small_font.render("^  more above  ^", accent)
+            screen.blit(more_above_surf, (screen_w // 2 - more_above_surf.get_width() // 2, 126))
+
+        for idx in range(start, end):
+            cat_id = shop_categories[idx]
             cat_info = shop_manager.SHOP_CATEGORIES[cat_id]
             selected = idx == shop_category_index
             color = hilite if selected else fg
@@ -45,12 +53,15 @@ def draw_shop(
             y += 40
 
             if selected:
-                desc_surf, _ = small_font.render(cat_info["description"], accent)
-                screen.blit(desc_surf, (screen_w // 2 - desc_surf.get_width() // 2, y))
-                y += 30
+                for line in wrap_text(small_font, cat_info["description"], screen_w - 120, accent):
+                    desc_surf, _ = small_font.render(line, accent)
+                    screen.blit(desc_surf, (screen_w // 2 - desc_surf.get_width() // 2, y))
+                    y += 24
+                y += 6
 
-            if y > screen_h - 150:
-                break
+        if end < len(shop_categories):
+            more_surf, _ = small_font.render("v  more below  v", accent)
+            screen.blit(more_surf, (screen_w // 2 - more_surf.get_width() // 2, min(screen_h - 95, y - 8)))
 
         draw_controls_hint(
             screen=screen,
@@ -69,8 +80,15 @@ def draw_shop(
     subtitle_surf, _ = text_font.render(cat_info["name"], accent)
     screen.blit(subtitle_surf, (screen_w // 2 - subtitle_surf.get_width() // 2, 150))
 
+    visible_count = max(4, min(6, (screen_h - 300) // 55))
+    start, end = get_visible_window(len(items), shop_item_index, visible_count)
     y = 200
-    for idx, item_id in enumerate(items):
+    if start > 0:
+        more_above_surf, _ = small_font.render("^  more above  ^", accent)
+        screen.blit(more_above_surf, (screen_w // 2 - more_above_surf.get_width() // 2, 176))
+
+    for idx in range(start, end):
+        item_id = items[idx]
         item = shop_manager.get_item_info(item_id)
         if not item:
             continue
@@ -91,12 +109,15 @@ def draw_shop(
         y += 35
 
         if selected:
-            desc_surf, _ = small_font.render(item["description"], accent)
-            screen.blit(desc_surf, (screen_w // 2 - desc_surf.get_width() // 2, y))
-            y += 25
+            for line in wrap_text(small_font, item["description"], screen_w - 120, accent):
+                desc_surf, _ = small_font.render(line, accent)
+                screen.blit(desc_surf, (screen_w // 2 - desc_surf.get_width() // 2, y))
+                y += 22
+            y += 4
 
-        if y > screen_h - 100:
-            break
+    if end < len(items):
+        more_surf, _ = small_font.render("v  more below  v", accent)
+        screen.blit(more_surf, (screen_w // 2 - more_surf.get_width() // 2, min(screen_h - 95, y - 8)))
 
     draw_controls_hint(
         screen=screen,

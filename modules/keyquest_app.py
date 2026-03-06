@@ -470,6 +470,14 @@ class KeyQuestApp:
                     'cycle': menu_handler.cycle_theme
                 },
                 {
+                    'name': 'focus_assist',
+                    'get_value': lambda: self.state.settings.focus_assist,
+                    'set_value': lambda v: setattr(self.state.settings, 'focus_assist', v),
+                    'get_text': lambda: f"Focus Assist: {'On' if self.state.settings.focus_assist else 'Off'}",
+                    'get_explanation': lambda: menu_handler.get_focus_assist_explanation(self.state.settings.focus_assist),
+                    'cycle': menu_handler.cycle_bool
+                },
+                {
                     'name': 'sentence_language',
                     'get_value': lambda: self.state.settings.sentence_language,
                     'set_value': lambda v: setattr(self.state.settings, 'sentence_language', v),
@@ -2590,6 +2598,7 @@ class KeyQuestApp:
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
+            focus_assist=self.state.settings.focus_assist,
             tutorial_state=self.state.tutorial,
             tutorial_data=tutorial_data,
         )
@@ -2609,6 +2618,7 @@ class KeyQuestApp:
             lesson_state=l,
             target=self.current_word(),
             typed=l.typed,
+            focus_assist=self.state.settings.focus_assist,
         )
 
     def draw_free_practice_ready(self):
@@ -2630,10 +2640,12 @@ class KeyQuestApp:
             text_font=self.text_font,
             small_font=self.small_font,
             screen_w=SCREEN_W,
+            screen_h=SCREEN_H,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
             duration_input=self.state.test.duration_input,
+            focus_assist=self.state.settings.focus_assist,
         )
 
     def draw_practice_setup(self):
@@ -2644,9 +2656,11 @@ class KeyQuestApp:
             text_font=self.text_font,
             small_font=self.small_font,
             screen_w=SCREEN_W,
+            screen_h=SCREEN_H,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
+            focus_assist=self.state.settings.focus_assist,
             view=self.practice_setup_view,
             menu_options=self.practice_setup_options,
             menu_index=self.practice_setup_index,
@@ -2672,11 +2686,13 @@ class KeyQuestApp:
             text_font=self.text_font,
             small_font=self.small_font,
             screen_w=SCREEN_W,
+            screen_h=SCREEN_H,
             fg=FG,
             accent=ACCENT,
             current_text=t.current,
             typed_text=t.typed,
             remaining_seconds=int(remaining),
+            focus_assist=self.state.settings.focus_assist,
         )
 
     def draw_practice(self):
@@ -2689,12 +2705,14 @@ class KeyQuestApp:
             text_font=self.text_font,
             small_font=self.small_font,
             screen_w=SCREEN_W,
+            screen_h=SCREEN_H,
             fg=FG,
             accent=ACCENT,
             current_text=t.current,
             typed_text=t.typed,
             elapsed_seconds=elapsed_seconds,
             sentences_completed=t.sentences_completed,
+            focus_assist=self.state.settings.focus_assist,
         )
 
     def draw_results(self):
@@ -2707,6 +2725,7 @@ class KeyQuestApp:
             fg=FG,
             accent=ACCENT,
             results_text=self.state.results_text,
+            focus_assist=self.state.settings.focus_assist,
         )
 
 
@@ -2728,4 +2747,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

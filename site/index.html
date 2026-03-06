@@ -20,6 +20,9 @@
     a {
       color: #0b57d0;
     }
+    a:hover {
+      text-decoration-thickness: 2px;
+    }
     a:focus-visible,
     button:focus-visible,
     [tabindex]:focus-visible {
@@ -46,6 +49,11 @@
     footer {
       display: block;
     }
+    header,
+    nav,
+    footer {
+      padding: 0 24px;
+    }
     main {
       max-width: 900px;
       margin: 0 auto;
@@ -54,16 +62,23 @@
     .content {
       max-width: 75ch;
     }
+    .content-block {
+      max-width: 75ch;
+      margin: 0 auto;
+    }
     h1, h2, h3 {
       line-height: 1.3;
     }
-    h1 { margin-top: 0; }
+    h1 {
+      margin-top: 0;
+    }
     section {
       border-top: 1px solid #ddd;
       padding-top: 16px;
       margin-top: 16px;
     }
-    ul {
+    ul,
+    ol {
       padding-left: 20px;
     }
     .note {
@@ -77,31 +92,31 @@
   <a class="skip-link" href="#main-content">Skip to main content</a>
 
   <header>
-    <div class="content" aria-label="Guide header">
+    <div class="content-block">
       <h1>KeyQuest User Guide</h1>
       <p><strong>Version 1.0</strong></p>
       <p>This guide is written for all users, including screen reader and keyboard-only users.</p>
     </div>
   </header>
 
-  <nav class="content" aria-label="Page sections">
-    <h2>On This Page</h2>
-    <ul>
-      <li><a href="#welcome">Welcome</a></li>
-      <li><a href="#quick-start">Quick Start</a></li>
-      <li><a href="#main-menu">Main Menu Sections</a></li>
-      <li><a href="#downloads">Downloads</a></li>
-      <li><a href="#accessibility">Accessibility</a></li>
-      <li><a href="changelog.html">New in Key Quest</a></li>
-      <li><a href="#help">Need Help</a></li>
-      <li><a href="#license">License</a></li>
-      <li><a href="#unsigned-build">Unsigned Build Notice</a></li>
-      <li><a href="#installer">Installer</a></li>
-    </ul>
+  <nav aria-label="Page sections">
+    <div class="content-block">
+      <h2>On This Page</h2>
+      <ul>
+        <li><a href="#welcome">Welcome</a></li>
+        <li><a href="#quick-start">Quick Start</a></li>
+        <li><a href="#main-menu">Main Menu Sections</a></li>
+        <li><a href="#downloads">Downloads</a></li>
+        <li><a href="#accessibility">Accessibility</a></li>
+        <li><a href="changelog.html">New in Key Quest</a></li>
+        <li><a href="#help">Need Help</a></li>
+        <li><a href="#license">License</a></li>
+        <li><a href="#unsigned-build">Unsigned Build Notice</a></li>
+      </ul>
+    </div>
   </nav>
 
   <main id="main-content" class="content">
-
     <section id="welcome">
       <h2>Welcome</h2>
       <p>
@@ -139,7 +154,7 @@
       <p>Press keys and hear what they are, where they are, and how they are commonly used.</p>
 
       <h3>Lessons</h3>
-      <p>Structured typing lessons that gradually add more keys as you improve.</p>
+      <p>Structured typing lessons that gradually add more keys as you improve. Longer lesson text wraps on screen so it stays easier to read.</p>
 
       <h3>Free Practice</h3>
       <p>Practice learned keys without affecting lesson progression.</p>
@@ -189,8 +204,9 @@
         <li><strong>TTS Voice</strong>: Choose a different installed voice for text-to-speech.</li>
         <li><strong>Automatic Updates</strong>: Turn startup update checks on or off. When enabled in the installed Windows app, KeyQuest checks GitHub releases for a newer installer.</li>
         <li><strong>Visual Theme</strong>: Switch between dark, light, or high contrast. High contrast is applied automatically if Windows High Contrast mode is active.</li>
+        <li><strong>Focus Assist</strong>: Turn stronger visual emphasis on or off. When enabled, KeyQuest uses stronger panels and focus cues to make the active area easier to find.</li>
         <li><strong>Practice Topic</strong>: Choose the sentence language for Speed Test and Sentence Practice.</li>
-        <li><strong>Font Size</strong>: Choose <em>auto</em> (matches your Windows display scale), 100%, 125%, or 150%. Useful on high-DPI or large-screen displays.</li>
+        <li><strong>Font Size</strong>: Choose <em>auto</em> (matches your Windows display scale), 100%, 125%, 150%, 175%, or 200%. Useful on high-DPI or low-vision setups that need larger text.</li>
       </ul>
 
       <h3>Learn Sounds</h3>
@@ -203,7 +219,7 @@
       <p>Open this user guide in your default web browser from inside the program.</p>
 
       <h3>New in Key Quest</h3>
-      <p>Open the online What's New page in your default web browser to read recent changes in plain language.</p>
+      <p>Open the online What&apos;s New page in your default web browser to read recent changes in plain language.</p>
 
       <h3>About</h3>
       <p>View application, creator, company, copyright, and license details, and open the official website.</p>
@@ -234,7 +250,7 @@
         This is the easiest choice for most people.
       </p>
       <p>
-        <a href="https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe">Download the KeyQuest installer</a>
+        <a href="https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe">Download the KeyQuest installer for Windows (EXE)</a>
       </p>
 
       <h3>Portable</h3>
@@ -243,7 +259,7 @@
         Choose this if you want to keep KeyQuest in one folder, copy it to another computer, or avoid a full installation.
       </p>
       <p>
-        <a href="https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuest-win64.zip">Download the KeyQuest portable zip</a>
+        <a href="https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuest-win64.zip">Download the KeyQuest portable version for Windows (ZIP)</a>
       </p>
 
       <p class="note">
@@ -265,11 +281,16 @@
         <li>Keyboard-only navigation</li>
         <li>Screen reader and TTS support</li>
         <li>Visual focus indicators and clear labels</li>
+        <li>Long prompts and typed text wrap across multiple lines on typing and lesson screens instead of being forced onto one line</li>
+        <li>Long menus keep the current selection in view more clearly and show when there are more items above or below</li>
         <li>Consistent repeat commands in typing contexts (<strong>Ctrl+Space</strong>)</li>
-        <li>Windows High Contrast mode detected automatically — no manual theme change needed</li>
-        <li>Font size scaling: <em>auto</em> option reads your Windows DPI setting; manual 100%/125%/150% options also available</li>
-        <li>Visual keystroke feedback: brief green flash on correct key, red flash on error (deaf/hard-of-hearing users)</li>
-        <li>Escape press counter shown on screen while exiting active modes (visual complement to speech announcement)</li>
+        <li>Windows High Contrast mode is detected automatically when your theme is set to Auto</li>
+        <li>Font size scaling: <em>auto</em> reads your Windows display scaling; manual 100%, 125%, 150%, 175%, and 200% options are also available</li>
+        <li>Visual keystroke feedback: brief green flash on correct key, red flash on error (deaf or hard-of-hearing users)</li>
+        <li>Escape press counter shown on screen while exiting active modes</li>
+        <li>Optional Focus Assist mode for stronger active-area emphasis on typing and setup screens</li>
+        <li>Stronger spacing and grouping on text-heavy screens so the active area is easier to spot</li>
+        <li>Built-in larger text options up to 200% for low-vision readability</li>
         <li>Hands-off in-app updating for installed and portable Windows builds using GitHub Releases</li>
         <li>This page uses semantic headings, landmarks, skip navigation, and visible keyboard focus</li>
       </ul>
@@ -283,7 +304,7 @@
         That helps fix issues quickly.
       </p>
       <ul>
-        <li><strong>Website</strong>: <a href="https://webfriendlyhelp.com">https://webfriendlyhelp.com</a></li>
+        <li><strong>Website</strong>: <a href="https://webfriendlyhelp.com">Web Friendly Help website</a></li>
         <li><strong>Feedback Email</strong>: <a href="mailto:help@webfriendlyhelp.com?subject=KeyQuest%20Feedback">help@webfriendlyhelp.com</a></li>
       </ul>
     </section>
@@ -316,8 +337,10 @@
     </section>
   </main>
 
-  <footer class="content">
-    <p>End of KeyQuest User Guide.</p>
+  <footer>
+    <div class="content-block">
+      <p>End of KeyQuest User Guide.</p>
+    </div>
   </footer>
 </body>
 </html>

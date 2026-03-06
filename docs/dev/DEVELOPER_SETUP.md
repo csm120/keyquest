@@ -16,6 +16,9 @@
 
 Notes:
 - On Windows, screen reader support uses `cytolk` (Tolk). If it is not installed/available, KeyQuest falls back to `pyttsx3`.
+- Current desktop accessibility research and product-direction notes are in `docs/dev/DESKTOP_ACCESSIBILITY_RESEARCH.md`.
+- Lightweight manual verification steps are in `docs/dev/SCREEN_READER_SMOKE_TESTS.md`.
+- The current accessibility direction is to preserve the custom speech-first Pygame experience and improve visual accessibility without reintroducing a heavy hybrid UI layer.
 
 ## Build / Package
 

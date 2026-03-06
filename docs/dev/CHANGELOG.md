@@ -4,7 +4,7 @@ Canonical handoff / current context: `docs/dev/HANDOFF.md`
 
 Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<line>`) from before the modularization work.
 
-## 2026-03-06 - Sentence Feedback, Instructions Menu, and Automatic Updating
+## 2026-03-06 - Sentence Feedback, Instructions Menu, Automatic Updating, and Visual Accessibility
 
 ### Sentence Typing Guidance
 - Sentence typing now explicitly tells users that capitalization and punctuation must match exactly.
@@ -29,6 +29,12 @@ Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<
 
 ### Setup Reminders
 - Speed Test and Sentence Practice setup/start prompts now include an extra spoken reminder to use capital letters and punctuation.
+
+### Visual Accessibility
+- Long prompt text and typed text now wrap on active typing and lesson screens instead of remaining on one line.
+- Main Menu and lesson lists now keep the current selection in view more clearly and indicate when more items exist above or below.
+- Several text-heavy screens received spacing and grouping updates so the active area is easier to locate visually.
+- Added developer-facing desktop accessibility research notes and a lightweight screen reader smoke-test checklist under `docs/dev/`.
 
 ### Automatic Updating
 - Added a GitHub-release-based updater for installed and portable Windows builds.

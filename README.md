@@ -15,6 +15,8 @@ Developer notes and session context live under [docs/dev](docs/dev).
 - Start with [SESSION_START_GUIDE.md](docs/dev/SESSION_START_GUIDE.md)
 - Current project context is in [HANDOFF.md](docs/dev/HANDOFF.md)
 - Detailed project history is in [CHANGELOG.md](docs/dev/CHANGELOG.md)
+- Desktop accessibility direction is in [DESKTOP_ACCESSIBILITY_RESEARCH.md](docs/dev/DESKTOP_ACCESSIBILITY_RESEARCH.md)
+- Manual screen reader checks are in [SCREEN_READER_SMOKE_TESTS.md](docs/dev/SCREEN_READER_SMOKE_TESTS.md)
 
 ## Contact
 

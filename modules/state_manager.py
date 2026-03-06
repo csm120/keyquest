@@ -223,6 +223,7 @@ class Settings:
     # Visual options
     visual_theme: str = "auto"  # "auto", "dark", "light", "high_contrast"
     font_scale: str = "auto"  # "auto" (DPI-detected), "100%", "125%", "150%"
+    focus_assist: bool = False  # Stronger visual emphasis for the active area
     # Sentence language/practice topic (canonical list is in modules/sentences_manager.py)
     sentence_language: str = "English"
     auto_update_check: bool = True  # Check GitHub releases on startup when installed
@@ -328,6 +329,7 @@ class ProgressManager:
             state.settings.typing_sound_intensity = data.get("typing_sound_intensity", "normal")
             state.settings.visual_theme = data.get("visual_theme", "auto")
             state.settings.font_scale = data.get("font_scale", "auto")
+            state.settings.focus_assist = data.get("focus_assist", False)
             state.settings.sentence_language = data.get("sentence_language", "English")
             state.settings.auto_update_check = data.get("auto_update_check", True)
 
@@ -406,6 +408,7 @@ class ProgressManager:
             state.settings.typing_sound_intensity = "normal"
             state.settings.visual_theme = "auto"
             state.settings.font_scale = "auto"
+            state.settings.focus_assist = False
             state.settings.sentence_language = "English"
             state.settings.auto_update_check = True
 
@@ -424,6 +427,7 @@ class ProgressManager:
                 "typing_sound_intensity": state.settings.typing_sound_intensity,
                 "visual_theme": state.settings.visual_theme,
                 "font_scale": state.settings.font_scale,
+                "focus_assist": state.settings.focus_assist,
                 "sentence_language": state.settings.sentence_language,
                 "auto_update_check": state.settings.auto_update_check,
                 # TTS options

@@ -1,4 +1,4 @@
-from ui.a11y import draw_controls_hint, draw_focus_frame
+from ui.a11y import draw_action_emphasis, draw_active_panel, draw_controls_hint, draw_focus_frame
 
 
 def _tutorial_keyset(tutorial_state, tutorial_data):
@@ -25,6 +25,7 @@ def draw_tutorial_screen(
     fg,
     accent,
     hilite,
+    focus_assist: bool = False,
     tutorial_state,
     tutorial_data,
 ):
@@ -60,8 +61,10 @@ def draw_tutorial_screen(
     screen.blit(prompt_label_surf, (screen_w // 2 - prompt_label_surf.get_width() // 2, 65))
     prompt_surf, _ = title_font.render(prompt, fg)
     prompt_rect = prompt_surf.get_rect(topleft=(screen_w // 2 - prompt_surf.get_width() // 2, 100))
+    draw_active_panel(screen, prompt_rect, accent, fg, strong=focus_assist)
     screen.blit(prompt_surf, prompt_rect)
     draw_focus_frame(screen, prompt_rect, hilite, accent)
+    draw_action_emphasis(screen, prompt_rect, hilite, strong=focus_assist)
 
     y = 200
     keyset = _tutorial_keyset(tutorial_state, tutorial_data)

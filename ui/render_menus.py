@@ -1,4 +1,4 @@
-from ui.a11y import draw_controls_hint, draw_focus_frame
+from ui.a11y import draw_controls_hint, draw_focus_frame, get_visible_window
 
 
 def draw_main_menu(
@@ -17,8 +17,16 @@ def draw_main_menu(
     total_count: int,
     streak_text: str = "",
 ):
+    visible_count = max(6, min(9, (screen_h - 240) // 50))
+    start, end = get_visible_window(len(menu_items), current_index, visible_count)
+
     y = 120
-    for idx, item in enumerate(menu_items):
+    if start > 0:
+        more_above_surf, _ = small_font.render("^  more above  ^", accent)
+        screen.blit(more_above_surf, (screen_w // 2 - more_above_surf.get_width() // 2, 90))
+
+    for idx in range(start, end):
+        item = menu_items[idx]
         selected = idx == current_index
         color = hilite if selected else fg
         item_text = f"> {item}" if selected else f"  {item}"
@@ -30,13 +38,19 @@ def draw_main_menu(
             draw_focus_frame(screen, item_rect, hilite, accent)
         y += 50
 
+    if end < len(menu_items):
+        more_below_surf, _ = small_font.render("v  more below  v", accent)
+        screen.blit(more_below_surf, (screen_w // 2 - more_below_surf.get_width() // 2, y - 8))
+
     info = f"Unlocked Lessons: {unlocked_count} / {total_count}"
     info_surf, _ = small_font.render(info, accent)
-    screen.blit(info_surf, (screen_w // 2 - info_surf.get_width() // 2, y + 20))
+    info_y = min(screen_h - 110, y + 20)
+    screen.blit(info_surf, (screen_w // 2 - info_surf.get_width() // 2, info_y))
 
     if streak_text:
         streak_surf, _ = small_font.render(streak_text, hilite)
-        screen.blit(streak_surf, (screen_w // 2 - streak_surf.get_width() // 2, y + 50))
+        streak_y = min(screen_h - 80, info_y + 30)
+        screen.blit(streak_surf, (screen_w // 2 - streak_surf.get_width() // 2, streak_y))
 
     draw_controls_hint(
         screen=screen,
@@ -67,9 +81,16 @@ def draw_lesson_menu(
     title_surf, _ = title_font.render(title, fg)
     screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 50))
 
+    visible_count = max(6, min(9, (screen_h - 240) // 40))
+    start, end = get_visible_window(len(unlocked_lessons), current_index, visible_count)
+
     y = 120
-    truncated = False
-    for idx, lesson_num in enumerate(unlocked_lessons):
+    if start > 0:
+        more_above_surf, _ = small_font.render("^  more above  ^", accent)
+        screen.blit(more_above_surf, (screen_w // 2 - more_above_surf.get_width() // 2, 90))
+
+    for idx in range(start, end):
+        lesson_num = unlocked_lessons[idx]
         if lesson_num < len(lesson_names):
             lesson_name = lesson_names[lesson_num]
         else:
@@ -87,14 +108,9 @@ def draw_lesson_menu(
             draw_focus_frame(screen, item_rect, hilite, accent)
         y += 40
 
-        if y > screen_h - 100:
-            if idx < len(unlocked_lessons) - 1:
-                truncated = True
-            break
-
-    if truncated:
+    if end < len(unlocked_lessons):
         more_surf, _ = small_font.render("v  more below  v", accent)
-        screen.blit(more_surf, (screen_w // 2 - more_surf.get_width() // 2, screen_h - 95))
+        screen.blit(more_surf, (screen_w // 2 - more_surf.get_width() // 2, min(screen_h - 95, y - 8)))
 
     draw_controls_hint(
         screen=screen,

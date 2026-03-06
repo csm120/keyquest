@@ -117,6 +117,9 @@ def build_changelog_page() -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>New in Key Quest</title>
   <style>
+    :root {{
+      color-scheme: light;
+    }}
     body {{
       font-family: Arial, sans-serif;
       font-size: 18px;
@@ -124,6 +127,20 @@ def build_changelog_page() -> str:
       color: #111;
       background: #fff;
       margin: 0;
+      padding: 0;
+    }}
+    header,
+    main,
+    footer {{
+      display: block;
+    }}
+    header,
+    footer {{
+      padding: 0 24px;
+    }}
+    .content-block {{
+      max-width: 75ch;
+      margin: 0 auto;
     }}
     main {{
       max-width: 900px;
@@ -133,9 +150,35 @@ def build_changelog_page() -> str:
     a {{
       color: #0b57d0;
     }}
+    a:hover {{
+      text-decoration-thickness: 2px;
+    }}
     a:focus-visible {{
       outline: 3px solid #111;
       outline-offset: 2px;
+    }}
+    .skip-link {{
+      position: absolute;
+      left: 8px;
+      top: -48px;
+      z-index: 1000;
+      background: #fff;
+      color: #111;
+      border: 2px solid #111;
+      padding: 8px 10px;
+      text-decoration: none;
+    }}
+    .skip-link:focus {{
+      top: 8px;
+    }}
+    h1, h2, h3 {{
+      line-height: 1.3;
+    }}
+    h1 {{
+      margin-top: 0;
+    }}
+    ul {{
+      padding-left: 20px;
     }}
     code, pre {{
       font-family: Consolas, "Courier New", monospace;
@@ -153,10 +196,22 @@ def build_changelog_page() -> str:
   </style>
 </head>
 <body>
-  <main>
-    <p><a href="index.html">Back to the KeyQuest User Guide</a></p>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <header>
+    <div class="content-block">
+      <p><a href="index.html">Back to the KeyQuest User Guide</a></p>
+    </div>
+  </header>
+  <main id="main-content">
+    <div class="content-block">
     {body}
+    </div>
   </main>
+  <footer>
+    <div class="content-block">
+      <p>End of New in Key Quest.</p>
+    </div>
+  </footer>
 </body>
 </html>
 """

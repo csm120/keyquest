@@ -1,7 +1,8 @@
 from modules import pet_manager
 from modules import shop_manager
-from ui.a11y import draw_controls_hint, draw_focus_frame
+from ui.a11y import draw_controls_hint, draw_focus_frame, get_visible_window
 from ui.pet_visuals import draw_pet_avatar
+from ui.text_wrap import wrap_text
 
 
 def draw_pet(
@@ -80,7 +81,14 @@ def draw_pet(
         screen.blit(subtitle_surf, (screen_w // 2 - subtitle_surf.get_width() // 2, y))
         y += 60
 
-        for idx, pet_type in enumerate(pet_types):
+        visible_count = max(3, min(5, (screen_h - 360) // 70))
+        start, end = get_visible_window(len(pet_types), pet_choose_index, visible_count)
+        if start > 0:
+            more_above_surf, _ = small_font.render("^  more above  ^", accent)
+            screen.blit(more_above_surf, (screen_w // 2 - more_above_surf.get_width() // 2, y - 28))
+
+        for idx in range(start, end):
+            pet_type = pet_types[idx]
             pet_info = pet_manager.get_pet_info(pet_type)
             if not pet_info:
                 continue
@@ -97,12 +105,15 @@ def draw_pet(
             y += 40
 
             if selected:
-                desc_surf, _ = small_font.render(pet_info["description"], accent)
-                screen.blit(desc_surf, (screen_w // 2 - desc_surf.get_width() // 2, y))
-                y += 30
+                for line in wrap_text(small_font, pet_info["description"], screen_w - 120, accent):
+                    desc_surf, _ = small_font.render(line, accent)
+                    screen.blit(desc_surf, (screen_w // 2 - desc_surf.get_width() // 2, y))
+                    y += 22
+                y += 6
 
-            if y > screen_h - 150:
-                break
+        if end < len(pet_types):
+            more_surf, _ = small_font.render("v  more below  v", accent)
+            screen.blit(more_surf, (screen_w // 2 - more_surf.get_width() // 2, min(screen_h - 95, y - 8)))
 
         draw_controls_hint(
             screen=screen,
@@ -146,7 +157,14 @@ def draw_pet(
         y += 30
 
     y += 20
-    for idx, option in enumerate(pet_options):
+    visible_count = max(3, min(5, (screen_h - y - 90) // 40))
+    start, end = get_visible_window(len(pet_options), pet_menu_index, visible_count)
+    if start > 0:
+        more_above_surf, _ = small_font.render("^  more above  ^", accent)
+        screen.blit(more_above_surf, (screen_w // 2 - more_above_surf.get_width() // 2, y - 28))
+
+    for idx in range(start, end):
+        option = pet_options[idx]
         selected = idx == pet_menu_index
         color = hilite if selected else fg
         item_text = f"> {option}" if selected else f"  {option}"
@@ -158,8 +176,9 @@ def draw_pet(
             draw_focus_frame(screen, item_rect, hilite, accent)
         y += 40
 
-        if y > screen_h - 100:
-            break
+    if end < len(pet_options):
+        more_surf, _ = small_font.render("v  more below  v", accent)
+        screen.blit(more_surf, (screen_w // 2 - more_surf.get_width() // 2, min(screen_h - 95, y - 8)))
 
     draw_controls_hint(
         screen=screen,

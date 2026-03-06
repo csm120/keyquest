@@ -72,6 +72,13 @@ def get_auto_update_explanation(enabled: bool) -> str:
     return "Does not check for updates automatically. Use Check for Updates from the main menu."
 
 
+def get_focus_assist_explanation(enabled: bool) -> str:
+    """Get explanation for the focus assist setting."""
+    if enabled:
+        return "Uses stronger panels and focus emphasis to make the active area easier to spot visually."
+    return "Uses the standard visual emphasis level."
+
+
 def get_voice_name_from_id(voice_id: str, available_voices: list) -> str:
     """Get voice name from voice ID.
 
@@ -181,12 +188,16 @@ def get_font_scale_explanation(scale: str) -> str:
         return "Medium larger text, good for HiDPI displays."
     if scale == "150%":
         return "Large text, easiest to read at a distance."
+    if scale == "175%":
+        return "Extra large text for stronger low-vision support."
+    if scale == "200%":
+        return "Maximum built-in text size for the clearest reading."
     return ""
 
 
 def cycle_font_scale(current_scale: str, direction: str = "right") -> str:
     """Cycle through font scale options."""
-    scales = ["auto", "100%", "125%", "150%"]
+    scales = ["auto", "100%", "125%", "150%", "175%", "200%"]
     try:
         current_idx = scales.index(current_scale)
     except ValueError:

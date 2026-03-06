@@ -1,4 +1,5 @@
-from ui.a11y import draw_controls_hint
+from ui.a11y import draw_active_panel, draw_controls_hint
+from ui.text_wrap import wrap_text
 
 
 def draw_results_screen(
@@ -11,26 +12,30 @@ def draw_results_screen(
     fg,
     accent,
     results_text: str,
+    focus_assist: bool = False,
 ):
-    lines = []
-    words = results_text.split()
-    line = ""
-    for word in words:
-        test = f"{line} {word}".strip()
-        surf, _ = text_font.render(test, fg)
-        if surf.get_width() > screen_w - 40:
-            lines.append(line)
-            line = word
-        else:
-            line = test
-    if line:
-        lines.append(line)
+    lines = wrap_text(text_font, results_text, screen_w - 120, fg)
 
     y = 150
+    block_top = y
+    max_width = 0
+    total_height = 0
+    for ln in lines:
+        surf, _ = text_font.render(ln, fg)
+        max_width = max(max_width, surf.get_width())
+        total_height += surf.get_height() + 16
+    import pygame
+    panel_rect = pygame.Rect(
+        screen_w // 2 - (max_width // 2) - 30,
+        block_top - 24,
+        max_width + 60,
+        max(70, total_height + 20),
+    )
+    draw_active_panel(screen, panel_rect, accent, fg, strong=focus_assist)
     for ln in lines:
         surf, _ = text_font.render(ln, fg)
         screen.blit(surf, (screen_w // 2 - surf.get_width() // 2, y))
-        y += 40
+        y += surf.get_height() + 16
 
     draw_controls_hint(
         screen=screen,
@@ -40,4 +45,3 @@ def draw_results_screen(
         y=screen_h - 50,
         accent=accent,
     )
-

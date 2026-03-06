@@ -65,8 +65,8 @@ def get_theme_colors(theme: str, darkdetect_module=None):
         return (
             (255, 255, 255),
             (0, 0, 0),
-            (0, 100, 200),
-            (0, 0, 255),  # Pure blue for better contrast on white background
+            (0, 76, 153),
+            (0, 45, 110),  # Darker blue for stronger low-vision readability on white
         )
 
     if theme == "high_contrast":
@@ -80,6 +80,6 @@ def get_theme_colors(theme: str, darkdetect_module=None):
     return (
         (0, 0, 0),
         (255, 255, 255),  # Pure white on black for maximum contrast
-        (180, 220, 255),
-        (90, 130, 190),  # WCAG AA compliant: 5.77:1 contrast ratio (nudged for margin)
+        (170, 225, 255),
+        (120, 190, 255),  # Brighter active blue for clearer low-vision emphasis
     )
