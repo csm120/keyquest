@@ -9,6 +9,7 @@ Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<
 ### Release Workflow
 - Added `tools/release.ps1` as the single release entrypoint for shipping a new version.
 - The release script rebuilds the Pages site, runs tests, refreshes local installer and portable outputs, commits and pushes `main`, then creates and pushes the matching version tag.
+- The release script now stops if `docs/user/WHATS_NEW.md` was not updated in plain language for that release.
 - That means one release action now updates:
   - local `dist/` outputs
   - GitHub Pages HTML

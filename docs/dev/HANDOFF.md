@@ -20,6 +20,7 @@ This is the single starting point for any human or AI working on KeyQuest.
    - `docs/dev/CHANGELOG.md`
 4. For release work:
    - Update `modules/version.py` first
+   - Update `docs/user/WHATS_NEW.md` in plain language
    - Run `powershell -ExecutionPolicy Bypass -File tools/release.ps1`
    - Verify release assets in local `dist/`
    - Verify GitHub Pages and the GitHub Release workflow completed successfully

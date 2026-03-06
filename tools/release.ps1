@@ -76,6 +76,24 @@ if (-not $statusBefore) {
     throw "Working tree is clean. Make your release changes first, then run this script."
 }
 
+Invoke-Step "Require plain-language What's New update" {
+    $statusLines = $statusBefore -split "`r?`n" | Where-Object { $_.Trim() }
+    $hasWhatsNewChange = $false
+    foreach ($line in $statusLines) {
+        if ($line.Length -ge 4) {
+            $path = $line.Substring(3).Trim()
+            if ($path -eq "docs/user/WHATS_NEW.md") {
+                $hasWhatsNewChange = $true
+                break
+            }
+        }
+    }
+
+    if (-not $hasWhatsNewChange) {
+        throw "Release requires a plain-language update in docs/user/WHATS_NEW.md before publishing."
+    }
+}
+
 Invoke-Step "Check release tag availability" {
     git rev-parse --verify --quiet "refs/tags/$tagName" | Out-Null
     if ($LASTEXITCODE -eq 0) {

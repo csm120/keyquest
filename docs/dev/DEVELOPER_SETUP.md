@@ -29,6 +29,7 @@ Notes:
   - Rebuilds `site/`
   - Runs tests by default
   - Rebuilds local `dist/` outputs by default
+  - Refuses to publish unless `docs/user/WHATS_NEW.md` was updated for the release in plain language
   - Commits and pushes `main`
   - Creates and pushes the matching `v<version>` tag from `modules/version.py`
   - Triggers GitHub Pages and the GitHub Release workflow so the in-app updater can see the new version

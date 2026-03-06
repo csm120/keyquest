@@ -19,6 +19,7 @@ Developer notes and session context live under [docs/dev](docs/dev).
 - Manual screen reader checks are in [SCREEN_READER_SMOKE_TESTS.md](docs/dev/SCREEN_READER_SMOKE_TESTS.md)
 - For a full release that updates GitHub Pages, the installer, the portable ZIP, and the in-app updater target, run `powershell -ExecutionPolicy Bypass -File tools/release.ps1` after updating `modules/version.py` to a new version number.
   - Add `-DryRun` first if you want to verify the workflow without pushing or tagging.
+  - The release script now refuses to publish unless `docs/user/WHATS_NEW.md` has been updated in plain language for that release.
 
 ## Contact
 

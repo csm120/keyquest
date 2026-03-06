@@ -22,6 +22,7 @@ The screen is easier to follow while you type and move through menus.
 - Menus keep the current selection in view more clearly so you do not have to visually hunt through a long list.
 - KeyQuest now shows when there are more menu items above or below the part you can currently see.
 - Several screens use stronger spacing and grouping so the active area is easier to find.
+- The guide and What's New page are being kept more current so it is easier to see what changed.
 
 ## Wednesday February 25th 2026
 
