@@ -126,9 +126,9 @@ class TestProgressManager(unittest.TestCase):
         self.assertLess(items.index("Games: G"), items.index("Quests: Q"))
         self.assertLess(items.index("Quests: Q"), items.index("Pets: P"))
         self.assertLess(items.index("Pets: P"), items.index("Pet Shop: P"))
-        self.assertLess(items.index("Quit: Q"), items.index("Check for Updates: U"))
         self.assertLess(items.index("Check for Updates: U"), items.index("Key Quest Instructions: I"))
-        self.assertEqual(items[-1], "About: A")
+        self.assertLess(items.index("Key Quest Instructions: I"), items.index("About: A"))
+        self.assertEqual(items[-1], "Quit: Q")
 
 
 if __name__ == "__main__":

@@ -20,11 +20,15 @@ Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<
 ### Main Menu and Instructions
 - Added `Key Quest Instructions` to the Main Menu above `About`.
 - Added `Check for Updates` near the bottom of the Main Menu, directly above `Key Quest Instructions`.
+- Moved `Quit` to the last Main Menu position.
 - Updated `README.html` to document:
   - exact sentence matching for capitals and punctuation
   - the new `Check for Updates` menu item
   - the new `Key Quest Instructions` menu item
   - the new `Automatic Updates` option
+
+### Setup Reminders
+- Speed Test and Sentence Practice setup/start prompts now include an extra spoken reminder to use capital letters and punctuation.
 
 ### Automatic Updating
 - Added a GitHub-release-based updater for installed and portable Windows builds.
