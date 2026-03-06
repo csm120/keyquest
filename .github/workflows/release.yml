@@ -62,13 +62,20 @@ jobs:
         shell: cmd
         run: tools\build\build_exe.bat --nopause
 
+      - name: Build portable zip
+        shell: cmd
+        run: tools\build\build_portable_zip.bat --nopause
+
       - name: Build installer
         shell: cmd
         run: tools\build\build_installer.bat --nopause
 
-      - name: Verify installer output
+      - name: Verify release outputs
         shell: pwsh
         run: |
+          if (-not (Test-Path "dist\KeyQuest-win64.zip")) {
+            throw "dist\\KeyQuest-win64.zip was not created"
+          }
           if (-not (Test-Path "dist\installer\KeyQuestSetup.exe")) {
             throw "dist\\installer\\KeyQuestSetup.exe was not created"
           }
@@ -78,8 +85,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          $pagesUrl = "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          $releaseIntro = @"
+User guide: $pagesUrl
+Changelog: ${pagesUrl}changelog.html
+
+"@
           gh release create "${{ steps.version.outputs.release_tag }}" `
+            "dist\KeyQuest-win64.zip#KeyQuest-win64.zip" `
             "dist\installer\KeyQuestSetup.exe#KeyQuestSetup.exe" `
             --title "KeyQuest ${{ steps.version.outputs.app_version }}" `
+            --notes "$releaseIntro" `
             --generate-notes `
             --latest

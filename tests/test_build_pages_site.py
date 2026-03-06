@@ -1,0 +1,26 @@
+import importlib.util
+import pathlib
+import unittest
+
+
+SCRIPT_PATH = pathlib.Path(__file__).resolve().parents[1] / "tools" / "dev" / "build_pages_site.py"
+SPEC = importlib.util.spec_from_file_location("build_pages_site", SCRIPT_PATH)
+MODULE = importlib.util.module_from_spec(SPEC)
+assert SPEC.loader is not None
+SPEC.loader.exec_module(MODULE)
+
+
+class TestBuildPagesSite(unittest.TestCase):
+    def test_markdown_to_html_renders_heading_and_list(self):
+        html = MODULE.markdown_to_html("# Title\n\n- one\n- two\n")
+        self.assertIn("<h1>Title</h1>", html)
+        self.assertIn("<li>one</li>", html)
+        self.assertIn("<li>two</li>", html)
+
+    def test_build_index_page_links_to_changelog(self):
+        html = MODULE.build_index_page()
+        self.assertIn('href="changelog.html"', html)
+
+
+if __name__ == "__main__":
+    unittest.main()

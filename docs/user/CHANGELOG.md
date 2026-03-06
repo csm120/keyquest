@@ -49,6 +49,8 @@ Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<
 ### Release Build Automation
 - Added a real GitHub Actions release workflow under `.github/workflows/` to build and publish `KeyQuestSetup.exe` from version tags.
 - Installer build metadata now uses the app version from `modules/version.py`, including Windows numeric version fields.
+- Added a GitHub Pages workflow that publishes the user guide and changelog as HTML pages.
+- GitHub Releases now attach both `KeyQuestSetup.exe` and `KeyQuest-win64.zip`, with links to the published user guide and changelog pages.
 
 ## 2026-02-25 - Accessibility Enhancements
 
