@@ -21,8 +21,10 @@ The screen is easier to follow while you type and move through menus.
 - Long sentences no longer try to stay on one line. They break across lines so they are easier to read.
 - Your typed text can also continue onto the next line instead of getting cramped.
 - Long menus are easier to follow because the current item stays in view more clearly.
-- KeyQuest now tells you visually when there are more menu items above or below the part you are looking at.
-- Several screens use stronger spacing and grouping so the part you should pay attention to stands out better.
+- More screens now tell you visually when there are more items above or below the part you are looking at, including menus, options, shop lists, pet lists, and sound lists.
+- There is now a Focus Assist option that adds stronger panels and emphasis around the part of the screen you should pay attention to.
+- Several typing, setup, and results screens use stronger spacing and grouping so the active area is easier to find.
+- Font Size now also includes larger 175% and 200% options for people who need bigger text.
 - The guide and What's New page are being kept more current so it is easier to see what changed.
 
 ## Wednesday February 25th 2026
