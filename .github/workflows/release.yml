@@ -86,11 +86,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $pagesUrl = "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
-          $releaseIntro = @"
-User guide: $pagesUrl
-Changelog: ${pagesUrl}changelog.html
-
-"@
+          $releaseIntro = "User guide: $pagesUrl`nChangelog: ${pagesUrl}changelog.html`n"
           gh release create "${{ steps.version.outputs.release_tag }}" `
             "dist\KeyQuest-win64.zip#KeyQuest-win64.zip" `
             "dist\installer\KeyQuestSetup.exe#KeyQuestSetup.exe" `
