@@ -1,5 +1,11 @@
 # New in Key Quest
 
+## Friday March 6th 2026 at 11:52PM
+
+This release fixes the Windows release build.
+
+- The release build now uses a `cytolk` version that matches what KeyQuest already uses locally, so GitHub can publish the installer and portable downloads again.
+
 ## Friday March 6th 2026 at 11:49PM
 
 This release fixes the update pipeline itself.
