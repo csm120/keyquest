@@ -3,6 +3,8 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.opc.constants import RELATIONSHIP_TYPE as RT
 from docx.shared import Pt
+import os
+import subprocess
 
 
 def add_hyperlink(paragraph, text, url):
@@ -45,6 +47,41 @@ def add_bold_paragraph(doc, text):
     run = p.add_run(text)
     run.bold = True
     return p
+
+
+def resave_with_word(output_path):
+    """If Microsoft Word is available, resave as the current default DOCX format."""
+    if os.name != "nt":
+        return
+
+    ps_script = rf"""
+$ErrorActionPreference = 'Stop'
+$path = '{output_path.replace("'", "''")}'
+$word = $null
+$doc = $null
+try {{
+    $word = New-Object -ComObject Word.Application
+    $word.Visible = $false
+    $word.DisplayAlerts = 0
+    $doc = $word.Documents.Open($path)
+    $wdFormatDocumentDefault = 16
+    $doc.SaveAs([ref]$path, [ref]$wdFormatDocumentDefault)
+}}
+finally {{
+    if ($doc -ne $null) {{ $doc.Close() }}
+    if ($word -ne $null) {{ $word.Quit() }}
+}}
+"""
+    try:
+        subprocess.run(
+            ["powershell", "-NoProfile", "-Command", ps_script],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except Exception:
+        # Keep the DOCX even if Word automation is unavailable.
+        pass
 
 
 def build_post(output_path):
@@ -90,7 +127,7 @@ def build_post(output_path):
 
     doc.add_paragraph(
         'This is not a program that teaches you the home row and then leaves '
-        'you on your own. KeyQuest has 33 progressive lessons that cover all '
+        'you bored to tears! KeyQuest has 33 progressive lessons that cover all '
         '104 keys on a standard keyboard: letters, numbers, punctuation, '
         'function keys, and special keys. Each lesson introduces one or two '
         'new keys at a time, and the program adapts as you go. If you are '
@@ -101,9 +138,24 @@ def build_post(output_path):
     )
 
     doc.add_paragraph(
-        'Every letter is announced phonetically, so you hear '
+        'Letters are announced phonetically, so you hear '
         '"A as in Apple" or "B as in Bravo" instead of just the letter name. '
         'This makes a real difference when you are learning by ear.'
+    )
+
+    doc.add_heading("Who It May Help", level=2)
+    doc.add_paragraph(
+        'KeyQuest may help independent learners, people coming back to '
+        'typing after a long break, screen reader users, low-vision users, '
+        'and people who simply want a more human way to practice.'
+    )
+
+    doc.add_paragraph(
+        'It can also be useful for assistive technology instructors, '
+        'teachers, and trainers who want one program that can support '
+        'keyboard basics, typing practice, shortcut review, and confidence '
+        'building in the same place. Instead of jumping between multiple '
+        'tools, they can use one program that covers a lot of ground.'
     )
 
     doc.add_heading("How It Fits Into Your Workflow", level=2)
@@ -146,7 +198,27 @@ def build_post(output_path):
         'Type real sentences organized by topic. Topics include general '
         'English, Spanish, Windows commands, JAWS commands, NVDA commands, '
         'science facts, history, geography, math, literature, and vocabulary. '
-        'This is where your typing skills meet real-world content.'
+        'This is where your typing skills meet real-world content. You can '
+        'also edit existing sentence files or add your own, which is '
+        'especially useful if you want more Spanish practice or want to build '
+        'a custom practice set for your own needs.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('Learn Sounds. ').bold = True
+    p.add_run(
+        'There is also a Learn Sounds area where you can hear what the '
+        'built-in sounds mean. That is helpful if you are new to the program '
+        'and want to understand its audio cues before jumping into practice.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('Help and updates. ').bold = True
+    p.add_run(
+        'KeyQuest now includes a built-in user guide, a plain-language What\'s '
+        'New page, and a Check for Updates option from the Main Menu. That '
+        'makes it easier to learn the program, keep up with changes, and keep '
+        'up without digging through release notes.'
     )
 
     doc.add_heading("Learn While You Type", level=2)
@@ -161,23 +233,20 @@ def build_post(output_path):
     doc.add_paragraph(
         'If you have ever wanted to learn common keyboard shortcuts, KeyQuest '
         'has sentence sets that walk you through them as you type. The Windows '
-        'Commands topic teaches shortcuts like pressing WINDOWS plus D to show '
-        'or hide the desktop, pressing ALT plus TAB to switch between open '
-        'windows, and pressing WINDOWS plus L to lock your computer. You are '
-        'not just memorizing a list. You are physically typing these commands '
-        'out, which helps them stick.'
+        'Commands topic covers everyday tasks like showing the desktop, '
+        'switching between open windows, and locking your computer. You are '
+        'not just reading a list. You are typing it out, which helps it '
+        'stick.'
     )
 
     doc.add_paragraph(
         'For screen reader users, there are dedicated JAWS and NVDA command '
-        'sets. The JAWS sentences cover commands like pressing INSERT plus '
-        'DOWN ARROW to say all from the current position, pressing INSERT plus '
-        'F12 to read the time and date, and pressing INSERT plus T to read the '
-        'window title. The NVDA sentences cover commands like pressing NVDA '
-        'plus N to open the NVDA menu, pressing NVDA plus F1 to open the user '
-        'guide, and pressing NVDA plus CONTROL plus C to save your '
-        'configuration. Even if you already know these commands, typing them '
-        'out reinforces the muscle memory.'
+        'sets. The JAWS sentences include commands for reading from the '
+        'current spot, hearing the time or date, and hearing the window '
+        'title. The NVDA sentences include commands for opening the NVDA '
+        'menu, hearing the window title, and saving your settings. Even if '
+        'you already know these commands, typing them out helps build '
+        'muscle memory.'
     )
 
     doc.add_heading("Interesting Facts and Educational Content", level=3)
@@ -326,11 +395,9 @@ def build_post(output_path):
     p = doc.add_paragraph()
     p.add_run('Screen reader integration. ').bold = True
     p.add_run(
-        'KeyQuest works with JAWS, NVDA, and Narrator through native Windows '
-        'screen reader support via Tolk. If no screen reader is running, it '
-        'falls back to built-in text-to-speech through pyttsx3. You can '
-        'configure your speech mode to auto-detect, screen reader only, TTS '
-        'only, or off.'
+        'KeyQuest works with JAWS, NVDA, and Narrator. If no screen reader is '
+        'running, it uses built-in text-to-speech instead. You can set speech '
+        'to auto-detect, screen reader only, text-to-speech only, or off.'
     )
 
     p = doc.add_paragraph()
@@ -357,6 +424,24 @@ def build_post(output_path):
     )
 
     p = doc.add_paragraph()
+    p.add_run('Low-vision support. ').bold = True
+    p.add_run(
+        'Text can be made larger, up to 200 percent, and Focus Assist can add '
+        'stronger emphasis to the part of the screen you should pay attention '
+        'to. Longer prompts and typed text also wrap across multiple lines '
+        'instead of being squeezed into one hard-to-read row.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('Visual feedback. ').bold = True
+    p.add_run(
+        'KeyQuest does not rely on speech alone. It can also show brief visual '
+        'feedback for correct and incorrect key presses, clearer active-area '
+        'grouping on typing screens, and an on-screen Escape counter while you '
+        'leave active modes.'
+    )
+
+    p = doc.add_paragraph()
     p.add_run('Phonetic feedback. ').bold = True
     p.add_run(
         'Every letter is announced with its phonetic equivalent, making it '
@@ -373,22 +458,47 @@ def build_post(output_path):
     doc.add_paragraph(
         'You can run the program either way, depending on what you prefer:'
     )
-    doc.add_paragraph(
-        'Installer (.exe): Great if you want a standard setup with shortcuts '
-        'and a familiar install flow.',
-        style='List Number',
+    paragraph = doc.add_paragraph(style='List Number')
+    add_hyperlink(
+        paragraph,
+        'Installer.exe',
+        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe',
     )
+    paragraph.add_run(
+        ': Great if you want a standard setup with shortcuts and a familiar '
+        'install flow.'
+    )
+    paragraph = doc.add_paragraph(style='List Number')
+    add_hyperlink(
+        paragraph,
+        'Portable.zip',
+        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuest-win64.zip',
+    )
+    paragraph.add_run(
+        ': Great if you prefer to extract and run KeyQuest.exe directly '
+        'without a full install.'
+    )
+
     doc.add_paragraph(
-        'Portable (.zip): Great if you prefer to extract and run KeyQuest.exe '
-        'directly without a full install.',
-        style='List Number',
+        'Both the installer and portable version can update from inside the '
+        'program. KeyQuest also keeps your progress during updates, and if you '
+        'added your own sentence files, it keeps those too while still bringing '
+        'in new built-in content.'
     )
 
     paragraph = doc.add_paragraph('If you want the full user guide, open the ')
     add_hyperlink(
         paragraph,
-        'KeyQuest HTML Readme',
-        'https://github.com/csm120/KeyQuest/blob/main/README.html',
+        'KeyQuest User Guide',
+        'https://csm120.github.io/KeyQuest/',
+    )
+    paragraph.add_run('.')
+
+    paragraph = doc.add_paragraph('If you want the latest plain-language changes, open ')
+    add_hyperlink(
+        paragraph,
+        'New in Key Quest',
+        'https://csm120.github.io/KeyQuest/changelog.html',
     )
     paragraph.add_run('.')
 
@@ -397,7 +507,7 @@ def build_post(output_path):
     )
     add_hyperlink(
         paragraph,
-        'KeyQuest Installer (.exe)',
+        'KeyQuest Installer.exe',
         'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe',
     )
     paragraph.add_run('.')
@@ -407,7 +517,7 @@ def build_post(output_path):
     )
     add_hyperlink(
         paragraph,
-        'KeyQuest Portable Build (.zip)',
+        'KeyQuest Portable.zip',
         'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuest-win64.zip',
     )
     paragraph.add_run('.')
@@ -434,6 +544,14 @@ def build_post(output_path):
     doc.add_paragraph(
         'Yes. KeyQuest works with JAWS, NVDA, and Narrator. If no screen '
         'reader is detected, it uses built-in text-to-speech as a fallback.'
+    )
+
+    add_bold_paragraph(doc, 'Is it only speech-based?')
+    doc.add_paragraph(
+        'No. It also includes visual feedback, larger text options, strong '
+        'focus cues, and support for Windows High Contrast. That makes it '
+        'useful for many low-vision users and for people who want both audio '
+        'and visual guidance.'
     )
 
     add_bold_paragraph(doc, 'What keys does KeyQuest teach?')
@@ -484,6 +602,14 @@ def build_post(output_path):
         'session by session.'
     )
 
+    add_bold_paragraph(doc, 'Could a teacher or AT instructor use this with learners?')
+    doc.add_paragraph(
+        'Yes. It is useful for guided instruction because it combines keyboard '
+        'orientation, structured lessons, practice modes, shortcuts, and '
+        'motivating progress systems in one place. That can make it easier to '
+        'support beginners without switching between several different tools.'
+    )
+
     add_bold_paragraph(doc, 'Is KeyQuest free?')
     doc.add_paragraph(
         'Yes. KeyQuest is free and open source under the MIT license.'
@@ -495,16 +621,41 @@ def build_post(output_path):
         'stars, badges, XP, pet evolution, shop purchases, and streak history.'
     )
 
+    add_bold_paragraph(doc, 'How do I keep up with updates?')
+    doc.add_paragraph(
+        'You can use Check for Updates from inside the program, open the '
+        'built-in guide, or read the plain-language What\'s New page online. '
+        'That makes it easier to keep up.'
+    )
+
     doc.add_heading("Final Thoughts", level=2)
     doc.add_paragraph(
         'If you have wanted a typing tool that is serious about growth but '
         'still enjoyable to come back to, KeyQuest is worth trying. Pick '
-        'installer or portable, start where you are, and keep moving forward.'
+        'installer or portable, start where you are, and keep moving forward. '
+        'This is the typing program I wish I had when I was learning to type '
+        'myself. I hope you love it!'
     )
-    doc.add_paragraph('Qapla!')
+    final_para = doc.add_paragraph()
+    final_para.add_run("You still here? KeyQuest won't run itself you know... Need the links again?")
+    final_para = doc.add_paragraph()
+    add_hyperlink(
+        final_para,
+        'Get KeyQuest Installer.exe',
+        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe',
+    )
+    final_para = doc.add_paragraph()
+    add_hyperlink(
+        final_para,
+        'Get KeyQuest Portable.zip',
+        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuest-win64.zip',
+    )
+    final_para = doc.add_paragraph()
+    final_para.add_run('Qapla!')
 
     doc.save(output_path)
+    resave_with_word(output_path)
 
 
 if __name__ == "__main__":
-    build_post(r"C:\OneDrive\Downloads\KeyQuest Blog Post.docx")
+    build_post(r"C:\OneDrive\Downloads\KeyQuest Lets Have Some Fun While Learning to Type.docx")
