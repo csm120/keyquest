@@ -2,20 +2,6 @@
 
 ## Friday March 6th 2026 at 5:07PM
 
-KeyQuest now has a clearer help and update experience.
-
-- There is now a Main Menu item for the online guide.
-- There is now a Main Menu item for this What's New page.
-- You can now check for updates from inside KeyQuest, whether you installed it or are using the portable version.
-- When KeyQuest updates, your progress stays with you.
-- If you added your own sentence files, KeyQuest keeps them during updates and also brings in new built-in sentences.
-
-Typing reminders are clearer.
-
-- Speed Test and Sentence Practice now remind you to use capital letters and punctuation before you begin.
-- If you make a sentence mistake, KeyQuest gives a simpler spoken hint about what to type next.
-- Quit now stays at the very end of the Main Menu.
-
 The screen is easier to follow while you type and move through menus.
 
 - Long sentences no longer try to stay on one line. They break across lines so they are easier to read.
@@ -26,6 +12,20 @@ The screen is easier to follow while you type and move through menus.
 - Several typing, setup, and results screens use stronger spacing and grouping so the active area is easier to find.
 - Font Size now also includes larger 175% and 200% options for people who need bigger text.
 - The guide and What's New page are being kept more current so it is easier to see what changed.
+
+Typing reminders are clearer.
+
+- Speed Test and Sentence Practice now remind you to use capital letters and punctuation before you begin.
+- If you make a sentence mistake, KeyQuest gives a simpler spoken hint about what to type next.
+- Quit now stays at the very end of the Main Menu.
+
+KeyQuest now has a clearer help and update experience.
+
+- There is now a Main Menu item for the online guide.
+- There is now a Main Menu item for this What's New page.
+- You can now check for updates from inside KeyQuest, whether you installed it or are using the portable version.
+- When KeyQuest updates, your progress stays with you.
+- If you added your own sentence files, KeyQuest keeps them during updates and also brings in new built-in sentences.
 
 ## Wednesday February 25th 2026
 
