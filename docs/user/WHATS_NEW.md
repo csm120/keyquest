@@ -1,5 +1,12 @@
 # New in Key Quest
 
+## Friday March 6th 2026 at 11:49PM
+
+This release fixes the update pipeline itself.
+
+- GitHub release publishing was repaired so shipped updates can build and publish the installer and portable downloads correctly again.
+- The release process now has a clearer split between a plain GitHub push and a full shipped update.
+
 ## Friday March 6th 2026 at 11:21PM
 
 Keyboard command practice is clearer.
