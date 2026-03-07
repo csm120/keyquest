@@ -34,6 +34,11 @@ Notes:
   - Creates and pushes the matching `v<version>` tag from `modules/version.py`
   - Triggers GitHub Pages and the GitHub Release workflow so the in-app updater can see the new version
   - Use `-DryRun` to verify the release steps without committing, pushing, or tagging
+- Preferred release entrypoint when you want the version bump chosen automatically:
+  - `powershell -ExecutionPolicy Bypass -File tools/ship_updates.ps1`
+  - uses a conservative automatic bump suggestion
+  - then calls `tools/release.ps1`
+  - release policy details are in `docs/dev/RELEASE_POLICY.md`
 - Optional single entrypoint (logs to `tests/logs/`):
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target all -Clean` (exe + source)
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target installer` (installer only)

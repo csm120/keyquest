@@ -4,6 +4,19 @@ Canonical handoff / current context: `docs/dev/HANDOFF.md`
 
 Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<line>`) from before the modularization work.
 
+## 2026-03-06 - Command Wording Cleanup and Release Workflow Automation
+
+### Release Workflow
+- Added `tools/ship_updates.ps1` as the preferred wrapper for shipping updates.
+- Added `tools/dev/release_bump.py` to suggest and apply conservative `patch` or `minor` version bumps.
+- Added `docs/dev/RELEASE_POLICY.md` so plain pushes and shipped releases are documented separately.
+- Updated release/setup docs to point to the new wrapper while keeping `tools/release.ps1` as the core publish script.
+
+### Public Content and Sentence Files
+- Cleaned up Windows, NVDA, and JAWS command sentence wording so it is less technical and easier to type.
+- Added `docs/dev/CONTENT_STYLE_GUIDE.md` to keep public guide, changelog, blog, and sentence wording consistent.
+- Refreshed the guide, changelog, and blog-post source wording to match the new content style.
+
 ## 2026-03-06 - Sentence Feedback, Instructions Menu, Automatic Updating, and Visual Accessibility
 
 ### Release Workflow

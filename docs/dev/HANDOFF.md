@@ -4,8 +4,8 @@ This is the single starting point for any human or AI working on KeyQuest.
 
 ## Snapshot
 
-- **Last updated**: 2026-02-25 (Accessibility enhancement pass complete — font scale, DPI, escape visual)
-- **Version**: 1.0 (source of truth: `modules/version.py`)
+- **Last updated**: 2026-03-06 (Docs, sentence wording, and release workflow refresh)
+- **Version**: see `modules/version.py` (single source of truth)
 - **Platform**: Windows (full accessibility) / Linux (TTS only)
 - **Accessibility**: See user accessibility docs in `docs/user/`.
 
@@ -19,9 +19,9 @@ This is the single starting point for any human or AI working on KeyQuest.
    - `README.html` (and pointer `README.md` only if needed)
    - `docs/dev/CHANGELOG.md`
 4. For release work:
-   - Update `modules/version.py` first
    - Update `docs/user/WHATS_NEW.md` in plain language
-   - Run `powershell -ExecutionPolicy Bypass -File tools/release.ps1`
+   - Prefer `powershell -ExecutionPolicy Bypass -File tools/ship_updates.ps1`
+   - Or bump `modules/version.py` manually and run `powershell -ExecutionPolicy Bypass -File tools/release.ps1`
    - Verify release assets in local `dist/`
    - Verify GitHub Pages and the GitHub Release workflow completed successfully
 5. Before handoff:
@@ -55,17 +55,20 @@ This is the single starting point for any human or AI working on KeyQuest.
 - Local quality checks: `powershell -ExecutionPolicy Bypass -File tools/run_quality_checks.ps1`
 - Build exe: `tools/build/build_exe.bat`
 - Build installer: `tools/build/build_installer.bat` (requires Inno Setup 6)
-- Full release: `powershell -ExecutionPolicy Bypass -File tools/release.ps1`
+- Full release: `powershell -ExecutionPolicy Bypass -File tools/ship_updates.ps1`
 - Build source package: `tools/build/create_source_package.bat`
 - Single build entrypoint:
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target all -Clean` (exe + source)
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target installer` (installer only)
 - EXE packaging docs policy: include `README.md`, `README.html`, and user-facing docs under `dist/KeyQuest/docs/`.
+- Release policy: `docs/dev/RELEASE_POLICY.md`
 
 ## Current Status (High Level)
 
 - Core app + Phases 1-4 features implemented.
 - New user-facing guide is now `README.html` (plain-language, WCAG-friendly structure). `README.md` is a pointer.
+- Keyboard command sentence files were cleaned up for clearer, less technical wording.
+- Blog-post source now lives in `tools/dev/write_keyquest_blog_post.py`, and the public DOCX wording should be synced back there before rebuilding the document.
 - Hangman is fully integrated and significantly expanded:
   - offline dictionary-backed words/definitions
   - weighted word-length selection centered on common lengths, with occasional short and very long words
@@ -104,6 +107,15 @@ This is the single starting point for any human or AI working on KeyQuest.
 - Update `docs/dev/CHANGELOG.md`, `docs/user/WHATS_NEW.md`, and `docs/dev/HANDOFF.md` for meaningful behavior changes.
 
 ## Recent Changes
+
+### 2026-03-06: Docs, Command Wording, and Release Workflow Refresh
+
+- Added `tools/ship_updates.ps1` as the preferred release entrypoint when you want version bump selection handled for you.
+- Added `tools/dev/release_bump.py` to suggest and apply conservative `patch` or `minor` bumps.
+- Added `docs/dev/RELEASE_POLICY.md` so `update git` and `ship updates` have distinct meanings.
+- Added `docs/dev/CONTENT_STYLE_GUIDE.md` to keep guide, changelog, blog, and sentence wording consistent.
+- Audited and simplified Windows, NVDA, and JAWS command sentence files for clearer learner-facing wording.
+- Expanded release/process notes in `docs/dev/DEVELOPER_SETUP.md` and refreshed this handoff file.
 
 ### 2026-02-25: Accessibility Enhancement Pass (complete)
 

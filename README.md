@@ -17,9 +17,11 @@ Developer notes and session context live under [docs/dev](docs/dev).
 - Detailed project history is in [CHANGELOG.md](docs/dev/CHANGELOG.md)
 - Desktop accessibility direction is in [DESKTOP_ACCESSIBILITY_RESEARCH.md](docs/dev/DESKTOP_ACCESSIBILITY_RESEARCH.md)
 - Manual screen reader checks are in [SCREEN_READER_SMOKE_TESTS.md](docs/dev/SCREEN_READER_SMOKE_TESTS.md)
-- For a full release that updates GitHub Pages, the installer, the portable ZIP, and the in-app updater target, run `powershell -ExecutionPolicy Bypass -File tools/release.ps1` after updating `modules/version.py` to a new version number.
+- To ship a full release with an automatic version-bump suggestion, run `powershell -ExecutionPolicy Bypass -File tools/ship_updates.ps1`.
+  - Add `-Bump patch` or `-Bump minor` if you want to choose the bump yourself.
   - Add `-DryRun` first if you want to verify the workflow without pushing or tagging.
-  - The release script now refuses to publish unless `docs/user/WHATS_NEW.md` has been updated in plain language for that release.
+- `tools/release.ps1` is still available if you want to bump `modules/version.py` manually before releasing.
+  - The release flow refuses to publish unless `docs/user/WHATS_NEW.md` has been updated in plain language for that release.
 
 ## Contact
 

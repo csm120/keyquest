@@ -1,6 +1,6 @@
 ﻿# Quick Start Guide for New Sessions
 
-**Last Updated:** 2026-02-14
+**Last Updated:** 2026-03-06
 
 ## For the User
 
@@ -38,6 +38,7 @@ Tell the assistant: **"Read docs/dev/HANDOFF.md"**.
 - Build exe: `tools/build/build_exe.bat`
 - Build source zip: `tools/build/create_source_package.bat`
 - Full build: `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target all -Clean`
+- Ship a release: `powershell -ExecutionPolicy Bypass -File tools/ship_updates.ps1`
 
 ## Conventions
 
@@ -45,3 +46,4 @@ Tell the assistant: **"Read docs/dev/HANDOFF.md"**.
 - Use `priority=True` + `protect_seconds` for important announcements.
 - Update `docs/dev/CHANGELOG.md`, `docs/user/WHATS_NEW.md`, and `docs/dev/HANDOFF.md` for meaningful behavior changes.
 - Prefer updating existing docs instead of creating new one-off markdown files.
+- Use `docs/dev/RELEASE_POLICY.md` when deciding between a plain push and a shipped release.

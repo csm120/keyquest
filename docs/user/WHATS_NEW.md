@@ -1,5 +1,17 @@
 # New in Key Quest
 
+## Friday March 6th 2026 at 11:21PM
+
+Keyboard command practice is clearer.
+
+- Windows, NVDA, and JAWS command topics were cleaned up so the wording feels more practical and less technical.
+- Several command lines now read more naturally while still teaching the same shortcuts.
+
+The guide and blog wording are easier to follow.
+
+- Download links now use cleaner names like `Installer.exe` and `Portable.zip`.
+- The public guide, changelog, and blog wording were smoothed out to be clearer for new users, AT instructors, and educators.
+
 ## Friday March 6th 2026 at 5:07PM
 
 The screen is easier to follow while you type and move through menus.
