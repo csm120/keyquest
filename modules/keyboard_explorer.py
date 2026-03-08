@@ -434,8 +434,6 @@ def get_key_description(key_name, event=None):
         mods = event.mod
         ctrl_held = (mods & pygame.KMOD_CTRL) != 0
         alt_held = (mods & pygame.KMOD_ALT) != 0
-        shift_held = (mods & pygame.KMOD_SHIFT) != 0
-
         # Check for Control key combinations (allow Shift too, e.g., Ctrl+Shift+S)
         if ctrl_held and not alt_held:
             combo_key = f'ctrl+{key_name}'

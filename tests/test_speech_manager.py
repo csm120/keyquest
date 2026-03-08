@@ -37,7 +37,7 @@ class TestSpeechInstantiation(unittest.TestCase):
 
     def test_instantiation_does_not_raise(self):
         try:
-            speech = _make_speech_no_engine()
+            _make_speech_no_engine()
         except Exception as exc:
             self.fail(f"Speech.__init__() raised unexpectedly: {exc}")
 

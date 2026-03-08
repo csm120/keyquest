@@ -1,26 +1,18 @@
 # New in Key Quest
 
-## Saturday March 7th 2026 at Release 1.0.5
-
-This release makes source launching more reliable on Windows and keeps lesson navigation easier to use.
-
-- `keyquest.pyw` now tries to restart itself with Python 3.9 if Windows opens it with a different Python install, which helps restore normal speech and menu behavior when multiple Python versions are installed.
-- Lessons and Free Practice now end with clearer choice menus that use Up and Down arrows.
-- The post-session wording no longer tells screen reader users to close a dialog. It now uses simpler continue and back wording.
-- `Home` and `End` jump to the first and last items in menus, lesson lists, options, and results menus.
-
 ## Saturday March 7th 2026
 
-Lessons and Free Practice are easier to finish and navigate.
+Version 1.1.1
 
-Source launching on Windows is more reliable.
+This patch republishes the lesson and speech improvements below after fixing release validation checks.
 
-- `keyquest.pyw` now tries to restart itself with Python 3.9 if Windows launches it with a different Python install.
+This release makes lesson navigation and spoken guidance clearer.
 
-- After a lesson or Free Practice session, KeyQuest now shows a regular choice menu that you move through with Up and Down arrows.
+- Lessons and Free Practice now end with clearer choice menus that use Up and Down arrows.
 - The title now comes first, followed right away by the navigation instructions, so new screen reader users hear how to move through the choices sooner.
-- Results dialogs now use keyboard wording like Enter and Escape instead of telling users to press `OK`.
-- `Home` now jumps to the first item and `End` jumps to the last item in menus, lesson lists, options, and the new results-choice menus.
+- The post-session wording now uses simpler continue and back wording.
+- `Home` and `End` jump to the first and last items in menus, lesson lists, options, and results menus.
+- Startup speech and menu speech are more reliable again on Windows.
 
 Typing lesson speech is clearer.
 
@@ -31,11 +23,15 @@ Typing lesson speech is clearer.
 
 ## Friday March 6th 2026 at 11:52PM
 
+Version 1.0.4
+
 This release fixes the Windows release build.
 
 - The release build now uses a `cytolk` version that matches what KeyQuest already uses locally, so GitHub can publish the installer and portable downloads again.
 
 ## Friday March 6th 2026 at 11:49PM
+
+Release update
 
 This release fixes the update pipeline itself.
 
@@ -43,6 +39,8 @@ This release fixes the update pipeline itself.
 - The release process now has a clearer split between a plain GitHub push and a full shipped update.
 
 ## Friday March 6th 2026 at 11:21PM
+
+Release update
 
 Keyboard command practice is clearer.
 
@@ -55,6 +53,8 @@ The guide and blog wording are easier to follow.
 - The public guide, changelog, and blog wording were smoothed out to be clearer for new users, AT instructors, and educators.
 
 ## Friday March 6th 2026 at 5:07PM
+
+Release update
 
 The screen is easier to follow while you type and move through menus.
 
@@ -83,6 +83,8 @@ KeyQuest now has a clearer help and update experience.
 
 ## Wednesday February 25th 2026
 
+Release update
+
 Reading and visual support are better.
 
 - Text can now be made larger with the Font Size option.
@@ -91,6 +93,8 @@ Reading and visual support are better.
 - A small on-screen Escape counter appears while you are exiting active modes.
 
 ## Thursday February 19th 2026
+
+Version 1.0
 
 KeyQuest 1.0 was released.
 

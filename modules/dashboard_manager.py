@@ -140,7 +140,7 @@ def format_dashboard(settings) -> str:
                 percentage = (abs(improvement) / last_week_wpm * 100.0) if last_week_wpm > 0 else 0
                 lines.append(f"Change: {improvement:.1f} WPM ({percentage:.1f}% decrease) 📉")
             else:
-                lines.append(f"Consistent performance ✓")
+                lines.append("Consistent performance ✓")
 
     # ===== SECTION 3: ACCURACY TRENDS =====
     lines.append("\n" + "=" * 40)
@@ -161,7 +161,7 @@ def format_dashboard(settings) -> str:
             elif improvement < 0:
                 lines.append(f"Change: {improvement:.1f}% 📉")
             else:
-                lines.append(f"Consistent accuracy ✓")
+                lines.append("Consistent accuracy ✓")
 
     # Count perfect accuracy sessions
     perfect_count = sum(1 for s in settings.session_history if s.get("accuracy", 0) >= 100)
@@ -195,27 +195,27 @@ def format_dashboard(settings) -> str:
     milestones = []
 
     if settings.total_lessons_completed >= 1:
-        milestones.append(f"✓ First Lesson Completed")
+        milestones.append("✓ First Lesson Completed")
     if settings.total_lessons_completed >= 10:
-        milestones.append(f"✓ 10 Lessons Completed")
+        milestones.append("✓ 10 Lessons Completed")
     if settings.total_lessons_completed >= 20:
-        milestones.append(f"✓ 20 Lessons Completed")
+        milestones.append("✓ 20 Lessons Completed")
     if settings.total_lessons_completed >= 33:
-        milestones.append(f"✓ All Lessons Completed!")
+        milestones.append("✓ All Lessons Completed!")
 
     if settings.highest_wpm >= 20:
-        milestones.append(f"✓ Reached 20 WPM")
+        milestones.append("✓ Reached 20 WPM")
     if settings.highest_wpm >= 40:
-        milestones.append(f"✓ Reached 40 WPM")
+        milestones.append("✓ Reached 40 WPM")
     if settings.highest_wpm >= 60:
-        milestones.append(f"✓ Reached 60 WPM")
+        milestones.append("✓ Reached 60 WPM")
 
     if settings.current_streak >= 3:
-        milestones.append(f"✓ 3-Day Streak")
+        milestones.append("✓ 3-Day Streak")
     if settings.current_streak >= 7:
-        milestones.append(f"✓ 7-Day Streak")
+        milestones.append("✓ 7-Day Streak")
     if settings.current_streak >= 30:
-        milestones.append(f"✓ 30-Day Streak!")
+        milestones.append("✓ 30-Day Streak!")
 
     if milestones:
         for milestone in milestones:
@@ -251,7 +251,7 @@ def format_dashboard(settings) -> str:
 
     # Streak goals
     if settings.current_streak < 3:
-        next_goals.append(f"Practice 3 days in a row")
+        next_goals.append("Practice 3 days in a row")
     elif settings.current_streak < 7:
         next_goals.append(f"Reach 7-day streak (currently {settings.current_streak})")
     elif settings.current_streak < 30:

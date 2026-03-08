@@ -262,8 +262,8 @@ Max Combo: {self.max_combo}
             self.speech.say("No letters falling.", priority=True)
         else:
             # Sort by Y position (top to bottom)
-            sorted_letters = sorted(self.letters, key=lambda l: l[2])
-            letter_list = [l[0].upper() for l in sorted_letters]
+            sorted_letters = sorted(self.letters, key=lambda letter_info: letter_info[2])
+            letter_list = [letter_info[0].upper() for letter_info in sorted_letters]
 
             if len(letter_list) == 1:
                 msg = f"Letter: {letter_list[0]}"

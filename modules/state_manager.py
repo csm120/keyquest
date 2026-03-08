@@ -321,7 +321,7 @@ class ProgressManager:
             with open(self.filename, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            schema_version = int(data.get("schema_version", 0))
+            _schema_version = int(data.get("schema_version", 0))
 
             # Load current lesson
             current = int(data.get("current_lesson", 0))
@@ -503,6 +503,6 @@ class ProgressManager:
             tmp = pathlib.Path(str(self.filename) + ".tmp")
             tmp.write_text(json.dumps(data, indent=2), encoding="utf-8")
             tmp.replace(self.filename)
-        except Exception as e:
+        except Exception:
             # Silently fail on save errors (non-critical)
             pass

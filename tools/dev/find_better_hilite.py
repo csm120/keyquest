@@ -32,7 +32,7 @@ CURRENT_RATIO = contrast_ratio(BG_DARK, CURRENT_HILITE)
 
 print(f"Current HILITE: {CURRENT_HILITE}")
 print(f"Current ratio: {CURRENT_RATIO:.2f}:1")
-print(f"Target: >= 4.5:1 for WCAG AA")
+print("Target: >= 4.5:1 for WCAG AA")
 print("\nSearching for better blue colors...")
 print()
 

@@ -4,7 +4,7 @@ This module manages the virtual pet companion that grows with the user's
 typing practice, has moods, and provides encouragement.
 """
 
-from typing import Dict, Optional, List
+from typing import Dict, Optional
 import datetime
 
 

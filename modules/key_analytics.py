@@ -155,7 +155,7 @@ def format_key_performance_report(settings, min_attempts: int = 10) -> str:
         lines.append("\n💡 Recommendation:")
         worst_keys = [key for key, _, _ in categories["problem_keys"][:3]]
         lines.append(f"  Focus on practicing these keys: {', '.join(worst_keys)}")
-        lines.append(f"  Try Free Practice mode to improve without pressure.")
+        lines.append("  Try Free Practice mode to improve without pressure.")
 
     # Overall stats
     if settings.key_stats:
@@ -163,7 +163,7 @@ def format_key_performance_report(settings, min_attempts: int = 10) -> str:
         total_correct = sum(s["correct"] for s in settings.key_stats.values())
         overall_accuracy = (total_correct / total_attempts * 100.0) if total_attempts > 0 else 0
 
-        lines.append(f"\n📊 Overall Statistics:")
+        lines.append("\n📊 Overall Statistics:")
         lines.append(f"  Total keystrokes: {total_attempts:,}")
         lines.append(f"  Overall accuracy: {overall_accuracy:.1f}%")
         lines.append(f"  Keys tracked: {total_keys}")

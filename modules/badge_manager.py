@@ -121,13 +121,13 @@ def check_badges(settings, lesson_stats: dict = None) -> list:
     # Ten lessons badge
     if "ten_lessons" not in settings.earned_badges:
         # Count unique lessons with at least 1 star
-        completed_count = len([l for l, s in settings.lesson_stars.items() if s > 0])
+        completed_count = len([lesson for lesson, stars in settings.lesson_stars.items() if stars > 0])
         if completed_count >= 10:
             newly_earned.append("ten_lessons")
 
     # Full keyboard badge (all 33 lessons)
     if "full_keyboard" not in settings.earned_badges:
-        completed_count = len([l for l, s in settings.lesson_stars.items() if s > 0])
+        completed_count = len([lesson for lesson, stars in settings.lesson_stars.items() if stars > 0])
         if completed_count >= 33:
             newly_earned.append("full_keyboard")
 

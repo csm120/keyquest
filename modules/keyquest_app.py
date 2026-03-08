@@ -37,12 +37,10 @@ import time
 import random
 import threading
 import subprocess
-import traceback
-import json
 import webbrowser
 from collections import Counter
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional
 
 # Program modules
 from modules.app_paths import get_app_dir
@@ -53,14 +51,10 @@ from modules import state_manager
 from modules import lesson_manager
 from modules import menu_handler
 from modules import keyboard_explorer
-from modules import badge_manager
 # Phase 2 modules
-from modules import xp_manager
 from modules import challenge_manager
 from modules import quest_manager
-from modules import dashboard_manager
 # Phase 4 modules
-from modules import currency_manager
 from modules.speech_manager import Speech
 from modules import config as app_config
 from modules import theme as theme_manager
@@ -87,6 +81,11 @@ from modules import progress_views
 from modules import notifications
 from modules import update_manager
 from modules.version import __version__
+import pygame
+import pygame.freetype
+from games import LetterFallGame
+from games import HangmanGame
+from games.word_typing import WordTypingGame
 from ui.render_menus import draw_main_menu, draw_lesson_menu, draw_games_menu
 from ui.render_shop import draw_shop
 from ui.render_pet import draw_pet
@@ -114,16 +113,6 @@ try:
 except Exception:
     wx = None
     WX_AVAILABLE = False
-
-# Pygame
-import pygame
-import pygame.freetype
-import numpy as np
-
-# Games
-from games import LetterFallGame
-from games import HangmanGame
-from games.word_typing import WordTypingGame
 
 # ----------------- Config -----------------
 SCREEN_W, SCREEN_H = app_config.SCREEN_W, app_config.SCREEN_H
@@ -1218,20 +1207,20 @@ class KeyQuestApp:
         self.state.free_practice.in_session = True
 
         # Initialize lesson state for practice (reuse lesson mechanics)
-        l = self.state.lesson
-        l.stage = -1  # Flag for free practice (negative means no progress saving)
-        l.tracker = state_manager.AdaptiveTracker()
-        l.index = 0
-        l.typed = ""
-        l.use_words = True
-        l.review_mode = False
-        l.start_time = time.time()
+        lesson = self.state.lesson
+        lesson.stage = -1  # Flag for free practice (negative means no progress saving)
+        lesson.tracker = state_manager.AdaptiveTracker()
+        lesson.index = 0
+        lesson.typed = ""
+        lesson.use_words = True
+        lesson.review_mode = False
+        lesson.start_time = time.time()
 
         # Build batch with selected keys
         self.build_free_practice_batch()
 
         # Announce first word with instructions (like lessons do)
-        target = l.batch_words[l.index]
+        target = lesson.batch_words[lesson.index]
         speakable = self._make_speakable(target)
         self.speech.say(
             f"Free practice. Control Space repeats. Type {speakable}",
@@ -1241,15 +1230,15 @@ class KeyQuestApp:
 
     def build_free_practice_batch(self):
         """Build a practice batch using selected keys."""
-        l = self.state.lesson
+        lesson = self.state.lesson
         keys = list(self.state.free_practice.selected_keys)
 
         if not keys:
             keys = ['a', 's', 'd', 'f']  # Fallback to home row
 
         # Use lesson manager's word building logic
-        l.batch_words = lesson_manager.generate_words_from_keys(keys, count=15, use_real_words=True)
-        l.batch_instructions = []
+        lesson.batch_words = lesson_manager.generate_words_from_keys(keys, count=15, use_real_words=True)
+        lesson.batch_instructions = []
 
     def handle_free_practice_ready_input(self, event, mods):
         """Handle input in Free Practice ready state."""
@@ -1261,15 +1250,15 @@ class KeyQuestApp:
 
     def end_free_practice(self):
         """End free practice session and show results."""
-        l = self.state.lesson
-        l.end_time = time.time()
+        lesson = self.state.lesson
+        lesson.end_time = time.time()
 
         # Calculate statistics (but don't save to progress)
-        duration = l.end_time - l.start_time
-        accuracy = l.tracker.overall_accuracy() * 100
-        wpm = l.tracker.calculate_wpm(duration)
-        total_correct = l.tracker.total_correct
-        total_attempts = l.tracker.total_attempts
+        duration = lesson.end_time - lesson.start_time
+        accuracy = lesson.tracker.overall_accuracy() * 100
+        wpm = lesson.tracker.calculate_wpm(duration)
+        total_correct = lesson.tracker.total_correct
+        total_attempts = lesson.tracker.total_attempts
         total_errors = total_attempts - total_correct
         minutes = duration / 60.0 if duration > 0 else 0.0
         gross_wpm = ((total_attempts / 5.0) / minutes) if minutes > 0 else 0.0
@@ -1975,15 +1964,13 @@ class KeyQuestApp:
 
         self.build_lesson_batch()
 
-        l = self.state.lesson
-        target = l.batch_words[l.index]
-
-        lesson_name = lesson_manager.LESSON_NAMES[stage]
+        lesson = self.state.lesson
+        target = lesson.batch_words[lesson.index]
 
         # Check if this is a special key lesson
-        if l.batch_instructions:
+        if lesson.batch_instructions:
             # Special key lesson - use the instruction
-            instruction = l.batch_instructions[l.index]
+            instruction = lesson.batch_instructions[lesson.index]
             self.speech.say(
                 f"Lesson practice. Control Space repeats. When the lesson ends, Space continues, Enter retries, and Escape returns to the main menu. {instruction}",
                 priority=True,
@@ -2233,7 +2220,7 @@ class KeyQuestApp:
 
     def provide_key_guidance(self, pressed, target_text, matched_prefix=""):
         """Provide short, directional guidance based on spatial position."""
-        l = self.state.lesson
+        lesson = self.state.lesson
 
         if not target_text:
             target_text = ""
@@ -2245,8 +2232,8 @@ class KeyQuestApp:
         speakable_target = self._make_speakable(remaining_text)
 
         # Store for visual display - short and helpful
-        l.guidance_message = f"Type {speakable_target}"
-        l.hint_message = hint
+        lesson.guidance_message = f"Type {speakable_target}"
+        lesson.hint_message = hint
 
         # Say target and directional hint
         self.speech.say(f"Type {speakable_target}, {hint}", priority=True, protect_seconds=2.0)
@@ -2684,7 +2671,7 @@ class KeyQuestApp:
         )
 
     def draw_lesson(self):
-        l = self.state.lesson
+        lesson = self.state.lesson
         draw_lesson_screen(
             screen=self.screen,
             title_font=self.title_font,
@@ -2695,9 +2682,9 @@ class KeyQuestApp:
             accent=ACCENT,
             hilite=HILITE,
             wrap_text=self._wrap_text,
-            lesson_state=l,
+            lesson_state=lesson,
             target=self.current_word(),
-            typed=l.typed,
+            typed=lesson.typed,
             focus_assist=self.state.settings.focus_assist,
         )
 

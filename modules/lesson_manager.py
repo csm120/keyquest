@@ -455,19 +455,19 @@ class LessonManager:
             lesson_state: LessonState object to populate
             stage: Current lesson number (0-based)
         """
-        l = lesson_state
+        lesson = lesson_state
 
         # Check if this is a special key lesson
         if stage in SPECIAL_KEY_COMMANDS:
             # Special key lesson - use command practice format
             commands = SPECIAL_KEY_COMMANDS[stage]
-            l.batch_words = [cmd[1] for cmd in commands]  # The keys to press
-            l.batch_instructions = [cmd[0] for cmd in commands]  # What to say
-            l.use_words = False
+            lesson.batch_words = [cmd[1] for cmd in commands]  # The keys to press
+            lesson.batch_instructions = [cmd[0] for cmd in commands]  # What to say
+            lesson.use_words = False
             return
 
         # Regular character lesson
-        l.batch_instructions = []  # Clear instructions for regular lessons
+        lesson.batch_instructions = []  # Clear instructions for regular lessons
         allowed = set().union(*STAGE_LETTERS[:stage + 1])
         allowed_list = sorted(allowed)
 
@@ -479,7 +479,7 @@ class LessonManager:
         items = []
 
         # Review mode focuses on struggling keys
-        if l.review_mode and l.review_keys:
+        if lesson.review_mode and lesson.review_keys:
             # Mix struggling keys with all learned keys
             for _ in range(batch_size):
                 if random.random() < 0.7:  # 70% focus on struggling keys
@@ -487,7 +487,7 @@ class LessonManager:
                     word_chars = []
                     for _ in range(length):
                         if random.random() < 0.8:
-                            word_chars.append(random.choice(l.review_keys))
+                            word_chars.append(random.choice(lesson.review_keys))
                         else:
                             word_chars.append(random.choice(allowed_list))
                     items.append("".join(word_chars))
@@ -498,13 +498,13 @@ class LessonManager:
         else:
             # Normal lesson progression
             # Use phrases if available
-            if stage in STAGE_PHRASES and l.use_words:
+            if stage in STAGE_PHRASES and lesson.use_words:
                 phrases = STAGE_PHRASES[stage]
                 for _ in range(batch_size // 2):
                     items.append(random.choice(phrases))
 
             # Use real words if available and use_words is True
-            if stage in STAGE_WORDS and l.use_words:
+            if stage in STAGE_WORDS and lesson.use_words:
                 words = STAGE_WORDS[stage]
                 remaining = batch_size - len(items)
                 for _ in range(remaining):
@@ -537,8 +537,8 @@ class LessonManager:
                         length = random.randint(2, 5)
                         items.append("".join(random.choice(allowed_list) for _ in range(length)))
 
-        l.batch_words = items
-        l.index = 0
+        lesson.batch_words = items
+        lesson.index = 0
 
     @staticmethod
     def get_prompt_parts(lesson_state):
@@ -548,18 +548,18 @@ class LessonManager:
             tuple: (is_instruction, text) where is_instruction indicates if this is a
                    special key instruction or character-by-character prompt
         """
-        l = lesson_state
-        target = l.batch_words[l.index]
+        lesson = lesson_state
+        target = lesson.batch_words[lesson.index]
 
         # Check if this is a special key lesson with instructions
-        if l.batch_instructions and l.index < len(l.batch_instructions):
+        if lesson.batch_instructions and lesson.index < len(lesson.batch_instructions):
             # Use the instruction for special key lessons
-            instruction = l.batch_instructions[l.index]
+            instruction = lesson.batch_instructions[lesson.index]
             return (True, instruction)
         else:
             speakable = speech_format.spell_text_for_typing_instruction(
                 target,
-                natural_words=get_stage_natural_words(l.stage),
+                natural_words=get_stage_natural_words(lesson.stage),
             )
             return (False, f"Type {speakable}")
 
@@ -571,15 +571,15 @@ class LessonManager:
             lesson_state: LessonState object to extend
             stage: Current lesson number
         """
-        l = lesson_state
+        lesson = lesson_state
         allowed = set().union(*STAGE_LETTERS[:stage + 1])
         allowed_list = sorted(allowed)
 
         # Get struggling keys to focus on
-        struggling = l.tracker.get_struggling_keys()
+        struggling = lesson.tracker.get_struggling_keys()
 
         # Add 5-10 more items (depending on how much room we have left)
-        items_to_add = min(10, MAX_LESSON_BATCH - len(l.batch_words))
+        items_to_add = min(10, MAX_LESSON_BATCH - len(lesson.batch_words))
 
         new_items = []
         for _ in range(items_to_add):
@@ -605,7 +605,7 @@ class LessonManager:
                 new_items.append("".join(random.choice(allowed_list) for _ in range(length)))
 
         # Add to end of batch
-        l.batch_words.extend(new_items)
+        lesson.batch_words.extend(new_items)
 
     @staticmethod
     def inject_adaptive_content(lesson_state, stage: int, current_index: int):
@@ -616,16 +616,16 @@ class LessonManager:
             stage: Current lesson number
             current_index: Current position in batch
         """
-        l = lesson_state
+        lesson = lesson_state
 
         # Only check every 5 items to avoid over-adjusting
         if current_index % 5 != 0:
             return
 
         # Get struggling keys
-        struggling = l.tracker.get_struggling_keys()
+        struggling = lesson.tracker.get_struggling_keys()
 
-        if struggling and l.tracker.consecutive_wrong >= 2:
+        if struggling and lesson.tracker.consecutive_wrong >= 2:
             # User is struggling! Inject easier practice with familiar keys
             allowed = set().union(*STAGE_LETTERS[:stage + 1])
 
@@ -633,7 +633,7 @@ class LessonManager:
             good_keys = []
             for key in allowed:
                 if key not in struggling:
-                    perf = l.tracker.key_performance.get(key)
+                    perf = lesson.tracker.key_performance.get(key)
                     if perf and perf.recent_accuracy() > 0.75:
                         good_keys.append(key)
 
@@ -648,9 +648,9 @@ class LessonManager:
                 # Inject these easier words into the batch after current position
                 insert_position = current_index + 1
                 for i, word in enumerate(easier_words):
-                    l.batch_words.insert(insert_position + i, word)
+                    lesson.batch_words.insert(insert_position + i, word)
 
-        elif l.tracker.is_excelling():
+        elif lesson.tracker.is_excelling():
             # User is doing great! Can optionally add a challenge
             # Current behavior keeps normal progression.
             pass
@@ -663,16 +663,16 @@ class LessonManager:
             tuple: (action, message) where action is "continue", "extend", "complete", or "early_complete"
                    and message is an optional status message
         """
-        l = lesson_state
+        lesson = lesson_state
 
         # Check for early completion (if doing exceptionally well)
-        if l.index >= MIN_LESSON_BATCH and l.tracker.is_excelling():
+        if lesson.index >= MIN_LESSON_BATCH and lesson.tracker.is_excelling():
             return ("early_complete", "Excellent work! You've mastered these keys.")
 
         # Check if batch is complete
-        if l.index >= len(l.batch_words):
+        if lesson.index >= len(lesson.batch_words):
             # Check if we should extend for struggling students
-            if l.tracker.should_slow_down() and len(l.batch_words) < MAX_LESSON_BATCH:
+            if lesson.tracker.should_slow_down() and len(lesson.batch_words) < MAX_LESSON_BATCH:
                 return ("extend", None)
             else:
                 return ("complete", None)

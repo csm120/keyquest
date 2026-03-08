@@ -490,7 +490,7 @@ class AudioManager:
             if sound is None:
                 return
             sound.play()
-        except Exception as e:
+        except Exception:
             # Silently ignore audio errors (non-critical)
             pass
 

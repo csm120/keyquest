@@ -6,8 +6,6 @@ and accessibility across the application.
 
 import traceback
 import sys
-import time
-from pathlib import Path
 from modules import error_logging
 
 try:
@@ -156,7 +154,7 @@ def show_dialog(
                 dialog_closing[0] = True
                 try:
                     dlg.EndModal(wx.ID_OK)
-                except:
+                except Exception:
                     pass  # Dialog already closing
 
         # Bind Enter and Escape keys to close dialog
