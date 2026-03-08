@@ -41,6 +41,35 @@ function Test-Command {
     return $null -ne (Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Get-FileSha256 {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path $Path)) {
+        throw "Expected file not found: $Path"
+    }
+
+    return (Get-FileHash -Path $Path -Algorithm SHA256).Hash
+}
+
+function Assert-FilesMatch {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Source,
+        [Parameter(Mandatory = $true)]
+        [string]$Packaged
+    )
+
+    $sourceHash = Get-FileSha256 -Path $Source
+    $packagedHash = Get-FileSha256 -Path $Packaged
+
+    if ($sourceHash -ne $packagedHash) {
+        throw "Packaged file is stale: $Packaged does not match $Source"
+    }
+}
+
 if (-not (Test-Command git)) {
     throw "git is required."
 }
@@ -127,6 +156,14 @@ if (-not $SkipLocalBuilds) {
 
     Invoke-Step "Build local installer" {
         cmd /c tools\build\build_installer.bat --nopause
+    }
+
+    Invoke-Step "Verify packaged release docs in dist" {
+        Assert-FilesMatch -Source "README.md" -Packaged "dist\KeyQuest\README.md"
+        Assert-FilesMatch -Source "README.html" -Packaged "dist\KeyQuest\README.html"
+        Assert-FilesMatch -Source "docs\user\WHATS_NEW.md" -Packaged "dist\KeyQuest\docs\WHATS_NEW.md"
+        Assert-FilesMatch -Source "README.md" -Packaged "dist\KeyQuest\docs\README.md"
+        Assert-FilesMatch -Source "README.html" -Packaged "dist\KeyQuest\docs\README.html"
     }
 }
 
