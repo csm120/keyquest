@@ -153,3 +153,16 @@ This smoke test is based on the current product intent:
 - visual accessibility improving alongside that model
 
 It is not based on the assumption that every screen is a native Windows widget tree.
+
+## When to Re-run These Tests
+
+Re-run the smoke tests after any change to the following files:
+
+- `modules/speech_manager.py` — core speech routing
+- `modules/dialog_manager.py` — accessible results/info dialogs
+- `modules/notifications.py` — badge, level-up, and quest announcements
+- `modules/lesson_mode.py` — lesson prompts and mismatch feedback
+- `modules/test_modes.py` — speed test speech
+- `ui/render_menus.py`, `ui/render_lesson.py`, or any other `ui/render_*.py` — layout changes can affect what is visually focused and thus what gets announced
+
+A quick smoke run after these changes catches regressions before users do.

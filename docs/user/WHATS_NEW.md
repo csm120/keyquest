@@ -1,5 +1,25 @@
 # New in Key Quest
 
+## Saturday March 7th 2026
+
+Lessons and Free Practice are easier to finish and navigate.
+
+Source launching on Windows is more reliable.
+
+- `keyquest.pyw` now tries to restart itself with Python 3.9 if Windows launches it with a different Python install.
+
+- After a lesson or Free Practice session, KeyQuest now shows a regular choice menu that you move through with Up and Down arrows.
+- The title now comes first, followed right away by the navigation instructions, so new screen reader users hear how to move through the choices sooner.
+- Results dialogs now use keyboard wording like Enter and Escape instead of telling users to press `OK`.
+- `Home` now jumps to the first item and `End` jumps to the last item in menus, lesson lists, options, and the new results-choice menus.
+
+Typing lesson speech is clearer.
+
+- If you make a mistake in a lesson, KeyQuest now repeats only what is left to type instead of starting the whole prompt over.
+- `Control+Space` in lessons now repeats only the remaining part of the target.
+- Repeated-letter drills are spoken more clearly, so patterns like `aass` and `asas` are read as letter sequences instead of sounding like made-up words.
+- Early lessons now introduce a new key with simpler repeated drills first before mixing it into longer patterns.
+
 ## Friday March 6th 2026 at 11:52PM
 
 This release fixes the Windows release build.

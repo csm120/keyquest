@@ -23,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.11"
           cache: "pip"
 
       - name: Read app version
@@ -54,6 +54,12 @@ jobs:
         shell: pwsh
         run: choco install innosetup --no-progress -y
 
+      - name: Lint
+        shell: pwsh
+        run: |
+          python -m pip install ruff
+          ruff check .
+
       - name: Run tests
         shell: pwsh
         run: python -m pytest -q
@@ -61,6 +67,12 @@ jobs:
       - name: Build executable
         shell: cmd
         run: tools\build\build_exe.bat --nopause
+
+      - name: Smoke test EXE
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath "dist\KeyQuest\KeyQuest.exe" -ArgumentList "--version" -Wait -PassThru -NoNewWindow
+          if ($p.ExitCode -ne 0) { throw "EXE smoke test failed with exit code $($p.ExitCode)" }
 
       - name: Build portable zip
         shell: cmd

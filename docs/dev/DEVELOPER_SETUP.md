@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Python 3 (with `python` and `pip` on PATH)
+- Python 3.9+ (Windows source runs are pinned to Python 3.9 for reliable speech/TTS behavior)
 - Optional but recommended for accessibility dialogs: `wxPython`
 
 ## Install
@@ -10,12 +10,15 @@
 1. Create and activate a virtual environment (recommended).
 2. Install dependencies: `pip install -r requirements.txt`
 
+**Dependency pinning**: `requirements.txt` lists minimum compatible versions. `requirements.lock` (committed) records the exact versions used in the last known-good build. To reproduce that exact environment: `pip install -r requirements.lock`. To update the lock after changing dependencies: `pip install -r requirements.txt && pip freeze > requirements.lock`.
+
 ## Run (from repo root)
 
-- `python keyquest.pyw`
+- `py -3.9 keyquest.pyw`
 
 Notes:
 - On Windows, screen reader support uses `cytolk` (Tolk). If it is not installed/available, KeyQuest falls back to `pyttsx3`.
+- `keyquest.pyw` now attempts to relaunch itself with Python 3.9 if Windows opens it with a different interpreter.
 - Current desktop accessibility research and product-direction notes are in `docs/dev/DESKTOP_ACCESSIBILITY_RESEARCH.md`.
 - Lightweight manual verification steps are in `docs/dev/SCREEN_READER_SMOKE_TESTS.md`.
 - The current accessibility direction is to preserve the custom speech-first Pygame experience and improve visual accessibility without reintroducing a heavy hybrid UI layer.

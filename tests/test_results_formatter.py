@@ -32,7 +32,7 @@ class TestResultsFormatter(unittest.TestCase):
         self.assertIn("Corrected Words Per Minute: 30.0", text)
         self.assertIn("Total Words Per Minute: 33.0", text)
         self.assertIn("UNLOCKED: Next Lesson", text)
-        self.assertIn("Press OK to start the next lesson.", text)
+        self.assertNotIn("Use arrow keys to read these results.", text)
 
     def test_format_lesson_results_review_action_is_deterministic(self):
         with patch("modules.results_formatter.random.choice", return_value="Keep going"):
@@ -47,7 +47,7 @@ class TestResultsFormatter(unittest.TestCase):
             )
         self.assertEqual(action, "review")
         self.assertIn("Keep going!", text)
-        self.assertIn("Press OK to continue with focused review.", text)
+        self.assertNotIn("Use arrow keys to read these results.", text)
 
 
 if __name__ == "__main__":

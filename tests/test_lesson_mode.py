@@ -5,8 +5,14 @@ from modules import lesson_mode
 
 
 class DummyTracker:
+    def __init__(self):
+        self.recorded = []
+
     def get_struggling_keys(self):
         return []
+
+    def record_keystroke(self, key, correct):
+        self.recorded.append((key, correct))
 
 
 class DummyLessonState:
@@ -20,16 +26,42 @@ class DummyLessonState:
         self.index = -1
         self.typed = "not-empty"
         self.start_time = None
+        self.errors_in_row = 0
+        self.show_guidance = False
+        self.guidance_message = ""
+        self.hint_message = ""
 
 
 class DummyState:
     def __init__(self, lesson_state):
         self.lesson = lesson_state
+        self.settings = type("Settings", (), {"key_stats": {}})()
 
 
 class DummyApp:
     def __init__(self, lesson_state):
         self.state = DummyState(lesson_state)
+        self.guidance_calls = []
+        self.prompt_calls = 0
+        self.audio = type(
+            "Audio",
+            (),
+            {
+                "beep_bad": lambda _self: None,
+                "play_success": lambda _self: None,
+                "play_progressive": lambda _self, _pct: None,
+            },
+        )()
+        self.speech = type("Speech", (), {"say": lambda _self, _text, **_kwargs: None})()
+
+    def current_word(self):
+        return self.state.lesson.batch_words[self.state.lesson.index]
+
+    def trigger_flash(self, *_args, **_kwargs):
+        pass
+
+    def provide_key_guidance(self, pressed, target, matched_prefix=""):
+        self.guidance_calls.append((pressed, target, matched_prefix))
 
 
 class TestLessonMode(unittest.TestCase):
@@ -63,14 +95,41 @@ class TestLessonMode(unittest.TestCase):
         self.assertEqual(lesson_state.typed, "")
         self.assertIsInstance(lesson_state.start_time, float)
 
-    def test_build_lesson_batch_early_stage_uses_three_to_four_key_sequences(self):
-        lesson_state = DummyLessonState(stage=0)
+    def test_build_lesson_batch_early_stage_front_loads_new_key_repetition(self):
+        lesson_state = DummyLessonState(stage=1)
         app = DummyApp(lesson_state)
 
         lesson_mode.build_lesson_batch(app)
 
         self.assertEqual(len(lesson_state.batch_words), lesson_manager.LESSON_BATCH)
-        self.assertTrue(all(len(word) in (3, 4) for word in lesson_state.batch_words))
+        self.assertEqual(lesson_state.batch_words[:3], ["sss", "ss", "ssss"])
+        self.assertTrue(all(len(word) in (2, 3, 4) for word in lesson_state.batch_words[:6]))
+
+    def test_lesson_prompt_speaks_remaining_suffix_only(self):
+        lesson_state = DummyLessonState(stage=0)
+        lesson_state.batch_words = ["asdf"]
+        lesson_state.index = 0
+        lesson_state.typed = "as"
+        messages = []
+        app = DummyApp(lesson_state)
+        app.speech = type("Speech", (), {"say": lambda _self, text, **_kwargs: messages.append(text)})()
+
+        lesson_mode.lesson_prompt(app)
+
+        self.assertEqual(messages[-1], "Type d, f")
+
+    def test_process_lesson_typing_preserves_correct_prefix_after_error(self):
+        lesson_state = DummyLessonState(stage=0)
+        lesson_state.batch_words = ["asdf"]
+        lesson_state.index = 0
+        lesson_state.typed = "as"
+        app = DummyApp(lesson_state)
+
+        event = type("Event", (), {"unicode": "x", "key": None})()
+        lesson_mode.process_lesson_typing(app, event)
+
+        self.assertEqual(lesson_state.typed, "as")
+        self.assertEqual(app.guidance_calls[-1], ("x", "asdf", "as"))
 
 
 if __name__ == "__main__":

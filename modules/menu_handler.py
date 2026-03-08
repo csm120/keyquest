@@ -13,7 +13,7 @@ from modules import sentences_manager
 def get_speech_mode_explanation(mode: str) -> str:
     """Get explanation for a speech mode setting."""
     explanations = {
-        "auto": "Automatically detects if a screen reader is running and uses it. Otherwise, falls back to built-in text-to-speech.",
+        "auto": "Automatically chooses the most reliable speech backend. It prefers built-in text-to-speech when available and falls back to your screen reader if needed.",
         "screen_reader": "Uses your screen reader only. Screen reader must be running.",
         "tts": "Uses built-in text-to-speech engine only.",
         "off": "Disables all speech output."
@@ -79,6 +79,13 @@ def get_focus_assist_explanation(enabled: bool) -> str:
     return "Uses the standard visual emphasis level."
 
 
+def get_auto_start_next_lesson_explanation(enabled: bool) -> str:
+    """Get explanation for automatic next-lesson start behavior."""
+    if enabled:
+        return "Starts the next unlocked lesson automatically after a successful lesson."
+    return "Shows a choice screen after each lesson so you can start the next lesson, retry, or return to the main menu."
+
+
 def get_voice_name_from_id(voice_id: str, available_voices: list) -> str:
     """Get voice name from voice ID.
 
@@ -124,7 +131,8 @@ def get_options_items(settings, show_tts_options: bool = False, available_voices
     # Add visual and language options
     theme_desc = f"Visual Theme: {settings.visual_theme}"
     language_desc = f"Practice Topic: {settings.sentence_language}"
-    options.extend([theme_desc, language_desc])
+    auto_next_desc = f"Auto Start Next Lesson: {'On' if settings.auto_start_next_lesson else 'Off'}"
+    options.extend([theme_desc, auto_next_desc, language_desc])
 
     return options
 
@@ -155,6 +163,16 @@ def navigate_down(current_index: int, item_count: int) -> int:
         New index after navigation
     """
     return (current_index + 1) % item_count
+
+
+def navigate_first(item_count: int) -> int:
+    """Navigate to the first item in a menu."""
+    return 0 if item_count > 0 else 0
+
+
+def navigate_last(item_count: int) -> int:
+    """Navigate to the last item in a menu."""
+    return max(0, item_count - 1)
 
 
 # =========== Option Cycling ===========
@@ -494,6 +512,20 @@ class Menu:
             self.current_index = (self.current_index + 1) % len(items)
             self.announce_current()
 
+    def navigate_first(self):
+        """Navigate to the first item."""
+        items = self.get_items()
+        if items:
+            self.current_index = navigate_first(len(items))
+            self.announce_current()
+
+    def navigate_last(self):
+        """Navigate to the last item."""
+        items = self.get_items()
+        if items:
+            self.current_index = navigate_last(len(items))
+            self.announce_current()
+
     def select_current(self):
         """Select the current item."""
         item = self.get_current_item()
@@ -564,6 +596,12 @@ class Menu:
             return True
         elif event.key == pygame.K_DOWN:
             self.navigate_down()
+            return True
+        elif event.key == pygame.K_HOME:
+            self.navigate_first()
+            return True
+        elif event.key == pygame.K_END:
+            self.navigate_last()
             return True
         elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
             self.select_current()
@@ -639,6 +677,16 @@ class OptionsMenu:
         self.current_index = (self.current_index + 1) % len(self.options)
         self.announce_current(include_explanation=True)
 
+    def navigate_first(self):
+        """Navigate to the first option."""
+        self.current_index = navigate_first(len(self.options))
+        self.announce_current(include_explanation=True)
+
+    def navigate_last(self):
+        """Navigate to the last option."""
+        self.current_index = navigate_last(len(self.options))
+        self.announce_current(include_explanation=True)
+
     def cycle_current(self, direction):
         """Cycle current option value left or right.
 
@@ -674,6 +722,12 @@ class OptionsMenu:
             return True
         elif event.key == pygame.K_DOWN:
             self.navigate_down()
+            return True
+        elif event.key == pygame.K_HOME:
+            self.navigate_first()
+            return True
+        elif event.key == pygame.K_END:
+            self.navigate_last()
             return True
         elif event.key == pygame.K_LEFT:
             self.cycle_current("left")

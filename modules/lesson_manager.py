@@ -101,67 +101,74 @@ LESSON_NAMES = [
     "Caps Lock",                          # 32
 ]
 
-# Key location descriptions for touch typists
+# Key location descriptions for touch typists.
+# These keys are indexed by actual lesson number so the intro always matches the lesson selected.
 KEY_LOCATIONS = {
     0: {  # Letter A
         "keys": "a",
         "description": "Letter A is on the home row, left side.",
         "location": "Rest your left hand on the keyboard. Your left pinky finger should naturally rest on the A key. It is the leftmost key of the home row.",
-        "finding": "From the space bar, move your left hand up two rows. The leftmost key under your pinky is A."
+        "finding": "From the space bar, move your left hand up two rows. The leftmost key under your pinky is A.",
     },
     1: {  # Letter S
         "keys": "s",
         "description": "Letter S is on the home row, next to A.",
         "location": "Keep your left hand on the home row. Your left ring finger rests on S, just to the right of A.",
-        "finding": "From A, move one key to the right. That is S under your ring finger."
+        "finding": "From A, move one key to the right. That is S under your ring finger.",
     },
     2: {  # Letter D
         "keys": "d",
         "description": "Letter D is on the home row, between S and F.",
         "location": "Your left middle finger naturally rests on D. It is the third key from the left on the home row.",
-        "finding": "From S, move one key to the right. That is D under your middle finger."
+        "finding": "From S, move one key to the right. That is D under your middle finger.",
     },
     3: {  # Letter F
         "keys": "f",
         "description": "Letter F is on the home row. It usually has a small raised bump.",
         "location": "Your left index finger rests on F. Feel for a small bump or ridge on this key, it helps you find home position.",
-        "finding": "From D, move one key to the right. F has a tactile marker. Your left hand home position is complete, A S D F."
+        "finding": "From D, move one key to the right. F has a tactile marker. Your left hand home position is complete, A S D F.",
     },
-    4: {  # Review left homerow
-        "keys": "asdf",
-        "description": "Left hand home row, A S D F.",
-        "location": "All four fingers of your left hand rest on these keys. Pinky on A, ring on S, middle on D, index on F.",
-        "finding": "This lesson reviews all left homerow keys together."
-    },
-    5: {  # Letter J
+    4: {  # Letter J
         "keys": "j",
         "description": "Letter J is on the home row, right side.",
         "location": "Your right index finger rests on J. Like F, it has a small raised bump to help you find home position.",
-        "finding": "From the space bar with your right hand, move up two rows. Your index finger should feel a bump, that is J."
+        "finding": "From the space bar with your right hand, move up two rows. Your index finger should feel a bump, that is J.",
     },
-    6: {  # Letter K
+    5: {  # Letter K
         "keys": "k",
         "description": "Letter K is on the home row, next to J.",
         "location": "Your right middle finger rests on K, just to the right of J.",
-        "finding": "From J, move one key to the right. That is K under your middle finger."
+        "finding": "From J, move one key to the right. That is K under your middle finger.",
     },
-    7: {  # Letter L
+    6: {  # Letter L
         "keys": "l",
         "description": "Letter L is on the home row, next to K.",
         "location": "Your right ring finger rests on L.",
-        "finding": "From K, move one key to the right. That is L under your ring finger."
+        "finding": "From K, move one key to the right. That is L under your ring finger.",
     },
-    8: {  # Letter semicolon
+    7: {  # Semicolon
         "keys": ";",
         "description": "Semicolon is on the home row, rightmost.",
         "location": "Your right pinky finger rests on the semicolon key. It is the rightmost key of the home row.",
-        "finding": "From L, move one key to the right. That is semicolon under your pinky."
+        "finding": "From L, move one key to the right. That is semicolon under your pinky.",
     },
-    9: {  # Full homerow
-        "keys": "asdfj kl;",
-        "description": "Complete home row, A S D F J K L semicolon.",
-        "location": "All eight fingers rest on these keys. Left hand, A S D F. Right hand, J K L semicolon. Feel for the bumps on F and J.",
-        "finding": "This lesson reviews the complete homerow, the foundation of touch typing."
+    8: {  # Letters G and H
+        "keys": "gh",
+        "description": "Letters G and H are in the center of the home row.",
+        "location": "G is just to the right of F for your left index finger. H is just to the left of J for your right index finger.",
+        "finding": "Feel the bumps on F and J first. G sits beside F, and H sits beside J.",
+    },
+    9: {  # Letters E and R
+        "keys": "er",
+        "description": "Letters E and R are on the top left row.",
+        "location": "Your left middle finger reaches up to E. Your left index finger reaches up to R.",
+        "finding": "From D, move up to E. From F, move up to R.",
+    },
+    10: {  # Letters U and I
+        "keys": "ui",
+        "description": "Letters U and I are on the top right row.",
+        "location": "Your right index finger reaches up to U. Your right middle finger reaches up to I.",
+        "finding": "From J, move up to U. From K, move up to I.",
     },
 }
 
@@ -195,16 +202,16 @@ STAGE_WORDS = {
     0: ["a", "a a", "a  a"],  # Lesson 0: Add 'a' (first letter!)
     1: ["as", "a s", "s s", "as as"],  # Lesson 1: Add 's'
     2: ["ad", "sad", "dad", "as", "ads"],  # Lesson 2: Add 'd'
-    3: ["fad", "sad", "dad", "ads", "fa", "fas", "lass", "sass"],  # Lesson 3: Add 'f' (left homerow!)
+    3: ["fad", "sad", "dad", "ads", "fa", "fas", "adds", "sass"],  # Lesson 3: Add 'f' (left homerow!)
     4: ["jad", "jasa", "jaf", "jass"],  # Lesson 4: Add 'j'
-    5: ["jak", "ask", "lass", "kasa", "flask"],  # Lesson 5: Add 'k'
+    5: ["jak", "ask", "asks", "kasa", "skaf"],  # Lesson 5: Add 'k'
     6: ["lad", "lass", "all", "fall", "salad", "sal", "las"],  # Lesson 6: Add 'l'
     7: ["lad;", "all;", "sad;", "ask;"],  # Lesson 7: Add ';' (full homerow!)
     8: ["had", "has", "gag", "shag", "hash", "gash", "lag", "glad", "flag"],  # Lesson 8: Add g, h
     9: ["red", "fed", "deer", "fear", "read", "seed", "here", "her"],  # Lesson 9: Add e, r
     10: ["rude", "fused", "used", "ruse", "fuse", "user"],  # Lesson 10: Add u, i
-    11: ["was", "war", "wed", "weed", "saw", "raw", "queen"],  # Lesson 11: Add q, w
-    12: ["open", "rope", "pope", "pore", "sore", "pour", "opus"],  # Lesson 12: Add o, p
+    11: ["was", "war", "wed", "weed", "saw", "raw", "qwe"],  # Lesson 11: Add q, w
+    12: ["pop", "rope", "pope", "pore", "sore", "pour", "opus"],  # Lesson 12: Add o, p
     13: ["type", "yet", "toy", "try", "tray", "turf", "your"],  # Lesson 13: Add t, y
     14: ["cave", "vice", "voice", "vector"],  # Lesson 14: Add c, v
     15: ["name", "men", "main", "noun", "norm"],  # Lesson 15: Add n, m
@@ -216,14 +223,47 @@ STAGE_WORDS = {
 # Phrases for later lessons
 STAGE_PHRASES = {
     6: ["a lad", "a lass", "all fall"],  # Lesson 6: With 'l'
-    8: ["had a", "has a", "gal pal", "add dad", "shag flag"],  # Lesson 8: Full homerow + g, h
+    8: ["had a", "has a", "gag dash", "add dad", "shag flag"],  # Lesson 8: Full homerow + g, h
     9: ["read here", "feed her", "she read", "feel free"],  # Lesson 9: With e, r
-    10: ["use it", "sure fire", "juice jar", "fur rug"],  # Lesson 10: With u, i
-    11: ["we were", "was here", "saw her", "few words"],  # Lesson 11: With q, w
-    12: ["open door", "pour pop", "sorry pal", "proof read"],  # Lesson 12: With o, p
-    13: ["try your", "toy story", "very true", "pretty tray"],  # Lesson 13: With t, y
+    10: ["use us", "sure fire", "hire us", "fur rug"],  # Lesson 10: With u, i
+    11: ["we were", "was here", "saw her", "few were"],  # Lesson 11: With q, w
+    12: ["poor pop", "pour pop", "sour pop", "proof read"],  # Lesson 12: With o, p
+    13: ["try your", "toy story", "true try", "pretty tray"],  # Lesson 13: With t, y
     # More phrases as needed
 }
+
+
+def _stage_allowed_characters(stage: int) -> set[str]:
+    """Return all characters that are valid for the given lesson stage."""
+    return set().union(*STAGE_LETTERS[: stage + 1])
+
+
+def content_uses_only_introduced_keys(stage: int, text: str) -> bool:
+    """Return True when every character in text belongs to the lesson's unlocked keys."""
+    return set(text) <= _stage_allowed_characters(stage)
+
+
+def filter_stage_content(stage: int, items: list[str]) -> list[str]:
+    """Drop authored lesson content that includes keys from future lessons."""
+    return [item for item in items if content_uses_only_introduced_keys(stage, item)]
+
+
+def get_stage_natural_words(stage: int) -> set[str]:
+    """Return authored lowercase words that should be spoken naturally in prompts."""
+    natural_words: set[str] = set()
+
+    for word in filter_stage_content(stage, STAGE_WORDS.get(stage, [])):
+        cleaned = word.strip().lower()
+        if cleaned.isalpha():
+            natural_words.add(cleaned)
+
+    for phrase in filter_stage_content(stage, STAGE_PHRASES.get(stage, [])):
+        for part in phrase.split():
+            cleaned = part.strip().lower()
+            if cleaned.isalpha():
+                natural_words.add(cleaned)
+
+    return natural_words
 
 # Mapping of pygame key constants to readable key names for special keys.
 # Kept optional so the module can be imported in minimal environments (e.g., CI unit tests).
@@ -517,7 +557,10 @@ class LessonManager:
             instruction = l.batch_instructions[l.index]
             return (True, instruction)
         else:
-            speakable = speech_format.spell_text_for_typing_instruction(target)
+            speakable = speech_format.spell_text_for_typing_instruction(
+                target,
+                natural_words=get_stage_natural_words(l.stage),
+            )
             return (False, f"Type {speakable}")
 
     @staticmethod

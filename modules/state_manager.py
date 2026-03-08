@@ -4,6 +4,8 @@ Centralizes all state/data structures and progress save/load functionality.
 """
 
 import json
+import pathlib
+from datetime import date
 from dataclasses import dataclass, field
 from collections import Counter, deque
 from typing import Dict, List, Set
@@ -227,6 +229,7 @@ class Settings:
     # Sentence language/practice topic (canonical list is in modules/sentences_manager.py)
     sentence_language: str = "English"
     auto_update_check: bool = True  # Check GitHub releases on startup when installed
+    auto_start_next_lesson: bool = False  # Skip the post-lesson choice screen and start the next lesson automatically
     # Daily streak tracking
     current_streak: int = 0  # Current streak in days
     last_practice_date: str = ""  # Last practice date in YYYY-MM-DD format
@@ -282,7 +285,13 @@ class AppState:
     test: TestState = field(default_factory=TestState)
     tutorial: TutorialState = field(default_factory=TutorialState)
     free_practice: FreePracticeState = field(default_factory=FreePracticeState)
+    results_title: str = ""
+    results_instructions: str = ""
     results_text: str = ""
+    results_action: str = ""
+    results_next_lesson: int = 0
+    results_options: List[str] = field(default_factory=list)
+    results_index: int = 0
     backend_label: str = ""
     menu_items: list = field(default_factory=lambda: ["Tutorial: T", "Keyboard Explorer: K", "Lessons: L", "Free Practice: F", "Speed Test: S", "Sentence Practice: S", "Games: G", "Quests: Q", "Pets: P", "Pet Shop: P", "Badges: B", "Progress Dashboard: P", "Daily Challenge: D", "Key Performance: K", "Options: O", "Learn Sounds: L", "Check for Updates: U", "Key Quest Instructions: I", "New in Key Quest: N", "About: A", "Quit: Q"])
     menu_index: int = 0
@@ -332,6 +341,7 @@ class ProgressManager:
             state.settings.focus_assist = data.get("focus_assist", False)
             state.settings.sentence_language = data.get("sentence_language", "English")
             state.settings.auto_update_check = data.get("auto_update_check", True)
+            state.settings.auto_start_next_lesson = data.get("auto_start_next_lesson", False)
 
             # Load TTS options
             state.settings.tts_rate = data.get("tts_rate", 200)
@@ -396,6 +406,18 @@ class ProgressManager:
             state.settings.pet_mood = data.get("pet_mood", "happy")
             state.settings.pet_last_fed = data.get("pet_last_fed", "")
 
+            # Passive happiness decay: 5 points per day since last fed, floor at 0.
+            if state.settings.pet_type and state.settings.pet_last_fed:
+                try:
+                    last_fed = date.fromisoformat(state.settings.pet_last_fed[:10])
+                    days_away = (date.today() - last_fed).days
+                    if days_away > 0:
+                        state.settings.pet_happiness = max(
+                            0, state.settings.pet_happiness - days_away * 5
+                        )
+                except ValueError:
+                    pass
+
             # Ensure current lesson is unlocked and at least lesson 0 is unlocked
             state.settings.unlocked_lessons.add(0)
             state.settings.unlocked_lessons.add(state.settings.current_lesson)
@@ -411,6 +433,7 @@ class ProgressManager:
             state.settings.focus_assist = False
             state.settings.sentence_language = "English"
             state.settings.auto_update_check = True
+            state.settings.auto_start_next_lesson = False
 
     def save(self, state: AppState) -> None:
         """Save progress to file.
@@ -430,6 +453,7 @@ class ProgressManager:
                 "focus_assist": state.settings.focus_assist,
                 "sentence_language": state.settings.sentence_language,
                 "auto_update_check": state.settings.auto_update_check,
+                "auto_start_next_lesson": state.settings.auto_start_next_lesson,
                 # TTS options
                 "tts_rate": state.settings.tts_rate,
                 "tts_volume": state.settings.tts_volume,
@@ -476,8 +500,9 @@ class ProgressManager:
                 "pet_mood": state.settings.pet_mood,
                 "pet_last_fed": state.settings.pet_last_fed
             }
-            with open(self.filename, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+            tmp = pathlib.Path(str(self.filename) + ".tmp")
+            tmp.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            tmp.replace(self.filename)
         except Exception as e:
             # Silently fail on save errors (non-critical)
             pass

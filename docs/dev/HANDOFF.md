@@ -4,7 +4,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 
 ## Snapshot
 
-- **Last updated**: 2026-03-06 (Docs, sentence wording, and release workflow refresh)
+- **Last updated**: 2026-03-07 (Code quality, test coverage, and modularisation pass)
 - **Version**: see `modules/version.py` (single source of truth)
 - **Platform**: Windows (full accessibility) / Linux (TTS only)
 - **Accessibility**: See user accessibility docs in `docs/user/`.
@@ -50,7 +50,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 ## Run / Test / Build
 
 - Install deps: `pip install -r requirements.txt`
-- Run app: `python keyquest.pyw`
+- Run app: `py -3.9 keyquest.pyw`
 - Run tests: `python -m unittest`
 - Local quality checks: `powershell -ExecutionPolicy Bypass -File tools/run_quality_checks.ps1`
 - Build exe: `tools/build/build_exe.bat`
@@ -62,6 +62,7 @@ This is the single starting point for any human or AI working on KeyQuest.
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target installer` (installer only)
 - EXE packaging docs policy: include `README.md`, `README.html`, and user-facing docs under `dist/KeyQuest/docs/`.
 - Release policy: `docs/dev/RELEASE_POLICY.md`
+- Windows source-launch safeguard: `keyquest.pyw` now relaunches itself with Python 3.9 if file association starts it with a different Python install.
 
 ## Current Status (High Level)
 
@@ -79,9 +80,9 @@ This is the single starting point for any human or AI working on KeyQuest.
   - sentence-practice prompts use varied style templates (story/mystery/science/etc.) instead of plain repetitive lines
   - sentence-practice `Ctrl+Space` reads remaining text from current typing position
   - `Alt+L` reports letters left and total letters
-- Speech formatting is now consistent for repeated letters/spaces and mismatch feedback.
-- Typing prompts now use clearer sequence wording for repeated/special-key patterns (e.g., "Type a, then space, then a").
-- Early lessons (stages 0-5) now favor memory-friendly 3-4 key targets.
+- Speech formatting is now consistent for repeated letters, spaces, and mismatch feedback.
+- Lesson prompts now speak authored practice words naturally, while drill patterns such as `asas` or `aass` are spelled out.
+- Early lessons now front-load simpler 2, 3, and 4 key repeated drills before mixed patterns.
 - Sentence Practice `Random Topic` excludes Spanish topics; Spanish is still available via `Choose Topic`.
 - `Escape x3` return to Main Menu is implemented across active non-menu modes.
   - Escape handling is centralized via `modules/escape_guard.py` + policy routing in `modules/keyquest_app.py`.
@@ -95,9 +96,8 @@ This is the single starting point for any human or AI working on KeyQuest.
 
 ## Active TODOs / Open Issues
 
-1. Continue modularization of `modules/keyquest_app.py` where practical.
+1. Continue modularization of `modules/keyquest_app.py` where practical — `flash_manager` and `font_manager` are extracted; mode dispatch and cross-mode wiring remain candidates.
 2. Keep docs in sync with active file layout under `tools/build/` and `tools/quality/`.
-3. Add more focused behavior tests for speech/menu/game edge cases as needed.
 
 ## Key Conventions
 
@@ -107,6 +107,19 @@ This is the single starting point for any human or AI working on KeyQuest.
 - Update `docs/dev/CHANGELOG.md`, `docs/user/WHATS_NEW.md`, and `docs/dev/HANDOFF.md` for meaningful behavior changes.
 
 ## Recent Changes
+
+### 2026-03-07: Code Quality, Test Coverage, and Modularisation Pass
+
+- Extracted `modules/flash_manager.py` (`FlashState`) and `modules/font_manager.py` (`detect_dpi_scale`, `build_fonts`) from `keyquest_app.py`.
+- `progress.json` save is now atomic (temp-file + rename) — no data loss on crash.
+- `error_logging.py` gained log rotation (2 MB cap) and `log_message()` helper; `dialog_manager.py` now routes errors there instead of a separate file.
+- Pet happiness decays 5 pts/day since last fed (applied at load time in `state_manager.py`).
+- `keyquest.pyw` now supports `--version` flag; CI EXE smoke test uses it.
+- CI upgraded to Python 3.11; ruff lint step and EXE smoke test added to `release.yml`.
+- `requirements.lock` and `pyproject.toml` (ruff + pytest config) added.
+- Test count: 100 → 179 (audio, speech, schema migration, file-not-found paths all covered).
+- `docs/dev/ARCHITECTURE.md` added (module map, mode state machine, conventions).
+- See top entry in `docs/dev/CHANGELOG.md` for full detail.
 
 ### 2026-03-06: Docs, Command Wording, and Release Workflow Refresh
 
@@ -286,5 +299,3 @@ All items from the accessibility recommendations audit are now implemented. `doc
   - Added fixed duplicate-speech debounce (`0.25s`) for identical rapid repeats.
 
 For full details, see the top entry in `docs/dev/CHANGELOG.md`.
-
-

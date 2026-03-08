@@ -78,6 +78,8 @@ from modules import sound_catalog
 from modules import sound_demo
 from modules import learn_sounds_mode
 from modules.escape_guard import EscapePressGuard
+from modules import flash_manager
+from modules import font_manager
 from modules import shop_mode
 from modules import pet_mode
 from modules import pet_manager
@@ -132,14 +134,8 @@ SYSTEM_THEME = theme_manager.detect_theme()
 BG, FG, ACCENT, HILITE = theme_manager.get_theme_colors(SYSTEM_THEME)
 
 
-def _detect_dpi_scale() -> float:
-    """Return the system DPI scale factor (1.0 = 100%, 1.25 = 125%, etc.)."""
-    try:
-        import ctypes
-        dpi = ctypes.windll.user32.GetDpiForSystem()
-        return max(1.0, dpi / 96.0)
-    except Exception:
-        return 1.0
+# DPI scale detection is now in modules/font_manager.py
+# Font rebuilding is now in modules/font_manager.py
 
 # Lesson configuration constants moved to modules/lesson_manager.py
 # Access as: lesson_manager.lesson_manager.LESSON_BATCH, lesson_manager.lesson_manager.MIN_WPM, etc.
@@ -218,8 +214,7 @@ class KeyQuestApp:
         self._update_error_message = ""
 
         # Visual flash feedback state (deaf/HoH users — visual equivalent of beep_ok/bad)
-        self._flash_color = (0, 0, 0)
-        self._flash_until = 0.0
+        self._flash = flash_manager.FlashState()
 
         # Escape guard visual state — shows remaining presses needed
         self._escape_remaining: int = 0
@@ -462,6 +457,14 @@ class KeyQuestApp:
                     'cycle': menu_handler.cycle_bool
                 },
                 {
+                    'name': 'auto_start_next_lesson',
+                    'get_value': lambda: self.state.settings.auto_start_next_lesson,
+                    'set_value': lambda v: setattr(self.state.settings, 'auto_start_next_lesson', v),
+                    'get_text': lambda: f"Auto Start Next Lesson: {'On' if self.state.settings.auto_start_next_lesson else 'Off'}",
+                    'get_explanation': lambda: menu_handler.get_auto_start_next_lesson_explanation(self.state.settings.auto_start_next_lesson),
+                    'cycle': menu_handler.cycle_bool
+                },
+                {
                     'name': 'visual_theme',
                     'get_value': lambda: self.state.settings.visual_theme,
                     'set_value': lambda v: setattr(self.state.settings, 'visual_theme', v),
@@ -605,6 +608,8 @@ class KeyQuestApp:
             self.apply_tts_settings()
         elif option_name == "auto_update_check":
             self.save_progress()
+        elif option_name == "auto_start_next_lesson":
+            self.save_progress()
         elif option_name == "visual_theme":
             self.apply_visual_theme()
         elif option_name == "sentence_language":
@@ -740,9 +745,46 @@ class KeyQuestApp:
         return "No Speech"
 
 
-    def show_results_dialog(self, results_text: str):
+    def show_results_dialog(self, results_text: str, title: str = "Results"):
         """Show results in an accessible dialog (uses universal dialog system)."""
-        dialog_manager.show_results_dialog("Speed Test Results", results_text)
+        dialog_manager.show_results_dialog(title, results_text)
+
+    def show_guided_results_dialog(
+        self,
+        results_text: str,
+        *,
+        title: str,
+        enter_target: str = "continue to your choices",
+    ) -> None:
+        """Show a results dialog with keyboard reading instructions at the top."""
+        intro = (
+            f"Use Up and Down arrows to read these results. "
+            f"Press Enter to {enter_target}, or Escape to go back."
+        )
+        content = f"{intro}\n\n{results_text}"
+        self.show_results_dialog(content, title=title)
+
+    def _configure_results_menu(self, title: str, body: str, options: list[str]) -> None:
+        """Populate the on-screen results menu shown after dialogs close."""
+        self.state.mode = "RESULTS"
+        self.state.results_title = title
+        self.state.results_instructions = (
+            "Use Up and Down arrows to review choices. Press Enter or Space to select. Press Escape for the main menu."
+        )
+        self.state.results_text = body
+        self.state.results_options = options
+        self.state.results_index = 0
+
+    def _announce_results_menu(self) -> None:
+        """Announce the results menu title, instructions, and current choice."""
+        option = ""
+        if self.state.results_options:
+            option = self.state.results_options[self.state.results_index]
+        message = (
+            f"{self.state.results_title}. {self.state.results_instructions} "
+            f"Current choice: {option}."
+        )
+        self.speech.say(message, priority=True, protect_seconds=3.0)
 
     def show_info_dialog(self, title: str, content: str):
         """Show informational content in an accessible dialog (uses universal dialog system)."""
@@ -1234,31 +1276,42 @@ class KeyQuestApp:
 
         # Format results
         results_text = (
-            f"Free Practice Complete!\n\n"
             f"Accuracy: {accuracy:.0f}%\n"
             f"Corrected Words Per Minute: {wpm:.1f}\n"
             f"Total Words Per Minute: {gross_wpm:.1f}\n"
             f"Correct: {total_correct}\n"
             f"Errors: {total_errors}\n"
             f"Time: {duration:.1f} seconds\n\n"
-            f"Results not saved (practice mode).\n\n"
-            f"Press OK to return to menu."
+            f"Results not saved (practice mode)."
         )
 
         # Show results
         self.audio.play_victory()
-        self.show_results_dialog(results_text)
+        self.show_guided_results_dialog(
+            f"Free Practice Complete!\n\n{results_text}",
+            title="Free Practice Results",
+            enter_target="continue to your choices",
+        )
 
-        # Clean up and return to menu
         self.state.free_practice.in_session = False
-        self.state.free_practice.selected_keys = set()
-        self._return_to_main_menu()
+        self.state.results_action = "free_practice"
+        self._configure_results_menu(
+            title="Free Practice Complete",
+            body=results_text,
+            options=[
+                "Start free practice again",
+                "Return to main menu",
+            ],
+        )
+        self._announce_results_menu()
 
     # =========================================================
 
     def _make_speakable(self, text: str) -> str:
         """Convert text to speakable form for screen readers."""
-        return speech_format.spell_text_for_typing_instruction(text)
+        stage = getattr(self.state.lesson, "stage", 0)
+        natural_words = lesson_manager.get_stage_natural_words(stage)
+        return speech_format.spell_text_for_typing_instruction(text, natural_words=natural_words)
 
     def run(self):
         # Draw first frame before speaking (helps with initialization)
@@ -1594,24 +1647,9 @@ class KeyQuestApp:
         new font objects into every game object so they don't keep stale
         references.
         """
-        scale_str = self.state.settings.font_scale
-        if scale_str == "auto":
-            scale = _detect_dpi_scale()
-        else:
-            try:
-                scale = float(scale_str.rstrip("%")) / 100.0
-            except Exception:
-                scale = 1.0
-        scale = max(1.0, min(scale, 2.0))  # clamp to sane range
-
-        title_sz = max(24, round(TITLE_SIZE * scale))
-        text_sz = max(18, round(TEXT_SIZE * scale))
-        small_sz = max(14, round(SMALL_SIZE * scale))
-
-        self.title_font = pygame.freetype.SysFont(FONT_NAME, title_sz)
-        self.text_font = pygame.freetype.SysFont(FONT_NAME, text_sz)
-        self.small_font = pygame.freetype.SysFont(FONT_NAME, small_sz)
-
+        self.title_font, self.text_font, self.small_font = font_manager.build_fonts(
+            self.state.settings.font_scale
+        )
         # Propagate to game objects that cache fonts at construction time.
         for game in self.games:
             game.title_font = self.title_font
@@ -1926,6 +1964,7 @@ class KeyQuestApp:
     def begin_lesson_practice(self, lesson_num):
         """Begin the actual lesson practice after intro."""
         self.state.mode = "LESSON"
+        self.state.results_action = ""
 
         stage = max(0, min(lesson_num, len(lesson_manager.STAGE_LETTERS) - 1))
         self.state.lesson = state_manager.LessonState(stage=stage)
@@ -1946,18 +1985,18 @@ class KeyQuestApp:
             # Special key lesson - use the instruction
             instruction = l.batch_instructions[l.index]
             self.speech.say(
-                f"Lesson practice. Control Space repeats. {instruction}",
+                f"Lesson practice. Control Space repeats. When the lesson ends, Space continues, Enter retries, and Escape returns to the main menu. {instruction}",
                 priority=True,
-                protect_seconds=3.0,
+                protect_seconds=4.5,
             )
         else:
             # Regular lesson - build character-by-character description for first prompt
             speakable = self._make_speakable(target)
 
             self.speech.say(
-                f"Lesson practice. Control Space repeats. Type {speakable}",
+                f"Lesson practice. Control Space repeats. When the lesson ends, Space continues, Enter retries, and Escape returns to the main menu. Type {speakable}",
                 priority=True,
-                protect_seconds=3.0,
+                protect_seconds=4.5,
             )
 
     def build_lesson_batch(self):
@@ -2192,17 +2231,18 @@ class KeyQuestApp:
     def process_lesson_typing(self, event):
         lesson_mode.process_lesson_typing(self, event)
 
-    def provide_key_guidance(self, pressed, target_text):
+    def provide_key_guidance(self, pressed, target_text, matched_prefix=""):
         """Provide short, directional guidance based on spatial position."""
         l = self.state.lesson
 
         if not target_text:
             target_text = ""
-        target_key = target_text[0] if target_text else ""
+        remaining_text = target_text[len(matched_prefix):] if matched_prefix else target_text
+        target_key = remaining_text[0] if remaining_text else ""
 
         # Get directional hint based on key positions
         hint = lesson_manager.get_directional_hint(pressed, target_key) if target_key else "Try again."
-        speakable_target = self._make_speakable(target_text)
+        speakable_target = self._make_speakable(remaining_text)
 
         # Store for visual display - short and helpful
         l.guidance_message = f"Type {speakable_target}"
@@ -2272,26 +2312,69 @@ class KeyQuestApp:
     def handle_results_input(self, event, mods):
         if event.key == pygame.K_ESCAPE:
             self.state.mode = "MENU"
+            self.state.results_action = ""
+            self.state.free_practice.selected_keys = set()
             self.say_menu()
+        elif event.key == pygame.K_UP:
+            if self.state.results_options:
+                self.state.results_index = menu_handler.navigate_up(
+                    self.state.results_index,
+                    len(self.state.results_options),
+                )
+                self.speech.say(self.state.results_options[self.state.results_index], priority=True)
+        elif event.key == pygame.K_DOWN:
+            if self.state.results_options:
+                self.state.results_index = menu_handler.navigate_down(
+                    self.state.results_index,
+                    len(self.state.results_options),
+                )
+                self.speech.say(self.state.results_options[self.state.results_index], priority=True)
+        elif event.key == pygame.K_HOME:
+            if self.state.results_options:
+                self.state.results_index = menu_handler.navigate_first(len(self.state.results_options))
+                self.speech.say(self.state.results_options[self.state.results_index], priority=True)
+        elif event.key == pygame.K_END:
+            if self.state.results_options:
+                self.state.results_index = menu_handler.navigate_last(len(self.state.results_options))
+                self.speech.say(self.state.results_options[self.state.results_index], priority=True)
         elif event.key == pygame.K_SPACE:
-            if "Unlocked" in self.state.results_text:
-                # New lesson unlocked - go to lesson menu
-                self.save_progress()
-                self.show_lesson_menu()
-            elif "stage" in self.state.results_text.lower() or "continue" in self.state.results_text.lower():
-                # Reset review mode if exiting it
-                self.state.lesson.review_mode = False
-                # Continue current lesson
-                self.save_progress()
-                self.start_lesson()
+            self._activate_results_choice()
         elif event.key == pygame.K_RETURN:
-            if "Speed Test" in self.state.results_text:
-                self.start_test()
-            elif "Sentence Practice" in self.state.results_text:
-                self.start_practice()
-            else:
-                self.save_progress()
-                self.start_lesson()
+            self._activate_results_choice()
+
+    def _activate_results_choice(self) -> None:
+        """Execute the currently highlighted results menu option."""
+        if not self.state.results_options:
+            return
+
+        choice = self.state.results_options[self.state.results_index]
+
+        if choice.startswith("Start next lesson"):
+            self.save_progress()
+            self.start_lesson(self.state.results_next_lesson)
+        elif choice.startswith("Focused review"):
+            self.state.lesson.review_mode = True
+            self.save_progress()
+            self.begin_lesson_practice(self.state.results_next_lesson)
+        elif choice.startswith("Continue lesson"):
+            self.state.lesson.review_mode = False
+            self.save_progress()
+            self.begin_lesson_practice(self.state.results_next_lesson)
+        elif choice.startswith("Try lesson again") or choice.startswith("Restart lesson"):
+            self.state.lesson.review_mode = False
+            self.save_progress()
+            self.begin_lesson_practice(self.state.results_next_lesson)
+        elif choice.startswith("Start free practice again"):
+            self.start_free_practice()
+        elif choice.startswith("Return to main menu"):
+            self.state.free_practice.selected_keys = set()
+            self._return_to_main_menu_and_save()
+        elif choice.startswith("Start speed test again"):
+            self.start_test()
+        elif choice.startswith("Start sentence practice again"):
+            self.start_practice()
+        else:
+            self._return_to_main_menu_and_save()
 
     # ==================== DRAWING ====================
     def trigger_flash(self, color: tuple, duration: float = 0.12) -> None:
@@ -2301,8 +2384,7 @@ class KeyQuestApp:
         for deaf or hard-of-hearing users. Safe to call every keystroke —
         the overlay lasts only ~120 ms and is drawn at low opacity.
         """
-        self._flash_color = color
-        self._flash_until = time.time() + duration
+        self._flash.trigger(color, duration)
 
     def draw(self):
         self.screen.fill(BG)
@@ -2360,11 +2442,9 @@ class KeyQuestApp:
             self.screen.blit(esc_surf, (SCREEN_W // 2 - esc_surf.get_width() // 2, 6))
 
         # Render keystroke flash overlay last so it appears above all content.
-        if self._flash_until > time.time():
+        if self._flash.is_active():
             from ui.a11y import draw_keystroke_flash
-            elapsed = self._flash_until - time.time()
-            alpha = int(min(60, elapsed * 500))
-            draw_keystroke_flash(self.screen, self._flash_color, alpha, SCREEN_W, SCREEN_H)
+            draw_keystroke_flash(self.screen, self._flash.color, self._flash.current_alpha(), SCREEN_W, SCREEN_H)
 
     def draw_menu(self):
         streak_text = ""
@@ -2718,13 +2798,19 @@ class KeyQuestApp:
     def draw_results(self):
         draw_results_screen(
             screen=self.screen,
+            title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
             screen_w=SCREEN_W,
             screen_h=SCREEN_H,
             fg=FG,
             accent=ACCENT,
+            hilite=HILITE,
+            title=self.state.results_title or "Results",
+            instructions=self.state.results_instructions,
             results_text=self.state.results_text,
+            options=self.state.results_options,
+            current_index=self.state.results_index,
             focus_assist=self.state.settings.focus_assist,
         )
 

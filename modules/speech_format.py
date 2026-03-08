@@ -28,6 +28,13 @@ def to_speakable_token(ch: str) -> str:
     return ch.lower()
 
 
+def to_typing_instruction_token(ch: str) -> str:
+    """Convert one character to a lesson-prompt token without speaking capitalization."""
+    if ch in SPECIAL_CHAR_NAMES:
+        return SPECIAL_CHAR_NAMES[ch]
+    return ch.lower()
+
+
 def spell_text(text: str) -> str:
     """Spell text character-by-character with separators for SR clarity."""
     if not text:
@@ -35,18 +42,48 @@ def spell_text(text: str) -> str:
     return ", ".join(to_speakable_token(ch) for ch in text)
 
 
-def spell_text_for_typing_instruction(text: str) -> str:
-    """Spell text for `Type ...` prompts with optional sequence connectors."""
+def _format_repeated_token(text: str) -> str | None:
+    """Return a compact repeated-token phrase when the full text is the same token."""
+    if not text:
+        return None
+
+    normalized = text.lower()
+    if len(set(normalized)) != 1 or len(normalized) < 2:
+        return None
+
+    token = to_typing_instruction_token(text[0])
+    if len(text) == 2:
+        return f"{token} twice"
+    return f"{token} {len(text)} times"
+
+
+def _is_known_natural_word(text: str, natural_words: set[str] | None) -> bool:
+    """Return True when a lesson prompt should be spoken naturally."""
+    if not natural_words:
+        return False
+
+    lowered = text.lower()
+    return text == lowered and lowered in natural_words
+
+
+def _spell_sequence_with_repeat_pauses(text: str) -> str:
+    """Spell a sequence with comma pauses between tokens."""
+    return ", ".join(to_typing_instruction_token(ch) for ch in text)
+
+
+def spell_text_for_typing_instruction(text: str, natural_words: set[str] | None = None) -> str:
+    """Format text for `Type ...` prompts."""
     if not text:
         return "nothing"
 
-    # Add "then" when sequence order is likely easier to follow:
-    # - special keys/spaces, or
-    # - repeated characters (e.g., "fef", "aa")
-    has_special = any(ch in SPECIAL_CHAR_NAMES for ch in text)
-    has_repeated = len(set(text.lower())) < len(text.lower())
-    separator = ", then " if (has_special or has_repeated) else ", "
-    return separator.join(to_speakable_token(ch) for ch in text)
+    repeated = _format_repeated_token(text)
+    if repeated:
+        return repeated
+
+    if _is_known_natural_word(text, natural_words):
+        return text.lower()
+
+    return _spell_sequence_with_repeat_pauses(text)
 
 
 def build_remaining_text_feedback(remaining: str) -> str:

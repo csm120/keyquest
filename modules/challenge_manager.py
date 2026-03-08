@@ -3,7 +3,7 @@
 Manages daily rotating challenges with bonus rewards.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 
 # =========== Daily Challenge Configuration ===========
 
@@ -91,7 +91,7 @@ def get_today_date_string() -> str:
     Returns:
         Date string
     """
-    return datetime.now().strftime("%Y-%m-%d")
+    return date.today().isoformat()
 
 
 def check_if_new_day(settings) -> bool:
@@ -117,20 +117,13 @@ def reset_daily_challenge(settings):
 
     # Check if streak should continue
     if settings.daily_challenge_date:
-        # Parse dates and check if yesterday
-        from datetime import datetime, timedelta
         try:
-            last_date = datetime.strptime(settings.daily_challenge_date, "%Y-%m-%d")
-            today_date = datetime.strptime(today, "%Y-%m-%d")
-            days_diff = (today_date - last_date).days
-
-            if days_diff == 1 and settings.daily_challenge_completed:
-                # Completed yesterday's challenge, continue streak
-                pass
-            elif days_diff > 1:
+            last_date = date.fromisoformat(settings.daily_challenge_date)
+            days_diff = (date.today() - last_date).days
+            if days_diff > 1:
                 # Missed a day, reset streak
                 settings.daily_challenge_streak = 0
-        except:
+        except ValueError:
             settings.daily_challenge_streak = 0
 
     settings.daily_challenge_date = today

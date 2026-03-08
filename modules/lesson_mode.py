@@ -19,6 +19,13 @@ from modules import results_formatter
 from modules import speech_format
 from modules import xp_manager
 
+# Star-rating thresholds
+_STARS_3_ACCURACY = 95.0
+_STARS_2_ACCURACY = 85.0
+_STARS_1_ACCURACY = 70.0
+_STARS_3_WPM = 30.0
+_STARS_2_WPM = 20.0  # matches lesson_manager.MIN_WPM
+
 
 def _require_pygame() -> None:
     if pygame is None:  # pragma: no cover
@@ -50,6 +57,47 @@ def _normalize_early_target(candidate: str, allowed_list) -> str:
     return _make_early_sequence(allowed_list)
 
 
+def _early_completion_allowed(stage: int) -> bool:
+    """Require full batches for early key-acquisition lessons."""
+    return stage >= lesson_manager.WPM_REQUIRED_FROM_LESSON
+
+
+def _build_front_loaded_early_batch(stage: int, allowed_list, valid_words, valid_phrases) -> list[str]:
+    """Front-load early lessons with repeated new-key drills before mixed practice."""
+    batch: list[str] = []
+    new_keys = [key for key in sorted(lesson_manager.STAGE_LETTERS[stage]) if key != " "]
+    prior_keys = [key for key in allowed_list if key not in new_keys and key != " "]
+
+    for key in new_keys:
+        batch.extend([key * 3, key * 2, key * 4])
+        if prior_keys:
+            anchor = prior_keys[0]
+            batch.extend(
+                [
+                    f"{anchor}{key}{anchor}{key}",
+                    f"{key}{anchor}{anchor}{key}",
+                    f"{key}{anchor}{key}{key}",
+                ]
+            )
+
+    tail = []
+    while len(batch) + len(tail) < lesson_manager.LESSON_BATCH:
+        roll = random.random()
+        target = None
+
+        if valid_phrases and roll < 0.15:
+            target = random.choice(valid_phrases)
+        elif valid_words and roll < 0.45:
+            target = random.choice(valid_words)
+        else:
+            target = _make_early_sequence(allowed_list)
+
+        tail.append(_normalize_early_target(target, allowed_list))
+
+    random.shuffle(tail)
+    return (batch + tail)[: lesson_manager.LESSON_BATCH]
+
+
 def build_lesson_batch(app) -> None:
     """Build adaptive lesson batch based on performance with high randomization."""
     stage = app.state.lesson.stage
@@ -67,6 +115,14 @@ def build_lesson_batch(app) -> None:
     allowed = set().union(*lesson_manager.STAGE_LETTERS[: stage + 1])
     allowed_list = sorted(allowed)
     early_stage = stage < lesson_manager.WPM_REQUIRED_FROM_LESSON
+    valid_phrases = lesson_manager.filter_stage_content(
+        stage,
+        lesson_manager.STAGE_PHRASES.get(stage, []),
+    )
+    valid_words = lesson_manager.filter_stage_content(
+        stage,
+        lesson_manager.STAGE_WORDS.get(stage, []),
+    )
 
     struggling = lesson_state.tracker.get_struggling_keys()
     batch = []
@@ -77,15 +133,17 @@ def build_lesson_batch(app) -> None:
             length = random.randint(3, 4) if early_stage else random.randint(1, 3)
             word = "".join(random.choice(lesson_state.review_keys) for _ in range(length))
             batch.append(word)
+    elif early_stage:
+        batch = _build_front_loaded_early_batch(stage, allowed_list, valid_words, valid_phrases)
     else:
         for _ in range(lesson_manager.LESSON_BATCH):
             roll = random.random()
             target = None
 
-            if lesson_state.use_words and stage in lesson_manager.STAGE_PHRASES and roll < 0.25:
-                target = random.choice(lesson_manager.STAGE_PHRASES[stage])
-            elif lesson_state.use_words and stage in lesson_manager.STAGE_WORDS and roll < 0.60:
-                target = random.choice(lesson_manager.STAGE_WORDS[stage])
+            if lesson_state.use_words and valid_phrases and roll < 0.25:
+                target = random.choice(valid_phrases)
+            elif lesson_state.use_words and valid_words and roll < 0.60:
+                target = random.choice(valid_words)
             else:
                 length = random.randint(3, 4) if early_stage else random.randint(1, 3)
                 if random.random() < 0.3:
@@ -119,7 +177,8 @@ def lesson_prompt(app) -> None:
         return
 
     remaining = target[len(lesson_state.typed) :]
-    speakable = speech_format.spell_text_for_typing_instruction(remaining)
+    natural_words = lesson_manager.get_stage_natural_words(lesson_state.stage)
+    speakable = speech_format.spell_text_for_typing_instruction(remaining, natural_words=natural_words)
     app.speech.say(f"Type {speakable}", priority=True, protect_seconds=2.0)
 
 
@@ -207,7 +266,11 @@ def next_lesson_item(app) -> None:
 
     check_and_inject_adaptive_content(app)
 
-    if lesson_state.index >= lesson_manager.MIN_LESSON_BATCH and lesson_state.tracker.is_excelling():
+    if (
+        lesson_state.index >= lesson_manager.MIN_LESSON_BATCH
+        and _early_completion_allowed(lesson_state.stage)
+        and lesson_state.tracker.is_excelling()
+    ):
         app.speech.say("Excellent work! You've mastered these keys.", priority=True)
         pygame.time.wait(1000)
         if app.state.mode == "FREE_PRACTICE":
@@ -232,19 +295,19 @@ def next_lesson_item(app) -> None:
 def calculate_lesson_stars(lesson_num: int, accuracy: float, wpm: float) -> int:
     """Calculate star rating (1-3) based on lesson performance."""
     if lesson_num < lesson_manager.WPM_REQUIRED_FROM_LESSON:
-        if accuracy >= 95:
+        if accuracy >= _STARS_3_ACCURACY:
             return 3
-        if accuracy >= 85:
+        if accuracy >= _STARS_2_ACCURACY:
             return 2
-        if accuracy >= 70:
+        if accuracy >= _STARS_1_ACCURACY:
             return 1
         return 0
 
-    if accuracy >= 95 and wpm >= 30:
+    if accuracy >= _STARS_3_ACCURACY and wpm >= _STARS_3_WPM:
         return 3
-    if accuracy >= 85 and wpm >= 20:
+    if accuracy >= _STARS_2_ACCURACY and wpm >= _STARS_2_WPM:
         return 2
-    if accuracy >= 70:
+    if accuracy >= _STARS_1_ACCURACY:
         return 1
     return 0
 
@@ -402,7 +465,11 @@ def evaluate_lesson_performance(app) -> None:
         prev_stars=prev_stars,
     )
 
-    app.show_results_dialog(results_text)
+    app.show_guided_results_dialog(
+        results_text,
+        title="Lesson Results",
+        enter_target="continue to your choices",
+    )
 
     if unlocked_new:
         app.audio.play_unlock()
@@ -422,6 +489,8 @@ def evaluate_lesson_performance(app) -> None:
         xp_amount=max(10, int(xp_earned * 0.25)),
     )
 
+    app.state.mode = "RESULTS"
+
     if action == "advance":
         next_lesson = app.state.settings.current_lesson
         next_name = (
@@ -429,18 +498,59 @@ def evaluate_lesson_performance(app) -> None:
             if next_lesson < len(lesson_manager.LESSON_NAMES)
             else f"Lesson {next_lesson}"
         )
-        if unlocked_new:
-            app.speech.say(f"Starting {next_name}", priority=True, protect_seconds=2.0)
-        pygame.time.wait(500)
-        app.start_lesson(next_lesson)
+
+        if app.state.settings.auto_start_next_lesson:
+            app.state.results_action = ""
+            app.state.results_next_lesson = next_lesson
+            app.speech.say(
+                f"Starting {next_name}.",
+                priority=True,
+                protect_seconds=2.0,
+            )
+            pygame.time.wait(500)
+            app.start_lesson(next_lesson)
+            return
+
+        app.state.results_action = "advance"
+        app.state.results_next_lesson = next_lesson
+        app._configure_results_menu(
+            title="Lesson Complete",
+            body=f"Next lesson ready: {next_name}.",
+            options=[
+                f"Start next lesson: {next_name}",
+                "Try lesson again",
+                "Return to main menu",
+            ],
+        )
+        app._announce_results_menu()
     elif action == "review":
-        app.state.mode = "RESULTS"
-        app.state.results_text = "Press Space for focused review, Enter to try again, or Escape for menu."
-        app.speech.say(app.state.results_text, priority=True, protect_seconds=3.0)
+        app.state.results_action = "review"
+        app.state.results_next_lesson = lesson_state.stage
+        lesson_name = lesson_manager.LESSON_NAMES[lesson_state.stage]
+        app._configure_results_menu(
+            title="Lesson Complete",
+            body=f"Focused review is ready for {lesson_name}.",
+            options=[
+                f"Focused review: {lesson_name}",
+                "Try lesson again",
+                "Return to main menu",
+            ],
+        )
+        app._announce_results_menu()
     else:
-        app.state.mode = "RESULTS"
-        app.state.results_text = "Press Space to continue, Enter to practice more, or Escape for menu."
-        app.speech.say(app.state.results_text, priority=True, protect_seconds=3.0)
+        app.state.results_action = "continue"
+        app.state.results_next_lesson = lesson_state.stage
+        lesson_name = lesson_manager.LESSON_NAMES[lesson_state.stage]
+        app._configure_results_menu(
+            title="Lesson Complete",
+            body=f"Continue {lesson_name}.",
+            options=[
+                f"Continue lesson: {lesson_name}",
+                "Restart lesson",
+                "Return to main menu",
+            ],
+        )
+        app._announce_results_menu()
 
 
 def handle_lesson_input(app, event, mods: int) -> None:
@@ -492,9 +602,9 @@ def process_lesson_typing(app, event) -> None:
         app.trigger_flash((100, 0, 0), 0.12)
         lesson_state.tracker.record_keystroke(ch, False)
         key_analytics.record_keystroke(app.state.settings, ch.lower(), False)
-        lesson_state.typed = ""
+        lesson_state.typed = typed[:-1]
         lesson_state.errors_in_row += 1
-        app.provide_key_guidance(ch, target)
+        app.provide_key_guidance(ch, target, lesson_state.typed)
         return
 
     lesson_state.errors_in_row = 0

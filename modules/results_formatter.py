@@ -24,7 +24,6 @@ class ResultsFormatter:
             "Don't give up"
         ]
     }
-
     @staticmethod
     def format_tutorial_results(counts_done: dict, friendly_names: dict) -> str:
         """Format tutorial completion results.
@@ -57,8 +56,7 @@ class ResultsFormatter:
             "",
             f"Total: {total_keys} keys pressed correctly!",
             "",
-            "You're now ready to start learning to type!",
-            "Press OK to return to the main menu."
+            "You're now ready to start learning to type!"
         ])
 
         return "\n".join(results_lines)
@@ -153,14 +151,12 @@ class ResultsFormatter:
                     keys_str = ", ".join(keys_list)
                     results_lines.append(f"New keys: {keys_str}")
                 results_lines.append("")
-            results_lines.append("Press OK to start the next lesson.")
             action = "advance"
 
         elif should_review:
             results_lines.append(f"{random.choice(ResultsFormatter.ENCOURAGEMENT['struggle'])}!")
             results_lines.append("Let's practice those challenging keys again.")
             results_lines.append("")
-            results_lines.append("Press OK to continue with focused review.")
             action = "review"
 
         else:
@@ -170,7 +166,6 @@ class ResultsFormatter:
             else:
                 results_lines.append("Good progress! Keep practicing.")
             results_lines.append("")
-            results_lines.append("Press OK to continue this lesson.")
             action = "continue"
 
         return "\n".join(results_lines), action

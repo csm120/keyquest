@@ -8,6 +8,7 @@ import traceback
 import sys
 import time
 from pathlib import Path
+from modules import error_logging
 
 try:
     import wx
@@ -23,18 +24,43 @@ except ImportError:
     PYGAME_AVAILABLE = False
 
 
-def log_dialog_error(error_type, error_msg, tb_str):
-    """Log dialog errors to a local diagnostics file."""
+def restore_pygame_focus():
+    """Return keyboard focus to the pygame window after a modal wx dialog closes."""
+    if not PYGAME_AVAILABLE:
+        return
+
     try:
-        log_file = Path("dialog_errors.log")
-        with open(log_file, "a", encoding="utf-8") as f:
-            f.write(f"\n{'='*60}\n")
-            f.write(f"Dialog Error: {error_type}\n")
-            f.write(f"Message: {error_msg}\n")
-            f.write(f"Traceback:\n{tb_str}\n")
-            f.write(f"{'='*60}\n")
-    except:
-        pass  # If logging fails, don't crash
+        pygame.event.clear()
+        pygame.event.pump()
+    except Exception as e:
+        log_dialog_error("Pygame event cleanup", f"Failed to reset event queue: {e}", traceback.format_exc())
+
+    if not sys.platform.startswith("win"):
+        return
+
+    try:
+        if not pygame.display.get_init():
+            return
+        wm_info = pygame.display.get_wm_info() or {}
+        hwnd = wm_info.get("window")
+        if not hwnd:
+            return
+
+        import ctypes
+
+        user32 = ctypes.windll.user32
+        SW_RESTORE = 9
+        user32.ShowWindow(hwnd, SW_RESTORE)
+        user32.SetForegroundWindow(hwnd)
+        user32.SetActiveWindow(hwnd)
+        user32.SetFocus(hwnd)
+    except Exception as e:
+        log_dialog_error("Pygame focus restore", f"Failed to restore window focus: {e}", traceback.format_exc())
+
+
+def log_dialog_error(error_type, error_msg, tb_str):
+    """Log dialog errors to the main application log file."""
+    error_logging.log_message(f"Dialog Error: {error_type}", error_msg, tb_str)
 
 
 def show_dialog(
@@ -109,8 +135,9 @@ def show_dialog(
             font = wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
         text_ctrl.SetFont(font)
 
-        # OK button
-        ok_btn = wx.Button(panel, wx.ID_OK, "OK")
+        # Use a descriptive button label so screen reader users hear the action, not just "OK".
+        ok_label = "Continue" if dialog_type == "results" else "OK"
+        ok_btn = wx.Button(panel, wx.ID_OK, ok_label)
         if close_on_enter:
             ok_btn.SetDefault()
 
@@ -198,13 +225,8 @@ def show_dialog(
             except Exception as e:
                 log_dialog_error("Dialog destroy", f"Failed to destroy dialog: {e}", traceback.format_exc())
 
-        # Clear pygame event queue (may have stale events from wx dialog)
-        # Do this AFTER dialog is fully destroyed
-        if PYGAME_AVAILABLE:
-            try:
-                pygame.event.clear()
-            except Exception as e:
-                log_dialog_error("Final pygame cleanup", f"Failed to clear pygame events: {e}", traceback.format_exc())
+        # Restore keyboard focus to the pygame window after the wx modal closes.
+        restore_pygame_focus()
 
 
 def show_info_dialog(title, content):

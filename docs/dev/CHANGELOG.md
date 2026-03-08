@@ -4,6 +4,49 @@ Canonical handoff / current context: `docs/dev/HANDOFF.md`
 
 Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<line>`) from before the modularization work.
 
+## 2026-03-07 - Code Quality, Test Coverage, and Modularisation Pass
+
+### New Modules (extracted from `keyquest_app.py`)
+- `modules/flash_manager.py`: `FlashState` class owns the keystroke flash color and expiry time; `trigger()`, `is_active()`, `current_alpha()` replace the two raw `_flash_color`/`_flash_until` instance variables on the app class.
+- `modules/font_manager.py`: `detect_dpi_scale()` and `build_fonts(font_scale_setting)` centralise DPI detection and `pygame.freetype.SysFont` creation; `_rebuild_fonts()` in the app class is now four lines.
+
+### Reliability
+- `modules/state_manager.py`: `ProgressManager.save()` now writes to a `.tmp` file and atomically renames it over `progress.json`, eliminating data loss on mid-write crash.
+- `modules/error_logging.py`: added 2 MB log rotation (truncates `keyquest_error.log` on startup if it exceeds the limit) and a `log_message(label, message, tb_str)` helper used by subsystems that need to log without raising an exception.
+- `modules/dialog_manager.py`: dialog errors now route to `keyquest_error.log` via `error_logging.log_message()` instead of a separate `dialog_errors.log` file.
+
+### Pet System
+- `modules/state_manager.py`: pet happiness now decays passively on load - 5 points per day since `pet_last_fed`, floored at 0 - so the pet reflects time away from the app.
+
+### Code Clarity
+- `modules/lesson_mode.py`: star-rating accuracy thresholds named as `_STARS_3_ACCURACY`, `_STARS_2_ACCURACY`, `_STARS_1_ACCURACY`, `_STARS_3_WPM`, `_STARS_2_WPM` instead of bare literals.
+- `modules/challenge_manager.py`: date handling uses `date.fromisoformat()` and `date.today()` instead of `datetime.strptime` round-trips.
+
+### Entry Point
+- `keyquest.pyw`: `--version` flag prints the app version and exits cleanly (used by the CI EXE smoke test). Shebang updated to `#!python3`.
+
+### Dependency Pinning
+- Added `requirements.lock` (exact versions from last known-good build environment).
+- Added `pyproject.toml` with pytest `testpaths` and ruff lint configuration.
+
+### CI / Build Pipeline
+- `release.yml`: Python version upgraded from 3.9 (EOL) to 3.11.
+- `release.yml`: added `ruff check .` lint step before tests.
+- `release.yml`: added EXE smoke test step after build (runs `KeyQuest.exe --version`, asserts exit code 0).
+
+### Test Coverage (+79 tests, 100 -> 179 total)
+- `tests/test_audio_manager.py`: 33 tests covering tone array shape, amplitude bounds, FFT-verified harmonic structure, envelope fade, cache behaviour, and edge cases - no audio hardware required.
+- `tests/test_speech_manager.py`: 22 tests covering debounce, priority suppression, shutdown safety, mode application, and concurrent `say()` calls - no TTS engine required (mocked).
+- `tests/test_state_manager.py`: 9 new schema migration tests (v0 dict, v1 full round-trip, empty dict, corrupted JSON).
+- `tests/test_sentences_manager.py`: 16 tests covering missing file fallback, topic discovery, and speed-test pool.
+- `tests/test_hangman.py` (file-not-found additions): 5 new tests for missing wordlist and corrupt definitions graceful fallback.
+
+### Documentation
+- `docs/dev/ARCHITECTURE.md`: new file - module map, app mode overview, rendering loop, speech pipeline, data flow, and navigation conventions.
+- `docs/dev/DEVELOPER_SETUP.md`: added `requirements.lock` usage note.
+- `docs/dev/SCREEN_READER_SMOKE_TESTS.md`: added "When to Re-run" section listing the files whose changes should trigger a manual smoke-test run.
+- `README.md`: added GitHub release badge, target-audience sentence, and quick-start install/run commands.
+
 ## 2026-03-06 - Command Wording Cleanup and Release Workflow Automation
 
 ### Release Workflow
