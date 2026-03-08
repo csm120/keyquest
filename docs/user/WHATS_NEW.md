@@ -1,5 +1,14 @@
 # New in Key Quest
 
+## Saturday March 7th 2026 at Release 1.0.5
+
+This release makes source launching more reliable on Windows and keeps lesson navigation easier to use.
+
+- `keyquest.pyw` now tries to restart itself with Python 3.9 if Windows opens it with a different Python install, which helps restore normal speech and menu behavior when multiple Python versions are installed.
+- Lessons and Free Practice now end with clearer choice menus that use Up and Down arrows.
+- The post-session wording no longer tells screen reader users to close a dialog. It now uses simpler continue and back wording.
+- `Home` and `End` jump to the first and last items in menus, lesson lists, options, and results menus.
+
 ## Saturday March 7th 2026
 
 Lessons and Free Practice are easier to finish and navigate.

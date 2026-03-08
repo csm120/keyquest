@@ -6,6 +6,14 @@ Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<
 
 ## 2026-03-07 - Code Quality, Test Coverage, and Modularisation Pass
 
+### Source Launcher Reliability
+- `keyquest.pyw`: now targets Python 3.9 explicitly and re-launches itself through the Python launcher with `-3.9` when Windows file association starts it under a different interpreter. This prevents silent startup regressions where speech/TTS was unavailable under the wrong Python install.
+
+### Lessons / Free Practice UX
+- Post-session results flow for lessons and Free Practice now uses the same up/down choice menu pattern.
+- Results guidance was rewritten to use direct keyboard wording and avoid user-facing `dialog` phrasing in the continue/back instructions.
+- Main menus, lesson lists, options, and results menus now support `Home` and `End` to jump to the first and last item.
+
 ### New Modules (extracted from `keyquest_app.py`)
 - `modules/flash_manager.py`: `FlashState` class owns the keystroke flash color and expiry time; `trigger()`, `is_active()`, `current_alpha()` replace the two raw `_flash_color`/`_flash_until` instance variables on the app class.
 - `modules/font_manager.py`: `detect_dpi_scale()` and `build_fonts(font_scale_setting)` centralise DPI detection and `pygame.freetype.SysFont` creation; `_rebuild_fonts()` in the app class is now four lines.
