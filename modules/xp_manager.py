@@ -1,7 +1,4 @@
-"""XP and Level system for KeyQuest Phase 2.
-
-Manages experience points, level progression, and level-up rewards.
-"""
+"""Experience-point and level progression helpers."""
 
 # =========== Level System Configuration ===========
 

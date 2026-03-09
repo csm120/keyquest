@@ -1,7 +1,4 @@
-"""Daily Challenge system for KeyQuest Phase 2.
-
-Manages daily rotating challenges with bonus rewards.
-"""
+"""Daily challenge definitions and progress checks."""
 
 from datetime import date, datetime
 

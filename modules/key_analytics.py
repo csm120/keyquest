@@ -1,7 +1,4 @@
-"""Key Analytics for KeyQuest Phase 2.
-
-Tracks per-key performance and generates audio "heat map" reports.
-"""
+"""Per-key typing analytics and reporting helpers."""
 
 # =========== Key Statistics Tracking ===========
 

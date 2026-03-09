@@ -1,7 +1,7 @@
 """Flash overlay state for visual keystroke feedback.
 
 Tracks a brief full-screen color flash (green = correct, red = error)
-that gives deaf/HoH users a visual equivalent of the audio beep feedback.
+that mirrors the typing feedback tones.
 """
 
 import time

@@ -1,35 +1,5 @@
 #!python3.9
-# KeyQuest (Enhanced Learning System)
-#
-# - System theme detection (dark/light/high contrast), defaults to white on black
-# - Adaptive difficulty based on real-time performance tracking
-# - NEW: WPM requirement - minimum 20 WPM for lessons 6+ (when phrases are introduced)
-# - NEW: Variable-length lessons - shorter for excelling students (min 12), longer for struggling (max 30)
-# - NEW: Early completion - finish after 12 items if accuracy > 90% and 5+ consecutive correct
-# - NEW: Auto-extension - struggling students get 5-10 more practice items automatically
-# - NEW: Options menu - customize speech mode (auto/screen reader/tts/off) and visual theme
-# - NEW: Lesson intro screens - learn where keys are BEFORE typing!
-# - NEW: Key finding requirement - must find new keys to start lesson
-# - NEW: Progressive pitch sounds - rising tone as you complete each word
-# - NEW: Tutorial-style guidance - help when you make 3+ errors
-# - NEW: Auto-advance to next lesson on good performance!
-# - NEW: Lesson unlocking system - master lessons to unlock new ones
-# - NEW: Lesson selection menu - replay any unlocked lesson
-# - NEW: 33 lessons - covers entire 104-key keyboard including function keys!
-# - NEW: Descriptive lesson names (e.g., "Letter A (Left Pinky)")
-# - NEW: Touch-typing instructions for finding keys by feel
-# - NEW: Lesson 0 adds 'a' (first new key!) - no boring space-only practice
-# - NEW: Gradual left homerow introduction (a, s, d, f one at a time)
-# - IMPROVED: Lessons start where tutorial left off (use space, learn letters!)
-# - IMPROVED: Much more randomization in lesson content (varied lengths, mixed types)
-# - IMPROVED: Faster progression (80% accuracy, smaller batches of 6 vs 8)
-# - IMPROVED: No chatter between keystrokes - just beeps and clear prompts
-# - IMPROVED: Clear error feedback - "Type [target]" instead of "Remaining: [text]"
-# - Builds words, phrases, and sentences as skill progresses
-# - Non-consecutive key tracking for advancement
-# - Improved tutorial with gradual Enter and Control key integration
-# - Expanded speed test sentences for fast typers
-# - Smart review system: slow down on struggles, give wins, return to challenges
+"""Main Pygame application entry point for KeyQuest."""
 
 import sys
 import os
@@ -43,7 +13,6 @@ from collections import Counter
 from pathlib import Path
 from typing import List, Optional
 
-# Program modules
 from modules.app_paths import get_app_dir
 from modules import dialog_manager
 from modules import audio_manager
@@ -52,10 +21,8 @@ from modules import state_manager
 from modules import lesson_manager
 from modules import menu_handler
 from modules import keyboard_explorer
-# Phase 2 modules
 from modules import challenge_manager
 from modules import quest_manager
-# Phase 4 modules
 from modules.speech_manager import Speech
 from modules import config as app_config
 from modules import theme as theme_manager
@@ -181,35 +148,9 @@ def _offer_general_error_github_report(summary: str) -> None:
     except Exception:
         pass
 
-
-# DPI scale detection is now in modules/font_manager.py
-# Font rebuilding is now in modules/font_manager.py
-
-# Lesson configuration constants moved to modules/lesson_manager.py
-# Access as: lesson_manager.lesson_manager.LESSON_BATCH, lesson_manager.lesson_manager.MIN_WPM, etc.
-
-
-
-# ----------------- Lesson System Data -----------------
-# All lesson data moved to modules/lesson_manager.py
-# Access as: lesson_manager.lesson_manager.STAGE_LETTERS, lesson_manager.lesson_manager.LESSON_NAMES, etc.
-
-
-
-
-
-
-# ---- Audio ---- (now handled by audio_manager module)
-
-# ----------------- State & Data Classes -----------------
-# All state classes moved to modules/state_manager.py
-# Import them as: state_manager.AppState, state_manager.Settings, etc.
-
-# ----------------- Main App -----------------
 class KeyQuestApp:
     def __init__(self):
-        # CRITICAL: Initialize wx.App FIRST before pygame
-        # This prevents crashes when showing modal dialogs later
+        # wx.App must exist before pygame so modal dialogs can be created reliably.
         try:
             import wx
             if not wx.App.Get():
@@ -261,14 +202,13 @@ class KeyQuestApp:
         self._update_total_bytes = 0
         self._update_error_message = ""
 
-        # Visual flash feedback state (deaf/HoH users — visual equivalent of beep_ok/bad)
+        # Visual flash mirrors the success/error tones for sighted users.
         self._flash = flash_manager.FlashState()
 
-        # Escape guard visual state — shows remaining presses needed
+        # Tracks the on-screen countdown for multi-press Escape exits.
         self._escape_remaining: int = 0
         self._escape_noun: str = ""
 
-        # Initialize managers
         self.audio = audio_manager.AudioManager()
         self.progress_manager = state_manager.ProgressManager()
         self.speed_test_sentences = []
@@ -288,7 +228,6 @@ class KeyQuestApp:
         self.test_setup_topic_options = ["English", "Spanish"]
         self.test_setup_topic_index = 0
 
-        # Initialize games
         fonts = {
             'title_font': self.title_font,
             'text_font': self.text_font,
@@ -325,26 +264,20 @@ class KeyQuestApp:
 
         self.load_progress()
 
-        # Apply user font scale (or DPI auto-detect) after settings are loaded.
+        # Rebuild fonts after settings load so DPI and user overrides are applied together.
         self._rebuild_fonts()
 
-        # Check and update daily streak
         self.check_and_update_streak()
-
-        # Phase 2: Initialize quests
         quest_manager.initialize_quests(self.state.settings)
-
-        # Phase 2: Check and reset daily challenge if new day
         if challenge_manager.check_if_new_day(self.state.settings):
             challenge_manager.reset_daily_challenge(self.state.settings)
             self.save_progress()
 
-        # Load practice sentences based on language setting
+        # Cache practice content for the currently selected language.
         self.speed_test_sentences = sentences_manager.load_speed_test_sentences()
         self.practice_sentences = sentences_manager.load_practice_sentences(self.state.settings.sentence_language)
         print(f"Loaded {len(self.practice_sentences)} practice sentences in {self.state.settings.sentence_language}")
 
-        # Initialize menu system
         self._init_menus()
         self._start_startup_update_check_if_enabled()
 
@@ -1718,7 +1651,6 @@ class KeyQuestApp:
     def handle_games_menu_input(self, event, mods):
         """Handle games menu navigation."""
         if event.key == pygame.K_h:
-            # Announce hotkeys (special case)
             game = self.games_menu.get_current_item()
             if game:
                 self.speech.say(game.HOTKEYS, priority=True)
@@ -2174,209 +2106,9 @@ class KeyQuestApp:
         return lesson_mode.calculate_lesson_stars(lesson_num, accuracy, wpm)
 
     def evaluate_lesson_performance(self):
+        """Delegate lesson-completion handling to lesson_mode."""
         lesson_mode.evaluate_lesson_performance(self)
         return
-        '''
-        """Evaluate performance and decide next action - now with victory sound and results dialog!"""
-        l = self.state.lesson
-        l.end_time = time.time()
-
-        # Play victory sound for completing the batch
-        self.audio.play_victory()
-
-        # Calculate statistics
-        duration = l.end_time - l.start_time
-        accuracy = l.tracker.overall_accuracy() * 100
-        total_attempts = l.tracker.total_attempts
-        total_correct = l.tracker.total_correct
-        total_errors = total_attempts - total_correct
-        wpm = l.tracker.calculate_wpm(duration)
-
-        # Phase 1: Calculate star rating for this lesson
-        stars = self.calculate_lesson_stars(l.stage, accuracy, wpm)
-
-        # Update best scores for this lesson
-        prev_stars = self.state.settings.lesson_stars.get(l.stage, 0)
-        if stars > prev_stars:
-            self.state.settings.lesson_stars[l.stage] = stars
-
-        # Track best performance metrics
-        prev_wpm = self.state.settings.lesson_best_wpm.get(l.stage, 0.0)
-        if wpm > prev_wpm:
-            self.state.settings.lesson_best_wpm[l.stage] = wpm
-
-        prev_accuracy = self.state.settings.lesson_best_accuracy.get(l.stage, 0.0)
-        if accuracy > prev_accuracy:
-            self.state.settings.lesson_best_accuracy[l.stage] = accuracy
-
-        # Update global statistics
-        self.state.settings.total_lessons_completed += 1
-        self.state.settings.total_practice_time += duration
-        if wpm > self.state.settings.highest_wpm:
-            self.state.settings.highest_wpm = wpm
-
-        # Phase 1: Check for newly earned badges
-        lesson_stats = {
-            'accuracy': accuracy,
-            'wpm': wpm,
-            'duration': duration
-        }
-        new_badges = badge_manager.check_badges(self.state.settings, lesson_stats)
-
-        # Add newly earned badges and queue for notification
-        for badge_id in new_badges:
-            self.state.settings.earned_badges.add(badge_id)
-            self.state.settings.badge_notifications.append(badge_id)
-
-        # Phase 2: Award XP for completing lesson
-        xp_earned = xp_manager.XP_AWARDS["lesson"]
-        xp_earned += total_correct * xp_manager.XP_AWARDS["keystroke"]
-
-        # Bonus XP for perfect accuracy
-        if accuracy >= 100:
-            xp_earned += xp_manager.XP_AWARDS["perfect_accuracy"]
-
-        # Bonus XP for new best WPM
-        if wpm > prev_wpm and wpm >= 20:
-            xp_earned += xp_manager.XP_AWARDS["new_best_wpm"]
-
-        # Bonus XP for new best accuracy
-        if accuracy > prev_accuracy:
-            xp_earned += xp_manager.XP_AWARDS["new_best_accuracy"]
-
-        # Award XP and check for level-up
-        xp_result = xp_manager.award_xp(self.state.settings, xp_earned, f"Lesson {l.stage} completed")
-
-        # Phase 2: Update quest progress
-        quest_progress_data = {
-            "lesson_num": l.stage,
-            "accuracy": accuracy,
-            "wpm": wpm,
-            "duration": duration
-        }
-        newly_completed_quests = quest_manager.check_all_active_quests(self.state.settings, quest_progress_data)
-
-        # Award XP for completed quests
-        for quest_id in newly_completed_quests:
-            quest = quest_manager.get_quest_info(quest_id)
-            if quest:
-                quest_xp_result = xp_manager.award_xp(self.state.settings, quest["xp_reward"], f"Quest: {quest['name']}")
-
-        # Phase 2: Check daily challenge
-        challenge = challenge_manager.get_today_challenge()
-        if not self.state.settings.daily_challenge_completed:
-            if challenge["type"] == "lesson_accuracy":
-                progress = challenge_manager.check_challenge_progress("lesson_accuracy", challenge["target"], {"accuracy": accuracy})
-                if progress["completed"]:
-                    challenge_result = challenge_manager.complete_daily_challenge(self.state.settings)
-                    challenge_xp_result = xp_manager.award_xp(self.state.settings, challenge_result["xp_earned"], "Daily Challenge")
-
-        # Phase 2: Record session for dashboard
-        session_data = {
-            "type": "lesson",
-            "lesson_num": l.stage,
-            "wpm": wpm,
-            "accuracy": accuracy,
-            "duration": duration,
-            "stars": stars,
-            "xp_earned": xp_earned
-        }
-        dashboard_manager.record_session(self.state.settings, session_data)
-
-        # Prepare key performance data for formatter
-        key_perf_dict = None
-        if l.tracker.key_performance:
-            key_perf_dict = {}
-            for key, perf in l.tracker.key_performance.items():
-                key_perf_dict[key] = {
-                    'recent_accuracy': perf.recent_accuracy(),
-                    'correct': perf.correct,
-                    'attempts': perf.attempts
-                }
-
-        # Determine next action and prepare unlock info
-        unlocked_new = False
-        unlocked_lesson_info = None
-        should_advance = l.tracker.should_advance(
-            lesson_num=l.stage,
-            duration_seconds=duration,
-            wpm_required_from_lesson=lesson_manager.WPM_REQUIRED_FROM_LESSON,
-            min_wpm=lesson_manager.MIN_WPM
-        )
-        should_review = l.tracker.should_slow_down()
-        needs_wpm = (l.stage >= lesson_manager.WPM_REQUIRED_FROM_LESSON and wpm < lesson_manager.MIN_WPM and accuracy >= 80)
-
-        if should_advance:
-            # Unlock next lesson
-            next_lesson = min(l.stage + 1, len(lesson_manager.STAGE_LETTERS) - 1)
-            if next_lesson not in self.state.settings.unlocked_lessons:
-                self.state.settings.unlocked_lessons.add(next_lesson)
-                unlocked_new = True
-                next_name = lesson_manager.LESSON_NAMES[next_lesson] if next_lesson < len(lesson_manager.LESSON_NAMES) else f"Lesson {next_lesson}"
-                new_keys = lesson_manager.STAGE_LETTERS[next_lesson] if next_lesson < len(lesson_manager.STAGE_LETTERS) else set()
-                unlocked_lesson_info = {
-                    'name': next_name,
-                    'keys': new_keys
-                }
-
-            self.state.settings.current_lesson = next_lesson
-            l.stage = next_lesson
-            self.save_progress()
-
-        elif should_review:
-            l.review_mode = True
-
-        # Format results using results_formatter
-        results_text, action = results_formatter.ResultsFormatter.format_lesson_results(
-            accuracy=accuracy,
-            wpm=wpm,
-            total_correct=total_correct,
-            total_errors=total_errors,
-            duration=duration,
-            key_performance=key_perf_dict,
-            unlocked_lesson=unlocked_lesson_info,
-            should_advance=should_advance,
-            should_review=should_review,
-            needs_wpm=needs_wpm,
-            min_wpm=lesson_manager.MIN_WPM,
-            stars=stars,
-            prev_stars=prev_stars
-        )
-
-        # Show results dialog (blocks until OK is pressed)
-        self.show_results_dialog(results_text)
-
-        # Play unlock sound if new lesson was unlocked
-        if unlocked_new:
-            self.audio.play_unlock()
-            pygame.time.wait(500)  # Brief pause after unlock sound
-
-        # Phase 1: Show badge notifications if any were earned
-        self.show_badge_notifications()
-
-        # Phase 2: Show level-up notification if leveled up
-        self.show_level_up_notification(xp_result)
-
-        # Phase 2: Show quest completion notifications
-        self.show_quest_notifications()
-
-        # After dialog closes, execute the action
-        if action == "advance":
-            next_lesson = self.state.settings.current_lesson
-            next_name = lesson_manager.LESSON_NAMES[next_lesson] if next_lesson < len(lesson_manager.LESSON_NAMES) else f"Lesson {next_lesson}"
-            if unlocked_new:
-                self.speech.say(f"Starting {next_name}", priority=True, protect_seconds=2.0)
-            pygame.time.wait(500)
-            self.start_lesson(next_lesson)
-        elif action == "review":
-            self.state.mode = "RESULTS"
-            self.state.results_text = "Press Space for focused review, Enter to try again, or Escape for menu."
-            self.speech.say(self.state.results_text, priority=True, protect_seconds=3.0)
-        else:
-            self.state.mode = "RESULTS"
-            self.state.results_text = "Press Space to continue, Enter to practice more, or Escape for menu."
-            self.speech.say(self.state.results_text, priority=True, protect_seconds=3.0)
-        '''
 
     def current_word(self):
         return self.state.lesson.batch_words[self.state.lesson.index]
@@ -2536,9 +2268,8 @@ class KeyQuestApp:
     def trigger_flash(self, color: tuple, duration: float = 0.12) -> None:
         """Schedule a brief color overlay for visual keystroke feedback.
 
-        Provides a visual equivalent of beep_ok (green) and beep_bad (red)
-        for deaf or hard-of-hearing users. Safe to call every keystroke —
-        the overlay lasts only ~120 ms and is drawn at low opacity.
+        The overlay mirrors success/error tones and fades quickly enough to
+        be triggered on every keystroke.
         """
         self._flash.trigger(color, duration)
 

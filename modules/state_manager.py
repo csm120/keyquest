@@ -100,11 +100,11 @@ class AdaptiveTracker:
             wpm_required_from_lesson: Lesson number where WPM requirement starts
             min_wpm: Minimum WPM required to advance
         """
-        # Need 3+ consecutive correct (non-consecutive keys)
+        # Require at least three correct non-repeated keys in a row.
         if self.consecutive_correct >= 3:
-            # And overall accuracy > 80% (lowered from 85% for faster progression)
+            # Require at least 80% overall accuracy before advancing.
             if self.overall_accuracy() > 0.80:
-                # For lessons 6+, also check WPM requirement
+                # Later lessons also require minimum typing speed.
                 if lesson_num >= wpm_required_from_lesson and duration_seconds > 0:
                     wpm = self.calculate_wpm(duration_seconds)
                     return wpm >= min_wpm
@@ -113,7 +113,7 @@ class AdaptiveTracker:
 
     def should_slow_down(self) -> bool:
         """Determine if user is struggling."""
-        # 3+ consecutive wrong (non-consecutive keys) or accuracy < 65% (more forgiving)
+        # Slow down after three non-repeated misses or overall accuracy below 65%.
         return self.consecutive_wrong >= 3 or self.overall_accuracy() < 0.65
 
     def is_excelling(self) -> bool:
@@ -234,39 +234,28 @@ class Settings:
     current_streak: int = 0  # Current streak in days
     last_practice_date: str = ""  # Last practice date in YYYY-MM-DD format
     longest_streak: int = 0  # Longest streak ever achieved
-    # Phase 1 Features: Star Rating System
     lesson_stars: Dict[int, int] = field(default_factory=dict)  # lesson_num: stars (1-3)
     lesson_best_wpm: Dict[int, float] = field(default_factory=dict)  # lesson_num: best WPM
     lesson_best_accuracy: Dict[int, float] = field(default_factory=dict)  # lesson_num: best accuracy
-    # Phase 1 Features: Badge System
     earned_badges: Set[str] = field(default_factory=set)  # Set of earned badge IDs
     badge_notifications: List[str] = field(default_factory=list)  # Queue of badges to announce
-    # Phase 1 Features: Statistics
     total_lessons_completed: int = 0  # Total count of completed lessons
     total_practice_time: float = 0.0  # Total practice time in seconds
     highest_wpm: float = 0.0  # Highest WPM ever achieved
-    # Phase 2 Features: XP & Level System
     xp: int = 0  # Total experience points
     level: int = 1  # Current level (1-10)
-    # Phase 2 Features: Problem Key Tracking
     key_stats: Dict[str, Dict[str, int]] = field(default_factory=dict)  # key: {attempts, correct, errors}
-    # Phase 2 Features: Daily Challenges
     daily_challenge_date: str = ""  # Date of current challenge (YYYY-MM-DD)
     daily_challenge_completed: bool = False  # Whether today's challenge is complete
     daily_challenge_streak: int = 0  # Consecutive days completing challenges
-    # Phase 2 Features: Quest System
     active_quests: Dict[str, Dict] = field(default_factory=dict)  # quest_id: {progress, target, completed}
     completed_quests: Set[str] = field(default_factory=set)  # Set of completed quest IDs
     quest_notifications: List[str] = field(default_factory=list)  # Queue of quests to announce
-    # Phase 2 Features: Historical Data for Dashboard
     session_history: List[Dict] = field(default_factory=list)  # List of session data
-    # Phase 4 Features: Currency System
     coins: int = 0  # Virtual currency balance
     total_coins_earned: int = 0  # Lifetime total coins earned
-    # Phase 4 Features: Shop System
     owned_items: Set[str] = field(default_factory=set)  # Set of owned permanent items
     inventory: Dict[str, int] = field(default_factory=dict)  # item_id: quantity for consumables
-    # Phase 4 Features: Virtual Pet System
     pet_type: str = ""  # Pet type (robot, dragon, owl, cat, dog, phoenix, tribble)
     pet_name: str = ""  # Custom pet name
     pet_xp: int = 0  # Pet's XP (grows with user)
@@ -343,17 +332,14 @@ class ProgressManager:
             state.settings.auto_update_check = data.get("auto_update_check", True)
             state.settings.auto_start_next_lesson = data.get("auto_start_next_lesson", False)
 
-            # Load TTS options
             state.settings.tts_rate = data.get("tts_rate", 200)
             state.settings.tts_volume = data.get("tts_volume", 1.0)
             state.settings.tts_voice = data.get("tts_voice", "")
 
-            # Load streak data
             state.settings.current_streak = data.get("current_streak", 0)
             state.settings.last_practice_date = data.get("last_practice_date", "")
             state.settings.longest_streak = data.get("longest_streak", 0)
 
-            # Load Phase 1 features: Star ratings
             lesson_stars_data = data.get("lesson_stars", {})
             state.settings.lesson_stars = {int(k): int(v) for k, v in lesson_stars_data.items()}
 
@@ -363,42 +349,26 @@ class ProgressManager:
             lesson_best_accuracy_data = data.get("lesson_best_accuracy", {})
             state.settings.lesson_best_accuracy = {int(k): float(v) for k, v in lesson_best_accuracy_data.items()}
 
-            # Load Phase 1 features: Badges and statistics
             state.settings.earned_badges = set(data.get("earned_badges", []))
             state.settings.badge_notifications = data.get("badge_notifications", [])
             state.settings.total_lessons_completed = data.get("total_lessons_completed", 0)
             state.settings.total_practice_time = data.get("total_practice_time", 0.0)
             state.settings.highest_wpm = data.get("highest_wpm", 0.0)
 
-            # Load Phase 2 features: XP & Level
             state.settings.xp = data.get("xp", 0)
             state.settings.level = data.get("level", 1)
-
-            # Load Phase 2 features: Problem Key Tracking
             state.settings.key_stats = data.get("key_stats", {})
-
-            # Load Phase 2 features: Daily Challenges
             state.settings.daily_challenge_date = data.get("daily_challenge_date", "")
             state.settings.daily_challenge_completed = data.get("daily_challenge_completed", False)
             state.settings.daily_challenge_streak = data.get("daily_challenge_streak", 0)
-
-            # Load Phase 2 features: Quest System
             state.settings.active_quests = data.get("active_quests", {})
             state.settings.completed_quests = set(data.get("completed_quests", []))
             state.settings.quest_notifications = data.get("quest_notifications", [])
-
-            # Load Phase 2 features: Historical Data
             state.settings.session_history = data.get("session_history", [])
-
-            # Load Phase 4 features: Currency
             state.settings.coins = data.get("coins", 0)
             state.settings.total_coins_earned = data.get("total_coins_earned", 0)
-
-            # Load Phase 4 features: Shop
             state.settings.owned_items = set(data.get("owned_items", []))
             state.settings.inventory = data.get("inventory", {})
-
-            # Load Phase 4 features: Pet
             state.settings.pet_type = data.get("pet_type", "")
             state.settings.pet_name = data.get("pet_name", "")
             state.settings.pet_xp = data.get("pet_xp", 0)
@@ -454,45 +424,34 @@ class ProgressManager:
                 "sentence_language": state.settings.sentence_language,
                 "auto_update_check": state.settings.auto_update_check,
                 "auto_start_next_lesson": state.settings.auto_start_next_lesson,
-                # TTS options
                 "tts_rate": state.settings.tts_rate,
                 "tts_volume": state.settings.tts_volume,
                 "tts_voice": state.settings.tts_voice,
                 "current_streak": state.settings.current_streak,
                 "last_practice_date": state.settings.last_practice_date,
                 "longest_streak": state.settings.longest_streak,
-                # Phase 1 features: Star ratings
                 "lesson_stars": {str(k): v for k, v in state.settings.lesson_stars.items()},
                 "lesson_best_wpm": {str(k): v for k, v in state.settings.lesson_best_wpm.items()},
                 "lesson_best_accuracy": {str(k): v for k, v in state.settings.lesson_best_accuracy.items()},
-                # Phase 1 features: Badges and statistics
                 "earned_badges": sorted(list(state.settings.earned_badges)),
                 "badge_notifications": state.settings.badge_notifications,
                 "total_lessons_completed": state.settings.total_lessons_completed,
                 "total_practice_time": state.settings.total_practice_time,
                 "highest_wpm": state.settings.highest_wpm,
-                # Phase 2 features: XP & Level
                 "xp": state.settings.xp,
                 "level": state.settings.level,
-                # Phase 2 features: Problem Key Tracking
                 "key_stats": state.settings.key_stats,
-                # Phase 2 features: Daily Challenges
                 "daily_challenge_date": state.settings.daily_challenge_date,
                 "daily_challenge_completed": state.settings.daily_challenge_completed,
                 "daily_challenge_streak": state.settings.daily_challenge_streak,
-                # Phase 2 features: Quest System
                 "active_quests": state.settings.active_quests,
                 "completed_quests": sorted(list(state.settings.completed_quests)),
                 "quest_notifications": state.settings.quest_notifications,
-                # Phase 2 features: Historical Data
                 "session_history": state.settings.session_history,
-                # Phase 4 features: Currency
                 "coins": state.settings.coins,
                 "total_coins_earned": state.settings.total_coins_earned,
-                # Phase 4 features: Shop
                 "owned_items": sorted(list(state.settings.owned_items)),
                 "inventory": state.settings.inventory,
-                # Phase 4 features: Pet
                 "pet_type": state.settings.pet_type,
                 "pet_name": state.settings.pet_name,
                 "pet_xp": state.settings.pet_xp,
@@ -504,5 +463,5 @@ class ProgressManager:
             tmp.write_text(json.dumps(data, indent=2), encoding="utf-8")
             tmp.replace(self.filename)
         except Exception:
-            # Silently fail on save errors (non-critical)
+            # Progress save failures should not crash the app.
             pass

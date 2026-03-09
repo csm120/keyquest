@@ -20,8 +20,7 @@ def get_visible_window(item_count: int, current_index: int, max_visible: int):
 def draw_keystroke_flash(screen, color, alpha: int, screen_w: int, screen_h: int):
     """Draw a brief semi-transparent color overlay for visual keystroke feedback.
 
-    Provides a visual equivalent of beep_ok/beep_bad for deaf or hard-of-hearing
-    users. Call each frame while the flash is active; alpha fades out over time.
+    Call each frame while the flash is active; alpha fades out over time.
     """
     flash_surf = pygame.Surface((screen_w, screen_h))
     flash_surf.fill(color)

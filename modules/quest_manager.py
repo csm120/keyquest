@@ -1,7 +1,4 @@
-"""Quest system for KeyQuest Phase 2.
-
-Manages structured goals and quest progression.
-"""
+"""Quest definitions and quest-progress helpers."""
 
 # =========== Quest Definitions ===========
 

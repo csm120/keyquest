@@ -1,12 +1,4 @@
-"""Results formatting and display for KeyQuest.
-
-Centralizes all result text generation for consistency across:
-- Tutorial completion
-- Typing lessons
-- Speed tests
-- Sentence practice
-- Games (via generic formatter)
-"""
+"""Result text helpers for dialogs and spoken summaries."""
 
 import random
 
@@ -14,7 +6,7 @@ import random
 class ResultsFormatter:
     """Formats results text for display in dialogs."""
 
-    # Encouragement messages (mirrored from the main app)
+    # Encouragement messages used for review-mode lesson results.
     ENCOURAGEMENT = {
         'struggle': [
             "Keep going",
@@ -83,6 +75,7 @@ class ResultsFormatter:
         Args:
             accuracy: Accuracy percentage (0-100)
             wpm: Words per minute
+            gross_wpm: Total WPM before accuracy correction
             total_correct: Number of correct keystrokes
             total_errors: Number of errors
             duration: Time in seconds
@@ -92,8 +85,8 @@ class ResultsFormatter:
             should_review: Whether to do focused review
             needs_wpm: Whether accuracy is good but WPM is too low
             min_wpm: Minimum WPM requirement
-            stars: Star rating earned (0-3) [Phase 1]
-            prev_stars: Previous best star rating [Phase 1]
+            stars: Star rating earned (0-3)
+            prev_stars: Previous best star rating
 
         Returns:
             Tuple of (results_text, action) where action is "advance", "review", or "continue"
@@ -110,7 +103,7 @@ class ResultsFormatter:
             "",
         ]
 
-        # Phase 1: Show star rating
+        # Include star-rating feedback when available.
         if stars > 0:
             star_display = "⭐" * stars
             results_lines.append(f"Rating: {star_display} ({stars}/3 stars)")
@@ -187,6 +180,7 @@ class ResultsFormatter:
 
         Args:
             wpm: Words per minute
+            gross_wpm: Total WPM before accuracy correction
             accuracy: Accuracy percentage (0-100)
             time_minutes: Time elapsed in minutes
             sentences_completed: Number of fully completed sentences
@@ -233,6 +227,7 @@ class ResultsFormatter:
 
         Args:
             wpm: Words per minute
+            gross_wpm: Total WPM before accuracy correction
             accuracy: Accuracy percentage (0-100)
             time_minutes: Time elapsed in minutes
             sentences_completed: Number of fully completed sentences
