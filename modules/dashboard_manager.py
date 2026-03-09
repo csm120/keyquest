@@ -188,6 +188,7 @@ def format_practice_log(settings, limit: int = 30) -> str:
     lines = ["Practice Log", ""]
     recent_sessions = list(settings.session_history)[-max(1, limit):]
     recent_sessions.sort(key=lambda session: _session_datetime(session) or datetime.min, reverse=True)
+    previous_same_type_map = _build_previous_same_type_map(recent_sessions)
     grouped_sessions = _group_sessions_by_day(recent_sessions)
     ordered_days = list(grouped_sessions.keys())
 
@@ -203,7 +204,7 @@ def format_practice_log(settings, limit: int = 30) -> str:
             lines.append(comparison_text)
 
         for session in sessions:
-            lines.extend(_format_session_block(session))
+            lines.extend(_format_session_block(session, previous_same_type_map.get(id(session))))
             lines.append("")
 
     return "\n".join(lines).rstrip()
@@ -291,30 +292,41 @@ def _build_day_summary(sessions: list[dict]) -> dict:
     total_duration = sum(
         session.get("duration", 0) for session in sessions if isinstance(session.get("duration"), (int, float))
     )
-    wpm_values = [session.get("wpm", 0) for session in sessions if isinstance(session.get("wpm"), (int, float)) and session.get("wpm", 0) > 0]
-    accuracy_values = [session.get("accuracy", 0) for session in sessions if isinstance(session.get("accuracy"), (int, float)) and session.get("accuracy", 0) > 0]
+    wpm_values = [
+        session.get("wpm", 0)
+        for session in sessions
+        if isinstance(session.get("wpm"), (int, float)) and session.get("wpm", 0) > 0
+    ]
+    accuracy_values = [
+        session.get("accuracy", 0)
+        for session in sessions
+        if isinstance(session.get("accuracy"), (int, float)) and session.get("accuracy", 0) > 0
+    ]
     return {
         "count": len(sessions),
         "duration": total_duration,
         "avg_wpm": (sum(wpm_values) / len(wpm_values)) if wpm_values else 0.0,
         "avg_accuracy": (sum(accuracy_values) / len(accuracy_values)) if accuracy_values else 0.0,
+        "activities": _summarize_day_activities(sessions),
     }
 
 
-def _format_delta(current: float, previous: float, unit: str) -> str:
+def _format_delta(current: float, previous: float, better_word: str, worse_word: str, unit: str) -> str:
     if previous <= 0:
         return ""
     delta = current - previous
     if abs(delta) < 0.05:
         return f"about the same {unit}"
-    direction = "up" if delta > 0 else "down"
-    return f"{direction} {abs(delta):.1f} {unit}"
+    direction = better_word if delta > 0 else worse_word
+    return f"{abs(delta):.1f} {unit} {direction}"
 
 
 def _format_day_comparison(current: dict, previous: Optional[dict]) -> str:
     duration_text = _format_duration(current.get("duration", 0))
     count = current.get("count", 0)
-    parts = [f"{count} activity" if count == 1 else f"{count} activities"]
+    activity_text = _format_activity_list(current.get("activities", []))
+    count_text = f"{count} activity" if count == 1 else f"{count} activities"
+    parts = [f"{count_text}: {activity_text}" if activity_text else count_text]
     if duration_text:
         parts.append(f"{duration_text} total")
     if current.get("avg_wpm", 0) > 0:
@@ -324,23 +336,35 @@ def _format_day_comparison(current: dict, previous: Optional[dict]) -> str:
 
     if previous:
         comparisons = []
-        wpm_delta = _format_delta(current.get("avg_wpm", 0), previous.get("avg_wpm", 0), "WPM")
+        wpm_delta = _format_delta(
+            current.get("avg_wpm", 0),
+            previous.get("avg_wpm", 0),
+            "faster",
+            "slower",
+            "WPM",
+        )
         if wpm_delta:
-            comparisons.append(f"speed {wpm_delta}")
-        acc_delta = _format_delta(current.get("avg_accuracy", 0), previous.get("avg_accuracy", 0), "accuracy points")
+            comparisons.append(f"today was {wpm_delta} on average")
+        acc_delta = _format_delta(
+            current.get("avg_accuracy", 0),
+            previous.get("avg_accuracy", 0),
+            "higher",
+            "lower",
+            "accuracy points",
+        )
         if acc_delta:
-            comparisons.append(f"accuracy {acc_delta}")
+            comparisons.append(f"today was {acc_delta} in accuracy")
         if comparisons:
-            parts.append("Compared with the previous day: " + ", ".join(comparisons))
+            parts.append("Compared with your previous recorded practice day, " + " and ".join(comparisons))
 
     return ". ".join(parts) + "."
 
 
-def _format_session_block(session: dict) -> list[str]:
+def _format_session_block(session: dict, previous_similar: Optional[dict] = None) -> list[str]:
     dt = _session_datetime(session)
     lines = [f"- {_format_friendly_datetime(dt, session.get('date', 'Unknown date'))}"]
 
-    summary = session.get("summary") or str(session.get("type", "practice")).replace("_", " ").title()
+    summary = _session_summary_text(session)
     lines.append(f"  Did: {summary}")
 
     duration_text = _format_duration(session.get("duration"))
@@ -364,7 +388,85 @@ def _format_session_block(session: dict) -> list[str]:
     if earned:
         lines.append(f"  Earned: {earned}")
 
+    comparison_text = _format_session_comparison(session, previous_similar)
+    if comparison_text:
+        lines.append(f"  Change: {comparison_text}")
+
     return lines
+
+
+def _session_summary_text(session: dict) -> str:
+    return session.get("summary") or str(session.get("type", "practice")).replace("_", " ").title()
+
+
+def _build_previous_same_type_map(sessions: list[dict]) -> dict:
+    previous_map = {}
+    last_by_key = {}
+    for session in reversed(sessions):
+        compare_key = _session_compare_key(session)
+        previous_map[id(session)] = last_by_key.get(compare_key)
+        last_by_key[compare_key] = session
+    return previous_map
+
+
+def _session_compare_key(session: dict) -> str:
+    summary = session.get("summary")
+    if isinstance(summary, str) and summary.strip():
+        return summary.strip()
+    type_name = session.get("type")
+    if isinstance(type_name, str) and type_name.strip():
+        return type_name.strip()
+    return "practice"
+
+
+def _summarize_day_activities(sessions: list[dict]) -> list[str]:
+    activities = []
+    seen = set()
+    for session in sessions:
+        summary = _session_summary_text(session).strip()
+        if summary and summary not in seen:
+            activities.append(summary)
+            seen.add(summary)
+    return activities
+
+
+def _format_activity_list(activities: list[str]) -> str:
+    if not activities:
+        return ""
+    if len(activities) <= 3:
+        return ", ".join(activities)
+    shown = ", ".join(activities[:3])
+    remaining = len(activities) - 3
+    return f"{shown}, and {remaining} more"
+
+
+def _format_session_comparison(session: dict, previous_similar: Optional[dict]) -> str:
+    if not previous_similar:
+        return ""
+
+    summary = _session_summary_text(session)
+    comparisons = []
+    wpm_delta = _format_delta(
+        session.get("wpm", 0),
+        previous_similar.get("wpm", 0),
+        "faster",
+        "slower",
+        "WPM",
+    )
+    if wpm_delta:
+        comparisons.append(f"this was {wpm_delta} than your last {summary}")
+
+    acc_delta = _format_delta(
+        session.get("accuracy", 0),
+        previous_similar.get("accuracy", 0),
+        "higher",
+        "lower",
+        "accuracy points",
+    )
+    if acc_delta:
+        comparisons.append(f"accuracy was {acc_delta} than your last {summary}")
+
+    return ". ".join(comparisons) + ("." if comparisons else "")
 
 
 def format_weekly_summary(settings) -> str:
