@@ -1,5 +1,15 @@
 # New in Key Quest
 
+## Monday March 9th 2026 at 3:45PM
+
+Version 1.1.2
+
+This update makes the Practice Log easier to understand and keeps the app on one Python version more consistently.
+
+- The Practice Log now says what activity was done in the day summary instead of only saying how many activities there were.
+- Change wording in the Practice Log is now clearer about the current item, such as whether today was faster or slower than the previous recorded day, or whether this activity did better or worse than the last similar activity.
+- Internal release, Pages, and linting tools are now aligned to Python 3.9, which matches the app launcher and helps avoid version-related startup problems.
+
 ## Monday March 9th 2026 at 1:05PM
 
 Version 1.1.1
