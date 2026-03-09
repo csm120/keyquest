@@ -63,6 +63,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 - EXE packaging docs policy: include `README.md`, `README.html`, and user-facing docs under `dist/KeyQuest/docs/`.
 - Release policy: `docs/dev/RELEASE_POLICY.md`
 - Windows source-launch safeguard: `keyquest.pyw` now relaunches itself with Python 3.9 if file association starts it with a different Python install.
+- Python baseline policy: keep source, workflows, linting, and packaging aligned to Python 3.9 for consistency and TTS compatibility.
 
 ## Current Status (High Level)
 
@@ -115,7 +116,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 - `error_logging.py` gained log rotation (2 MB cap) and `log_message()` helper; `dialog_manager.py` now routes errors there instead of a separate file.
 - Pet happiness decays 5 pts/day since last fed (applied at load time in `state_manager.py`).
 - `keyquest.pyw` now supports `--version` flag; CI EXE smoke test uses it.
-- CI upgraded to Python 3.11; ruff lint step and EXE smoke test added to `release.yml`.
+- Ruff lint step and EXE smoke test were added to the release workflow.
 - `requirements.lock` and `pyproject.toml` (ruff + pytest config) added.
 - Test count: 100 → 179 (audio, speech, schema migration, file-not-found paths all covered).
 - `docs/dev/ARCHITECTURE.md` added (module map, mode state machine, conventions).

@@ -4,7 +4,7 @@
 
 KeyQuest is an accessible typing practice program for keyboard, screen reader, and low-vision users, designed from the ground up for people who rely on screen readers (NVDA, JAWS) or have low vision.
 
-**Quick start** (requires Python 3.9+):
+**Quick start** (requires Python 3.9):
 
 ```
 pip install -r requirements.txt
@@ -42,6 +42,7 @@ Developer notes and session context live under [docs/dev](docs/dev).
   - Add `-DryRun` first if you want to verify the workflow without pushing or tagging.
 - `tools/release.ps1` is still available if you want to bump `modules/version.py` manually before releasing.
   - The release flow refuses to publish unless `docs/user/WHATS_NEW.md` has been updated in plain language for that release.
+- Treat the repo as Python 3.9 everywhere unless an explicit migration changes that policy. Source runs, GitHub workflows, and linting are aligned to 3.9 for consistency and TTS compatibility.
 
 ## Contact
 

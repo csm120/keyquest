@@ -38,9 +38,16 @@ Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<
 - Added `pyproject.toml` with pytest `testpaths` and ruff lint configuration.
 
 ### CI / Build Pipeline
-- `release.yml`: Python version upgraded from 3.9 (EOL) to 3.11.
 - `release.yml`: added `ruff check .` lint step before tests.
 - `release.yml`: added EXE smoke test step after build (runs `KeyQuest.exe --version`, asserts exit code 0).
+
+## 2026-03-08 - Python 3.9 Baseline Alignment
+
+### Python Version Policy
+- `pyproject.toml`: Ruff target version is now `py39` so linting rejects syntax that would break the pinned runtime.
+- `.github/workflows/release.yml`: release builds now run on Python 3.9, matching the app launcher and local source-run expectation.
+- `.github/workflows/pages.yml`: Pages build now runs on Python 3.9 too, so GitHub automation matches the project baseline.
+- `README.md`, `docs/dev/DEVELOPER_SETUP.md`, and `docs/dev/HANDOFF.md`: updated to state the repo-wide Python 3.9 policy explicitly for consistency and TTS compatibility.
 
 ### Test Coverage (+79 tests, 100 -> 179 total)
 - `tests/test_audio_manager.py`: 33 tests covering tone array shape, amplitude bounds, FFT-verified harmonic structure, envelope fade, cache behaviour, and edge cases - no audio hardware required.
