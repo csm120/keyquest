@@ -10,8 +10,6 @@ This update makes the Practice Log easier to understand and keeps the app on one
 - Change wording in the Practice Log is now clearer about the current item, such as whether today was faster or slower than the previous recorded day, or whether this activity did better or worse than the last similar activity.
 - Internal release, Pages, and linting tools are now aligned to Python 3.9, which matches the app launcher and helps avoid version-related startup problems.
 
-## Monday March 9th 2026
-
 Version 1.1.1
 
 This update smooths out several rough edges in daily use.
@@ -54,16 +52,12 @@ This release fixes the Windows release build.
 
 - The release build now uses a `cytolk` version that matches what KeyQuest already uses locally, so GitHub can publish the installer and portable downloads again.
 
-## Friday March 6th 2026
-
 Release update
 
 This release fixes the update pipeline itself.
 
 - GitHub release publishing was repaired so shipped updates can build and publish the installer and portable downloads correctly again.
 - The release process now has a clearer split between a plain GitHub push and a full shipped update.
-
-## Friday March 6th 2026
 
 Release update
 
@@ -76,8 +70,6 @@ The guide and blog wording are easier to follow.
 
 - Download links now use cleaner names like `Installer.exe` and `Portable.zip`.
 - The public guide, changelog, and blog wording were smoothed out to be clearer for new users, AT instructors, and educators.
-
-## Friday March 6th 2026
 
 Release update
 

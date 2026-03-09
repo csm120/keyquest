@@ -165,6 +165,8 @@ If a shorter version says the same thing clearly, use the shorter version.
 ## Changelog Rules
 
 - Put the newest update heading at the top.
+- Use one heading per calendar date in `docs/user/WHATS_NEW.md`.
+- If more changes happen on the same date, append them under the existing date heading instead of creating a second heading for that date.
 - Within each date heading, list the newest or most important changes first.
 - Lead with the changes people will notice most.
 - Use plain language, not internal development terms.

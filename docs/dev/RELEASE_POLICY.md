@@ -26,6 +26,7 @@ Meaning:
 
 - bump the app version
 - require a plain-language update in `docs/user/WHATS_NEW.md`
+  - use one heading per date; append same-day updates under the existing date heading
 - rebuild the Pages site
 - rebuild the local EXE, portable ZIP, and installer
 - commit and push `main`
