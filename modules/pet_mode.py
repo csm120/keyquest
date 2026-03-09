@@ -1,5 +1,6 @@
 import pygame
 
+from modules import dialog_manager
 from modules import pet_manager
 from modules import pet_ui_data
 from modules import shop_manager
@@ -39,6 +40,7 @@ def show_pet(app) -> None:
     pet_status = pet_manager.get_pet_status(app.state.settings)
     if not pet_status["has_pet"]:
         app.pet_view = "choose"
+        app.pet_choose_mode = "new"
         app.pet_types = list(pet_manager.PET_TYPES.keys())
         app.pet_choose_index = 0
 
@@ -70,6 +72,16 @@ def show_pet(app) -> None:
 def handle_pet_input(app, event, mods: int) -> None:
     """Handle pet navigation and interactions."""
     if event.key == pygame.K_ESCAPE:
+        if app.pet_view == "choose" and getattr(app, "pet_choose_mode", "new") == "change":
+            app.pet_view = "status"
+            app.pet_options = list(pet_ui_data.PET_MENU_OPTIONS)
+            app.pet_menu_index = 0
+            pet_status = pet_manager.get_pet_status(app.state.settings)
+            app.speech.say(
+                f"Kept your current pet. {pet_status['pet_name']}. Use Up and Down arrows to choose an action.",
+                priority=True,
+            )
+            return
         app.save_progress()
         app._return_to_main_menu()
         return
@@ -83,6 +95,20 @@ def handle_pet_input(app, event, mods: int) -> None:
             announce_pet_type(app, app.pet_types[app.pet_choose_index])
         elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
             pet_type = app.pet_types[app.pet_choose_index]
+            if getattr(app, "pet_choose_mode", "new") == "change":
+                confirm = dialog_manager.show_yes_no_dialog(
+                    "Change Pet",
+                    "Changing pets will reset your current pet's progress. Do you want to continue?",
+                    yes_label="Change Pet",
+                    no_label="Keep Current",
+                )
+                if not confirm:
+                    current_status = pet_manager.get_pet_status(app.state.settings)
+                    app.speech.say(
+                        f"Keeping your current pet. {current_status['pet_name']}.",
+                        priority=True,
+                    )
+                    return
             result = pet_manager.choose_pet(app.state.settings, pet_type)
             if result["success"]:
                 app.audio.play_success()
@@ -141,13 +167,21 @@ def handle_pet_action(app, action: str) -> None:
             food_result = pet_manager.feed_pet(app.state.settings, "basic")
             shop_manager.use_consumable(app.state.settings, "pet_food_basic")
             app.audio.play_success()
-            app.speech.say(food_result["message"], priority=True)
+            pet_status = pet_manager.get_pet_status(app.state.settings)
+            app.speech.say(
+                f"{food_result['message']} {pet_status['pet_name']} now has {pet_status['happiness']} percent happiness.",
+                priority=True,
+            )
             app.save_progress()
         elif premium_food_count > 0:
             food_result = pet_manager.feed_pet(app.state.settings, "premium")
             shop_manager.use_consumable(app.state.settings, "pet_food_premium")
             app.audio.play_success()
-            app.speech.say(food_result["message"], priority=True)
+            pet_status = pet_manager.get_pet_status(app.state.settings)
+            app.speech.say(
+                f"{food_result['message']} {pet_status['pet_name']} now has {pet_status['happiness']} percent happiness.",
+                priority=True,
+            )
             app.save_progress()
         else:
             app.audio.beep_bad()
@@ -157,17 +191,22 @@ def handle_pet_action(app, action: str) -> None:
     if action == "Play with Pet":
         app.state.settings.pet_happiness = min(100, app.state.settings.pet_happiness + 5)
         app.audio.play_success()
-        app.speech.say("You played with your pet! Happiness increased by 5.", priority=True)
+        pet_status = pet_manager.get_pet_status(app.state.settings)
+        app.speech.say(
+            f"You played with your pet. {pet_status['pet_name']} now has {pet_status['happiness']} percent happiness.",
+            priority=True,
+        )
         app.save_progress()
         return
 
     if action == "Change Pet":
         app.pet_view = "choose"
+        app.pet_choose_mode = "change"
         app.pet_types = list(pet_manager.PET_TYPES.keys())
         app.pet_choose_index = 0
         app.speech.say(
             "Choose a new pet. Warning: This will reset your pet's progress. "
-            "Use Up and Down arrows to browse. Press Enter to select. Press Escape to cancel."
+            "Use Up and Down arrows to browse. Press Enter to select. Press Escape to keep your current pet."
         )
         if app.pet_types:
             announce_pet_type(app, app.pet_types[0])

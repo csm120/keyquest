@@ -237,6 +237,94 @@ def show_info_dialog(title, content):
     show_dialog(title, content, dialog_type="info")
 
 
+def show_yes_no_dialog(title, content, yes_label="Yes", no_label="No") -> bool:
+    """Show a simple confirmation dialog and return True for Yes."""
+    if not WX_AVAILABLE:
+        print(f"\n{title}\n{content}")
+        return False
+
+    dlg = None
+    try:
+        wx_app = wx.App.Get()
+        if not wx_app:
+            error_msg = "wx.App not initialized - confirmation dialog won't work"
+            log_dialog_error("wx.App check", error_msg, "No traceback - app not initialized")
+            print(f"ERROR: {error_msg}")
+            print(f"\n{title}\n{content}")
+            return False
+
+        dlg = wx.Dialog(
+            None,
+            title=title,
+            style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER,
+            size=(600, 320),
+        )
+        panel = wx.Panel(dlg)
+        text_ctrl = wx.TextCtrl(
+            panel,
+            value=content,
+            style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP,
+        )
+        text_ctrl.SetFont(wx.Font(11, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL))
+
+        yes_btn = wx.Button(panel, wx.ID_YES, yes_label)
+        no_btn = wx.Button(panel, wx.ID_NO, no_label)
+        yes_btn.SetDefault()
+
+        button_row = wx.BoxSizer(wx.HORIZONTAL)
+        button_row.Add(yes_btn, 0, wx.ALL, 6)
+        button_row.Add(no_btn, 0, wx.ALL, 6)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(text_ctrl, 1, wx.ALL | wx.EXPAND, 10)
+        sizer.Add(button_row, 0, wx.ALL | wx.CENTER, 10)
+        panel.SetSizer(sizer)
+
+        result_box = {"value": False}
+        dialog_closing = [False]
+
+        def finish(result_value):
+            if dialog_closing[0]:
+                return
+            dialog_closing[0] = True
+            result_box["value"] = result_value
+            try:
+                dlg.EndModal(wx.ID_YES if result_value else wx.ID_NO)
+            except Exception:
+                pass
+
+        def on_key(event):
+            keycode = event.GetKeyCode()
+            if keycode in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
+                wx.CallAfter(finish, True)
+                return
+            if keycode == wx.WXK_ESCAPE:
+                wx.CallAfter(finish, False)
+                return
+            event.Skip()
+
+        yes_btn.Bind(wx.EVT_BUTTON, lambda event: wx.CallAfter(finish, True))
+        no_btn.Bind(wx.EVT_BUTTON, lambda event: wx.CallAfter(finish, False))
+        dlg.Bind(wx.EVT_CHAR_HOOK, on_key)
+        dlg.Centre()
+        dlg.ShowModal()
+        return result_box["value"]
+    except Exception as e:
+        error_msg = f"Confirmation dialog error: {type(e).__name__}: {e}"
+        tb_str = traceback.format_exc()
+        print(error_msg)
+        print(f"\n{title}\n{content}")
+        log_dialog_error(f"show_yes_no_dialog({title})", error_msg, tb_str)
+        return False
+    finally:
+        if dlg is not None:
+            try:
+                dlg.Destroy()
+            except Exception as e:
+                log_dialog_error("Dialog destroy", f"Failed to destroy dialog: {e}", traceback.format_exc())
+        restore_pygame_focus()
+
+
 def show_results_dialog(
     title,
     content,

@@ -213,8 +213,6 @@ High Score: {self.high_score}
 Max Combo: {self.max_combo}
 
 {self._get_performance_message()}
-
---- End of file ---
 """
                     elapsed_minutes = max(0.01, (time.time() - self.game_start_time) / 60.0)
                     self.show_game_results(

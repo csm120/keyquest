@@ -37,10 +37,11 @@ import time
 import random
 import threading
 import subprocess
+import urllib.parse
 import webbrowser
 from collections import Counter
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 # Program modules
 from modules.app_paths import get_app_dir
@@ -80,6 +81,8 @@ from modules import pet_manager
 from modules import progress_views
 from modules import notifications
 from modules import update_manager
+from modules import dashboard_manager
+from modules import currency_manager
 from modules.version import __version__
 import pygame
 import pygame.freetype
@@ -105,6 +108,8 @@ from ui.render_updating import draw_updating_screen
 
 PAGES_GUIDE_URL = "https://csm120.github.io/KeyQuest/"
 PAGES_CHANGELOG_URL = "https://csm120.github.io/KeyQuest/changelog.html"
+INSTALLER_DOWNLOAD_URL = "https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe"
+GITHUB_NEW_ISSUE_URL = "https://github.com/csm120/KeyQuest/issues/new"
 
 # Optional wxPython for accessible dialogs
 try:
@@ -121,6 +126,60 @@ TITLE_SIZE, TEXT_SIZE, SMALL_SIZE = app_config.TITLE_SIZE, app_config.TEXT_SIZE,
 
 SYSTEM_THEME = theme_manager.detect_theme()
 BG, FG, ACCENT, HILITE = theme_manager.get_theme_colors(SYSTEM_THEME)
+
+
+def _build_github_issue_url(summary: str, issue_title: str) -> str:
+    """Build a prefilled GitHub issue URL for a local error report."""
+    log_path = error_logging.touch_log_file()
+    log_excerpt = error_logging.read_log_tail(1200)
+    notes = ["Attach the local log file if possible."]
+    if log_excerpt:
+        notes.extend(
+            [
+                "",
+                "## Log excerpt",
+                "```text",
+                log_excerpt,
+                "```",
+            ]
+        )
+    title = urllib.parse.quote(issue_title)
+    body = urllib.parse.quote(
+        "\n".join(
+            [
+                "## What happened",
+                summary,
+                "",
+                "## Environment",
+                f"- KeyQuest version: {__version__}",
+                f"- Local log file: {log_path}",
+                "",
+                "## What I was doing",
+                "Describe what you were doing when the problem happened.",
+                "",
+                "## Notes",
+                *notes,
+            ]
+        )
+    )
+    return f"{GITHUB_NEW_ISSUE_URL}?title={title}&body={body}"
+
+
+def _offer_general_error_github_report(summary: str) -> None:
+    """Offer a browser-based GitHub report for an unexpected app error."""
+    should_open = dialog_manager.show_yes_no_dialog(
+        "KeyQuest Error",
+        "KeyQuest hit an unexpected error.\n\nWould you like to open a prefilled GitHub bug report in your browser?",
+        yes_label="Open GitHub",
+        no_label="Close",
+    )
+    if not should_open:
+        return
+
+    try:
+        webbrowser.open(_build_github_issue_url(summary, "Bug report: unexpected KeyQuest error"))
+    except Exception:
+        pass
 
 
 # DPI scale detection is now in modules/font_manager.py
@@ -219,6 +278,15 @@ class KeyQuestApp:
         self.practice_topic_options = []
         self.practice_topic_index = 0
         self.practice_setup_view = "menu"
+        self.pet_options = []
+        self.pet_types = []
+        self.pet_view = "status"
+        self.pet_menu_index = 0
+        self.pet_choose_index = 0
+        self.pet_choose_mode = "new"
+        self.test_setup_view = "topic"
+        self.test_setup_topic_options = ["English", "Spanish"]
+        self.test_setup_topic_index = 0
 
         # Initialize games
         fonts = {
@@ -473,7 +541,10 @@ class KeyQuestApp:
                     'name': 'sentence_language',
                     'get_value': lambda: self.state.settings.sentence_language,
                     'set_value': lambda v: setattr(self.state.settings, 'sentence_language', v),
-                    'get_text': lambda: f"Practice Topic: {self.state.settings.sentence_language}",
+                    'get_text': lambda: (
+                        "Practice Topic: "
+                        f"{sentences_manager.get_practice_topic_display_name(self.state.settings.sentence_language)}"
+                    ),
                     'get_explanation': lambda: menu_handler.get_language_explanation(self.state.settings.sentence_language),
                     'cycle': menu_handler.cycle_language
                 },
@@ -510,10 +581,12 @@ class KeyQuestApp:
             self.start_test()
         elif choice == "Sentence Practice":
             self.start_practice()
+        elif choice == "Open Sentences Folder":
+            self.open_sentences_folder()
         elif choice == "Games":
             self.show_games_menu()
         elif choice == "Pet Shop":
-            self.show_shop()
+            self.show_shop(categories=["pet_items"], title="Pet Shop")
         elif choice == "Pets":
             self.show_pet()
         elif choice in ("Badges", "View Badges"):
@@ -522,6 +595,8 @@ class KeyQuestApp:
             self.show_quest_viewer()
         elif choice == "Progress Dashboard":
             self.show_progress_dashboard()
+        elif choice == "Practice Log":
+            self.show_practice_log()
         elif choice == "Daily Challenge":
             self.show_daily_challenge()
         elif choice == "Key Performance":
@@ -563,6 +638,62 @@ class KeyQuestApp:
             webbrowser.open(PAGES_CHANGELOG_URL, new=2)
         except Exception:
             self.speech.say("Unable to open New in Key Quest.", priority=True)
+
+    def open_sentences_folder(self):
+        """Open the current Sentences folder in Windows Explorer."""
+        sentences_dir = Path(get_app_dir()) / "Sentences"
+        if not sentences_dir.exists():
+            self.speech.say("Sentences folder was not found.", priority=True)
+            return
+
+        try:
+            os.startfile(str(sentences_dir))
+            self.speech.say("Opening Sentences folder.", priority=True)
+        except Exception:
+            self.speech.say("Unable to open the Sentences folder.", priority=True)
+
+    def _offer_installer_download_after_update_failure(self):
+        """Offer a direct fallback to the latest installer when updating fails."""
+        should_open = dialog_manager.show_yes_no_dialog(
+            "Update Failed",
+            "Automatic updating failed.\n\n"
+            "Would you like to download the latest KeyQuest setup program instead?",
+            yes_label="Download Setup",
+            no_label="Not Now",
+        )
+        if not should_open:
+            return
+
+        try:
+            webbrowser.open(INSTALLER_DOWNLOAD_URL)
+            self.speech.say("Opening the KeyQuest setup download.", priority=True)
+        except Exception as e:
+            self.speech.say(f"Unable to open the KeyQuest setup download. {e}", priority=True)
+
+    def _offer_github_issue_report(self, summary: str):
+        """Offer to open a prefilled GitHub issue in the browser."""
+        should_open = dialog_manager.show_yes_no_dialog(
+            "Open GitHub Issue",
+            "Would you like to open a prefilled GitHub bug report in your browser?",
+            yes_label="Open GitHub",
+            no_label="Not Now",
+        )
+        if not should_open:
+            return
+
+        try:
+            webbrowser.open(_build_github_issue_url(summary, "Bug report: updater failure"))
+            self.speech.say("Opening a GitHub bug report in your browser.", priority=True)
+        except Exception as e:
+            self.speech.say(f"Unable to open the GitHub bug report. {e}", priority=True)
+
+    def _offer_update_failure_recovery(self, summary: str):
+        """Offer recovery actions after an updater error."""
+        log_path = error_logging.touch_log_file()
+        error_logging.log_message("Updater Error", summary)
+        self._update_error_message = f"{summary} Local log saved to {log_path}."
+        self._offer_installer_download_after_update_failure()
+        self._offer_github_issue_report(summary)
 
     def _handle_about_select(self, item):
         item_id = item.get("id", "")
@@ -844,7 +975,13 @@ class KeyQuestApp:
                     "asset_kind": "portable zip" if self._portable_update_mode else "installer",
                 }
         except Exception as e:
-            result = {"status": "error", "manual": manual, "message": str(e)}
+            message = str(e)
+            if "certificate verify failed" in message.lower():
+                message = (
+                    "Secure connection to GitHub could not be verified. "
+                    "Check your Windows date and time, antivirus web filtering, or network certificate settings."
+                )
+            result = {"status": "error", "manual": manual, "message": message}
 
         with self._update_lock:
             self._update_check_result = result
@@ -961,8 +1098,12 @@ class KeyQuestApp:
         if status == "error":
             self._update_error_message = result.get("message", "Unknown update error.")
             self._update_status = "Update check failed."
+            self.state.mode = "MENU"
             if manual:
                 self.speech.say(f"Update check failed. {self._update_error_message}", priority=True)
+            else:
+                self.speech.say("Update check failed.", priority=True)
+            self._offer_update_failure_recovery(self._update_error_message)
             return
 
         if status != "update_available":
@@ -983,6 +1124,7 @@ class KeyQuestApp:
             self._update_status = "Update download failed."
             self.state.mode = "MENU"
             self.speech.say(f"Update download failed. {self._update_error_message}", priority=True)
+            self._offer_update_failure_recovery(self._update_error_message)
             self.main_menu.announce_current()
             return
 
@@ -1066,16 +1208,17 @@ class KeyQuestApp:
         pet_name = pet_status.get("pet_name", "Your pet")
 
         if result.get("evolved"):
+            stage_name = result.get("stage_name") or f"stage {result['new_stage']}"
             self.audio.play_pet_evolve()
             self.speech.say(
-                f"{pet_name} evolved to stage {result['new_stage']}!",
+                f"{pet_name} evolved to {stage_name}! {result.get('summary', '')}",
                 priority=True,
                 protect_seconds=2.0,
             )
         elif result.get("mood_changed"):
             self.audio.play_pet_sound(self.state.settings.pet_type)
             self.speech.say(
-                f"{pet_name} is feeling {result['mood']}. {result['mood_message']}",
+                f"{pet_name} is feeling {result['mood']}. {result['mood_message']} {result.get('summary', '')}",
                 priority=True,
                 protect_seconds=2.0,
             )
@@ -1102,8 +1245,9 @@ class KeyQuestApp:
         game_xp = int(stats.get("pet_xp", 12))
         if game_xp <= 0:
             game_xp = 12
+        coins_earned = currency_manager.award_coins(self.state.settings, "game_played")
 
-        self.apply_pet_session_progress(
+        pet_result = self.apply_pet_session_progress(
             recent_performance={
                 "new_best_wpm": False,
                 "new_best_accuracy": False,
@@ -1113,6 +1257,27 @@ class KeyQuestApp:
             },
             xp_amount=game_xp,
         )
+        dashboard_manager.record_session(
+            self.state.settings,
+            {
+                "type": "game",
+                "summary": getattr(game, "NAME", "Game"),
+                "accuracy": accuracy,
+                "duration": duration_minutes * 60.0,
+                "earned": (
+                    f"Coins +{coins_earned}, Pet XP +{pet_result.get('xp_awarded', 0)}"
+                    if pet_result.get("has_pet")
+                    else f"Coins +{coins_earned}"
+                ),
+            },
+        )
+        reward_bits = []
+        if coins_earned:
+            reward_bits.append(currency_manager.get_coin_announcement("game_played", coins_earned))
+        if pet_result.get("has_pet"):
+            reward_bits.append(f"Pet status: {pet_result.get('summary', '')}")
+        if reward_bits:
+            self.speech.say(" ".join(reward_bits), priority=True, protect_seconds=2.5)
         self.save_progress()
 
     def show_badge_viewer(self):
@@ -1127,6 +1292,10 @@ class KeyQuestApp:
         """Show comprehensive progress dashboard."""
         progress_views.show_progress_dashboard(self)
 
+    def show_practice_log(self):
+        """Show recent practice history."""
+        progress_views.show_practice_log(self)
+
     def show_daily_challenge(self):
         """Show today's daily challenge."""
         progress_views.show_daily_challenge(self)
@@ -1137,9 +1306,9 @@ class KeyQuestApp:
 
     # ==================== SHOP ====================
 
-    def show_shop(self):
+    def show_shop(self, categories: Optional[List[str]] = None, title: str = "Shop"):
         """Show shop interface for purchasing items."""
-        shop_mode.show_shop(self)
+        shop_mode.show_shop(self, categories=categories, title=title)
 
     def handle_shop_input(self, event, mods):
         """Handle shop navigation and purchases."""
@@ -2503,7 +2672,7 @@ class KeyQuestApp:
         )
 
     def draw_about(self):
-        title_surf, _ = self.title_font.render("About", ACCENT)
+        title_surf, _ = self.title_font.render("About", HILITE)
         self.screen.blit(title_surf, (SCREEN_W // 2 - title_surf.get_width() // 2, 40))
 
         version_surf, _ = self.small_font.render(f"KeyQuest {__version__}", ACCENT)
@@ -2520,11 +2689,24 @@ class KeyQuestApp:
             text = f"{prefix}{item['display']}"
             color = HILITE if selected else FG
             surf, _ = self.text_font.render(text, color)
-            self.screen.blit(surf, (80, y))
+            rect = surf.get_rect(topleft=(80, y))
+            if selected:
+                from ui.a11y import draw_action_emphasis, draw_active_panel, draw_focus_frame
+                draw_active_panel(self.screen, rect, ACCENT, FG)
+                draw_focus_frame(self.screen, rect, HILITE, ACCENT)
+                draw_action_emphasis(self.screen, rect, HILITE)
+            self.screen.blit(surf, rect)
             y += 52
 
-        hint, _ = self.small_font.render("Enter select; Escape back", ACCENT)
-        self.screen.blit(hint, (80, SCREEN_H - 60))
+        from ui.a11y import draw_controls_hint
+        draw_controls_hint(
+            screen=self.screen,
+            small_font=self.small_font,
+            text="Enter select; Esc back",
+            screen_w=SCREEN_W,
+            y=SCREEN_H - 50,
+            accent=ACCENT,
+        )
 
     def draw_updating(self):
         draw_updating_screen(
@@ -2556,6 +2738,7 @@ class KeyQuestApp:
             accent=ACCENT,
             hilite=HILITE,
             settings=self.state.settings,
+            shop_title=getattr(self, "shop_title", "Shop"),
             shop_view=self.shop_view,
             shop_categories=self.shop_categories,
             shop_category_index=self.shop_category_index,
@@ -2712,6 +2895,9 @@ class KeyQuestApp:
             accent=ACCENT,
             hilite=HILITE,
             duration_input=self.state.test.duration_input,
+            view=self.test_setup_view,
+            topic_options=self.test_setup_topic_options,
+            topic_index=self.test_setup_topic_index,
             focus_assist=self.state.settings.focus_assist,
         )
 
@@ -2804,6 +2990,7 @@ class KeyQuestApp:
 
 def main():
     print("KeyQuest main() starting...")
+    app = None
     try:
         print("Creating KeyQuestApp...")
         app = KeyQuestApp()
@@ -2815,7 +3002,11 @@ def main():
         import traceback
         traceback.print_exc()
         error_logging.log_exception(e)
-        input("Press Enter to exit...")
+        summary = f"{type(e).__name__}: {e}"
+        error_logging.log_message("Unexpected KeyQuest Error", summary)
+        _offer_general_error_github_report(summary)
+        if sys.stdin and sys.stdin.isatty():
+            input("Press Enter to exit...")
 
 
 if __name__ == "__main__":

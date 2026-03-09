@@ -1,4 +1,4 @@
-from ui.a11y import draw_controls_hint, draw_focus_frame, get_visible_window
+from ui.a11y import draw_action_emphasis, draw_active_panel, draw_controls_hint, draw_focus_frame, get_visible_window
 from ui.text_wrap import wrap_text
 
 
@@ -16,7 +16,7 @@ def draw_learn_sounds_menu(
     sound_items: list,
     current_index: int,
 ):
-    title_surf, _ = title_font.render("Learn Sounds", fg)
+    title_surf, _ = title_font.render("Learn Sounds", hilite)
     screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 50))
 
     visible_count = max(4, min(6, (screen_h - 250) // 70))
@@ -36,9 +36,12 @@ def draw_learn_sounds_menu(
         text_surf, _ = text_font.render(item_text, color)
         x = screen_w // 2 - text_surf.get_width() // 2
         item_rect = text_surf.get_rect(topleft=(x, y))
+        if selected:
+            draw_active_panel(screen, item_rect, accent, fg)
         screen.blit(text_surf, item_rect)
         if selected:
             draw_focus_frame(screen, item_rect, hilite, accent)
+            draw_action_emphasis(screen, item_rect, hilite)
         y += 40
 
         if selected:

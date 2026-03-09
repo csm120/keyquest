@@ -1,105 +1,64 @@
-"""Progress Dashboard for KeyQuest Phase 2.
-
-Comprehensive view of improvement over time with audio-based visualization.
-"""
+"""Progress dashboard and practice-log formatting for KeyQuest."""
 
 from datetime import datetime, timedelta
+from collections import OrderedDict
+from typing import Optional
 
 
 def record_session(settings, session_data: dict):
-    """Record a session in history.
-
-    Args:
-        settings: Settings object
-        session_data: Dict with date, type, wpm, accuracy, duration
-    """
-    # Limit history to last 100 sessions
+    """Record a session in history."""
     if len(settings.session_history) >= 100:
         settings.session_history = settings.session_history[-99:]
 
-    session_data["date"] = datetime.now().strftime("%Y-%m-%d")
+    now = datetime.now()
+    session_data.setdefault("date", now.strftime("%Y-%m-%d"))
+    session_data.setdefault("time", now.strftime("%I:%M %p").lstrip("0"))
+    session_data.setdefault("timestamp", now.isoformat(timespec="seconds"))
     settings.session_history.append(session_data)
 
 
 def get_recent_sessions(settings, days: int = 7) -> list:
-    """Get sessions from the last N days.
-
-    Args:
-        settings: Settings object
-        days: Number of days to look back
-
-    Returns:
-        List of session dicts
-    """
+    """Get sessions from the last N days."""
     if not settings.session_history:
         return []
 
     cutoff_date = datetime.now() - timedelta(days=days)
     cutoff_str = cutoff_date.strftime("%Y-%m-%d")
-
-    recent = []
-    for session in settings.session_history:
-        if session.get("date", "") >= cutoff_str:
-            recent.append(session)
-
-    return recent
+    return [session for session in settings.session_history if session.get("date", "") >= cutoff_str]
 
 
 def calculate_average_wpm(sessions: list) -> float:
-    """Calculate average WPM from sessions.
-
-    Args:
-        sessions: List of session dicts
-
-    Returns:
-        Average WPM or 0.0
-    """
+    """Calculate average WPM from sessions."""
     if not sessions:
         return 0.0
 
-    wpm_values = [s.get("wpm", 0) for s in sessions if s.get("wpm", 0) > 0]
-    if not wpm_values:
-        return 0.0
-
-    return sum(wpm_values) / len(wpm_values)
+    wpm_values = [session.get("wpm", 0) for session in sessions if session.get("wpm", 0) > 0]
+    return sum(wpm_values) / len(wpm_values) if wpm_values else 0.0
 
 
 def calculate_average_accuracy(sessions: list) -> float:
-    """Calculate average accuracy from sessions.
-
-    Args:
-        sessions: List of session dicts
-
-    Returns:
-        Average accuracy or 0.0
-    """
+    """Calculate average accuracy from sessions."""
     if not sessions:
         return 0.0
 
-    accuracy_values = [s.get("accuracy", 0) for s in sessions if s.get("accuracy", 0) > 0]
-    if not accuracy_values:
-        return 0.0
+    accuracy_values = [
+        session.get("accuracy", 0) for session in sessions if session.get("accuracy", 0) > 0
+    ]
+    return sum(accuracy_values) / len(accuracy_values) if accuracy_values else 0.0
 
-    return sum(accuracy_values) / len(accuracy_values)
+
+def _append_section(lines: list[str], title: str) -> None:
+    if lines:
+        lines.append("")
+    lines.append(title)
+    lines.append("-" * 20)
 
 
 def format_dashboard(settings) -> str:
-    """Generate comprehensive progress dashboard.
+    """Generate a readable progress dashboard."""
+    lines = ["Progress Dashboard"]
 
-    Args:
-        settings: Settings object
-
-    Returns:
-        Formatted dashboard string
-    """
-    lines = ["📊 Progress Dashboard\n"]
-
-    # ===== SECTION 1: OVERVIEW =====
-    lines.append("=" * 40)
-    lines.append("OVERVIEW")
-    lines.append("=" * 40)
-
-    # Format practice time
+    _append_section(lines, "OVERVIEW")
     hours = int(settings.total_practice_time // 3600)
     minutes = int((settings.total_practice_time % 3600) // 60)
     lines.append(f"Total Practice Time: {hours}h {minutes}m")
@@ -108,140 +67,95 @@ def format_dashboard(settings) -> str:
     lines.append(f"Current Streak: {settings.current_streak} days")
     if settings.longest_streak > 0:
         lines.append(f"Longest Streak: {settings.longest_streak} days")
+    challenge_status = "Complete" if settings.daily_challenge_completed else "Not complete yet"
+    lines.append(f"Today's Daily Challenge: {challenge_status}")
+    lines.append(f"Daily Challenge Streak: {settings.daily_challenge_streak} days")
 
-    # ===== SECTION 2: SPEED PROGRESS =====
-    lines.append("\n" + "=" * 40)
-    lines.append("SPEED PROGRESS")
-    lines.append("=" * 40)
-
+    _append_section(lines, "SPEED PROGRESS")
     if settings.highest_wpm > 0:
         lines.append(f"Best WPM Ever: {settings.highest_wpm:.1f}")
 
-    # Calculate recent averages
     this_week = get_recent_sessions(settings, 7)
-    last_week = get_recent_sessions(settings, 14)  # 14 days, then filter 7-14
-
-    # Filter last week to days 7-14
-    last_week = [s for s in last_week if s not in this_week]
-
+    last_week = [session for session in get_recent_sessions(settings, 14) if session not in this_week]
     if this_week:
         this_week_wpm = calculate_average_wpm(this_week)
         lines.append(f"This Week Average: {this_week_wpm:.1f} WPM")
-
         if last_week:
             last_week_wpm = calculate_average_wpm(last_week)
             lines.append(f"Last Week Average: {last_week_wpm:.1f} WPM")
-
             improvement = this_week_wpm - last_week_wpm
             if improvement > 0:
-                percentage = (improvement / last_week_wpm * 100.0) if last_week_wpm > 0 else 0
-                lines.append(f"Improvement: +{improvement:.1f} WPM ({percentage:.1f}% increase) 📈")
+                percentage = (improvement / last_week_wpm * 100.0) if last_week_wpm > 0 else 0.0
+                lines.append(f"Improvement: +{improvement:.1f} WPM ({percentage:.1f}% increase)")
             elif improvement < 0:
-                percentage = (abs(improvement) / last_week_wpm * 100.0) if last_week_wpm > 0 else 0
-                lines.append(f"Change: {improvement:.1f} WPM ({percentage:.1f}% decrease) 📉")
+                percentage = (abs(improvement) / last_week_wpm * 100.0) if last_week_wpm > 0 else 0.0
+                lines.append(f"Change: {improvement:.1f} WPM ({percentage:.1f}% decrease)")
             else:
-                lines.append("Consistent performance ✓")
+                lines.append("Consistent performance")
 
-    # ===== SECTION 3: ACCURACY TRENDS =====
-    lines.append("\n" + "=" * 40)
-    lines.append("ACCURACY TRENDS")
-    lines.append("=" * 40)
-
+    _append_section(lines, "ACCURACY TRENDS")
     if this_week:
         this_week_acc = calculate_average_accuracy(this_week)
         lines.append(f"This Week Average: {this_week_acc:.1f}%")
-
         if last_week:
             last_week_acc = calculate_average_accuracy(last_week)
             lines.append(f"Last Week Average: {last_week_acc:.1f}%")
-
             improvement = this_week_acc - last_week_acc
             if improvement > 0:
-                lines.append(f"Improvement: +{improvement:.1f}% 📈")
+                lines.append(f"Improvement: +{improvement:.1f}%")
             elif improvement < 0:
-                lines.append(f"Change: {improvement:.1f}% 📉")
+                lines.append(f"Change: {improvement:.1f}%")
             else:
-                lines.append("Consistent accuracy ✓")
+                lines.append("Consistent accuracy")
 
-    # Count perfect accuracy sessions
-    perfect_count = sum(1 for s in settings.session_history if s.get("accuracy", 0) >= 100)
+    perfect_count = sum(1 for session in settings.session_history if session.get("accuracy", 0) >= 100)
     if perfect_count > 0:
         lines.append(f"Perfect Accuracy Sessions: {perfect_count}")
 
-    # ===== SECTION 4: ACHIEVEMENTS =====
-    lines.append("\n" + "=" * 40)
-    lines.append("ACHIEVEMENTS")
-    lines.append("=" * 40)
-
-    badges_earned = len(settings.earned_badges)
-    total_badges = 10  # From badge_manager
-    lines.append(f"Badges Earned: {badges_earned} of {total_badges}")
-
-    quests_completed = len(settings.completed_quests)
-    total_quests = 10  # From quest_manager
-    lines.append(f"Quests Completed: {quests_completed} of {total_quests}")
-
-    # Count total stars
+    _append_section(lines, "ACHIEVEMENTS")
+    lines.append(f"Badges Earned: {len(settings.earned_badges)} of 10")
+    lines.append(f"Quests Completed: {len(settings.completed_quests)} of 10")
     total_stars = sum(settings.lesson_stars.values())
-    max_stars = len(settings.lesson_stars) * 3  # 3 stars per lesson
+    max_stars = len(settings.lesson_stars) * 3
     if max_stars > 0:
         lines.append(f"Stars Collected: {total_stars} of {max_stars} possible")
 
-    # ===== SECTION 5: MILESTONES =====
-    lines.append("\n" + "=" * 40)
-    lines.append("MILESTONES")
-    lines.append("=" * 40)
-
+    _append_section(lines, "MILESTONES")
     milestones = []
-
     if settings.total_lessons_completed >= 1:
-        milestones.append("✓ First Lesson Completed")
+        milestones.append("First lesson completed")
     if settings.total_lessons_completed >= 10:
-        milestones.append("✓ 10 Lessons Completed")
+        milestones.append("10 lessons completed")
     if settings.total_lessons_completed >= 20:
-        milestones.append("✓ 20 Lessons Completed")
+        milestones.append("20 lessons completed")
     if settings.total_lessons_completed >= 33:
-        milestones.append("✓ All Lessons Completed!")
-
+        milestones.append("All lessons completed")
     if settings.highest_wpm >= 20:
-        milestones.append("✓ Reached 20 WPM")
+        milestones.append("Reached 20 WPM")
     if settings.highest_wpm >= 40:
-        milestones.append("✓ Reached 40 WPM")
+        milestones.append("Reached 40 WPM")
     if settings.highest_wpm >= 60:
-        milestones.append("✓ Reached 60 WPM")
-
+        milestones.append("Reached 60 WPM")
     if settings.current_streak >= 3:
-        milestones.append("✓ 3-Day Streak")
+        milestones.append("3-day streak")
     if settings.current_streak >= 7:
-        milestones.append("✓ 7-Day Streak")
+        milestones.append("7-day streak")
     if settings.current_streak >= 30:
-        milestones.append("✓ 30-Day Streak!")
-
+        milestones.append("30-day streak")
     if milestones:
-        for milestone in milestones:
-            lines.append(milestone)
+        lines.extend(f"* {milestone}" for milestone in milestones)
     else:
-        lines.append("Keep practicing to reach milestones!")
+        lines.append("Keep practicing to reach milestones.")
 
-    # ===== SECTION 6: NEXT GOALS =====
-    lines.append("\n" + "=" * 40)
-    lines.append("NEXT GOALS")
-    lines.append("=" * 40)
-
+    _append_section(lines, "NEXT GOALS")
     next_goals = []
-
-    # Lesson goals
     if settings.total_lessons_completed < 10:
-        remaining = 10 - settings.total_lessons_completed
-        next_goals.append(f"Complete {remaining} more lessons to reach 10 total")
+        next_goals.append(f"Complete {10 - settings.total_lessons_completed} more lessons to reach 10 total")
     elif settings.total_lessons_completed < 20:
-        remaining = 20 - settings.total_lessons_completed
-        next_goals.append(f"Complete {remaining} more lessons to reach 20 total")
+        next_goals.append(f"Complete {20 - settings.total_lessons_completed} more lessons to reach 20 total")
     elif settings.total_lessons_completed < 33:
-        remaining = 33 - settings.total_lessons_completed
-        next_goals.append(f"Complete {remaining} more lessons to finish all!")
+        next_goals.append(f"Complete {33 - settings.total_lessons_completed} more lessons to finish all lessons")
 
-    # WPM goals
     if settings.highest_wpm < 20:
         next_goals.append(f"Reach 20 WPM (currently {settings.highest_wpm:.1f})")
     elif settings.highest_wpm < 40:
@@ -249,63 +163,228 @@ def format_dashboard(settings) -> str:
     elif settings.highest_wpm < 60:
         next_goals.append(f"Reach 60 WPM (currently {settings.highest_wpm:.1f})")
 
-    # Streak goals
     if settings.current_streak < 3:
         next_goals.append("Practice 3 days in a row")
     elif settings.current_streak < 7:
-        next_goals.append(f"Reach 7-day streak (currently {settings.current_streak})")
+        next_goals.append(f"Reach a 7-day streak (currently {settings.current_streak})")
     elif settings.current_streak < 30:
-        next_goals.append(f"Reach 30-day streak (currently {settings.current_streak})")
+        next_goals.append(f"Reach a 30-day streak (currently {settings.current_streak})")
 
     if next_goals:
-        for goal in next_goals[:3]:  # Show top 3 goals
-            lines.append(f"• {goal}")
+        lines.extend(f"* {goal}" for goal in next_goals[:3])
     else:
-        lines.append("You've achieved all major milestones! Keep practicing!")
+        lines.append("You've achieved all major milestones. Keep practicing.")
 
-    lines.append("\n" + "=" * 40)
-    lines.append("Keep up the great work! 🎉")
-    lines.append("=" * 40)
-
+    lines.append("")
+    lines.append("Keep up the great work!")
     return "\n".join(lines)
 
 
+def format_practice_log(settings, limit: int = 30) -> str:
+    """Format recent practice history as a readable log."""
+    if not settings.session_history:
+        return "Practice Log\n\nNo practice has been recorded yet."
+
+    lines = ["Practice Log", ""]
+    recent_sessions = list(settings.session_history)[-max(1, limit):]
+    recent_sessions.sort(key=lambda session: _session_datetime(session) or datetime.min, reverse=True)
+    grouped_sessions = _group_sessions_by_day(recent_sessions)
+    ordered_days = list(grouped_sessions.keys())
+
+    for day_index, day_key in enumerate(ordered_days):
+        sessions = grouped_sessions[day_key]
+        day_dt = _session_datetime(sessions[0])
+        lines.append(_format_day_heading(day_dt, day_key))
+
+        day_summary = _build_day_summary(sessions)
+        previous_summary = _build_day_summary(grouped_sessions[ordered_days[day_index + 1]]) if day_index + 1 < len(ordered_days) else None
+        comparison_text = _format_day_comparison(day_summary, previous_summary)
+        if comparison_text:
+            lines.append(comparison_text)
+
+        for session in sessions:
+            lines.extend(_format_session_block(session))
+            lines.append("")
+
+    return "\n".join(lines).rstrip()
+
+
+def _session_datetime(session: dict) -> Optional[datetime]:
+    timestamp = session.get("timestamp")
+    if isinstance(timestamp, str) and timestamp:
+        try:
+            return datetime.fromisoformat(timestamp)
+        except ValueError:
+            pass
+
+    date_text = session.get("date", "")
+    time_text = session.get("time", "")
+    if date_text:
+        for candidate in (
+            f"{date_text} {time_text}".strip(),
+            date_text,
+        ):
+            try:
+                if time_text:
+                    return datetime.strptime(candidate, "%Y-%m-%d %I:%M %p")
+                return datetime.strptime(candidate, "%Y-%m-%d")
+            except ValueError:
+                continue
+    return None
+
+
+def _group_sessions_by_day(sessions: list[dict]) -> OrderedDict[str, list[dict]]:
+    grouped: OrderedDict[str, list[dict]] = OrderedDict()
+    for session in sessions:
+        dt = _session_datetime(session)
+        key = dt.strftime("%Y-%m-%d") if dt else session.get("date", "Unknown date")
+        grouped.setdefault(key, []).append(session)
+    return grouped
+
+
+def _ordinal(n: int) -> str:
+    if 10 <= n % 100 <= 20:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+    return f"{n}{suffix}"
+
+
+def _format_day_heading(dt: Optional[datetime], fallback: str) -> str:
+    if not dt:
+        return fallback
+    return f"{dt.strftime('%A')}, {dt.strftime('%B')} {_ordinal(dt.day)}"
+
+
+def _format_friendly_datetime(dt: Optional[datetime], fallback: str = "Unknown time") -> str:
+    if not dt:
+        return fallback
+    return f"{dt.strftime('%A')}, {dt.strftime('%B')} {_ordinal(dt.day)}, {dt.strftime('%I:%M %p').lstrip('0')}"
+
+
+def _format_duration(seconds) -> str:
+    if not isinstance(seconds, (int, float)) or seconds <= 0:
+        return ""
+
+    total_seconds = int(round(seconds))
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, secs = divmod(remainder, 60)
+
+    if hours and minutes == 30 and secs == 0:
+        return f"{hours} and a half hours" if hours > 1 else "1 and a half hours"
+    if hours:
+        if minutes:
+            hour_label = "hour" if hours == 1 else "hours"
+            minute_label = "minute" if minutes == 1 else "minutes"
+            return f"{hours} {hour_label} {minutes} {minute_label}"
+        return f"{hours} hour" if hours == 1 else f"{hours} hours"
+    if minutes:
+        if secs:
+            minute_label = "minute" if minutes == 1 else "minutes"
+            second_label = "second" if secs == 1 else "seconds"
+            return f"{minutes} {minute_label} {secs} {second_label}"
+        return f"{minutes} minute" if minutes == 1 else f"{minutes} minutes"
+    return f"{secs} second" if secs == 1 else f"{secs} seconds"
+
+
+def _build_day_summary(sessions: list[dict]) -> dict:
+    total_duration = sum(
+        session.get("duration", 0) for session in sessions if isinstance(session.get("duration"), (int, float))
+    )
+    wpm_values = [session.get("wpm", 0) for session in sessions if isinstance(session.get("wpm"), (int, float)) and session.get("wpm", 0) > 0]
+    accuracy_values = [session.get("accuracy", 0) for session in sessions if isinstance(session.get("accuracy"), (int, float)) and session.get("accuracy", 0) > 0]
+    return {
+        "count": len(sessions),
+        "duration": total_duration,
+        "avg_wpm": (sum(wpm_values) / len(wpm_values)) if wpm_values else 0.0,
+        "avg_accuracy": (sum(accuracy_values) / len(accuracy_values)) if accuracy_values else 0.0,
+    }
+
+
+def _format_delta(current: float, previous: float, unit: str) -> str:
+    if previous <= 0:
+        return ""
+    delta = current - previous
+    if abs(delta) < 0.05:
+        return f"about the same {unit}"
+    direction = "up" if delta > 0 else "down"
+    return f"{direction} {abs(delta):.1f} {unit}"
+
+
+def _format_day_comparison(current: dict, previous: Optional[dict]) -> str:
+    duration_text = _format_duration(current.get("duration", 0))
+    count = current.get("count", 0)
+    parts = [f"{count} activity" if count == 1 else f"{count} activities"]
+    if duration_text:
+        parts.append(f"{duration_text} total")
+    if current.get("avg_wpm", 0) > 0:
+        parts.append(f"average {current['avg_wpm']:.1f} WPM")
+    if current.get("avg_accuracy", 0) > 0:
+        parts.append(f"average {current['avg_accuracy']:.1f}% accuracy")
+
+    if previous:
+        comparisons = []
+        wpm_delta = _format_delta(current.get("avg_wpm", 0), previous.get("avg_wpm", 0), "WPM")
+        if wpm_delta:
+            comparisons.append(f"speed {wpm_delta}")
+        acc_delta = _format_delta(current.get("avg_accuracy", 0), previous.get("avg_accuracy", 0), "accuracy points")
+        if acc_delta:
+            comparisons.append(f"accuracy {acc_delta}")
+        if comparisons:
+            parts.append("Compared with the previous day: " + ", ".join(comparisons))
+
+    return ". ".join(parts) + "."
+
+
+def _format_session_block(session: dict) -> list[str]:
+    dt = _session_datetime(session)
+    lines = [f"- {_format_friendly_datetime(dt, session.get('date', 'Unknown date'))}"]
+
+    summary = session.get("summary") or str(session.get("type", "practice")).replace("_", " ").title()
+    lines.append(f"  Did: {summary}")
+
+    duration_text = _format_duration(session.get("duration"))
+    if duration_text:
+        lines.append(f"  Duration: {duration_text}")
+
+    performance_bits = []
+    wpm = session.get("wpm")
+    if isinstance(wpm, (int, float)) and wpm > 0:
+        performance_bits.append(f"{wpm:.1f} WPM")
+    accuracy = session.get("accuracy")
+    if isinstance(accuracy, (int, float)) and accuracy > 0:
+        performance_bits.append(f"{accuracy:.1f}% accuracy")
+    stars = session.get("stars")
+    if isinstance(stars, int) and stars > 0:
+        performance_bits.append(f"{stars} stars")
+    if performance_bits:
+        lines.append(f"  Result: {', '.join(performance_bits)}")
+
+    earned = session.get("earned")
+    if earned:
+        lines.append(f"  Earned: {earned}")
+
+    return lines
+
+
 def format_weekly_summary(settings) -> str:
-    """Generate weekly summary report.
-
-    Args:
-        settings: Settings object
-
-    Returns:
-        Formatted weekly summary
-    """
+    """Generate weekly summary report."""
     this_week = get_recent_sessions(settings, 7)
-
     if not this_week:
         return "No practice sessions this week. Start practicing to see your weekly summary!"
 
-    lines = ["📅 This Week's Summary\n"]
-
-    # Count sessions
+    lines = ["This Week's Summary", ""]
     lines.append(f"Practice Sessions: {len(this_week)}")
+    total_time = sum(session.get("duration", 0) for session in this_week)
+    lines.append(f"Total Practice Time: {int(total_time // 60)} minutes")
+    lines.append(f"Average WPM: {calculate_average_wpm(this_week):.1f}")
+    lines.append(f"Average Accuracy: {calculate_average_accuracy(this_week):.1f}%")
 
-    # Total time
-    total_time = sum(s.get("duration", 0) for s in this_week)
-    minutes = int(total_time // 60)
-    lines.append(f"Total Practice Time: {minutes} minutes")
-
-    # Averages
-    avg_wpm = calculate_average_wpm(this_week)
-    avg_acc = calculate_average_accuracy(this_week)
-    lines.append(f"Average WPM: {avg_wpm:.1f}")
-    lines.append(f"Average Accuracy: {avg_acc:.1f}%")
-
-    # Best performances
-    best_wpm_session = max(this_week, key=lambda s: s.get("wpm", 0), default=None)
+    best_wpm_session = max(this_week, key=lambda session: session.get("wpm", 0), default=None)
     if best_wpm_session and best_wpm_session.get("wpm", 0) > 0:
         lines.append(f"Best WPM: {best_wpm_session['wpm']:.1f}")
 
-    best_acc_session = max(this_week, key=lambda s: s.get("accuracy", 0), default=None)
+    best_acc_session = max(this_week, key=lambda session: session.get("accuracy", 0), default=None)
     if best_acc_session and best_acc_session.get("accuracy", 0) > 0:
         lines.append(f"Best Accuracy: {best_acc_session['accuracy']:.1f}%")
 

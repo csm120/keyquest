@@ -1,4 +1,4 @@
-from ui.a11y import draw_controls_hint
+from ui.a11y import draw_active_panel, draw_controls_hint
 
 
 def draw_keyboard_explorer_screen(
@@ -25,7 +25,10 @@ def draw_keyboard_explorer_screen(
     y = 200
     for instruction in instructions:
         inst_surf, _ = text_font.render(instruction, fg)
-        screen.blit(inst_surf, (screen_w // 2 - inst_surf.get_width() // 2, y))
+        inst_rect = inst_surf.get_rect(topleft=(screen_w // 2 - inst_surf.get_width() // 2, y))
+        if instruction == instructions[0]:
+            draw_active_panel(screen, inst_rect, accent, fg)
+        screen.blit(inst_surf, inst_rect)
         y += 50
 
     draw_controls_hint(

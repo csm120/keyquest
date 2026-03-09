@@ -130,7 +130,9 @@ def get_options_items(settings, show_tts_options: bool = False, available_voices
 
     # Add visual and language options
     theme_desc = f"Visual Theme: {settings.visual_theme}"
-    language_desc = f"Practice Topic: {settings.sentence_language}"
+    language_desc = (
+        f"Practice Topic: {sentences_manager.get_practice_topic_display_name(settings.sentence_language)}"
+    )
     auto_next_desc = f"Auto Start Next Lesson: {'On' if settings.auto_start_next_lesson else 'Off'}"
     options.extend([theme_desc, auto_next_desc, language_desc])
 

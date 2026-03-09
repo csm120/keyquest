@@ -1,29 +1,51 @@
 import pygame
+from typing import List, Optional
 
 from modules import currency_manager
 from modules import shop_manager
 
 
-def show_shop(app) -> None:
+def show_shop(app, categories: Optional[List[str]] = None, title: str = "Shop") -> None:
     """Show shop interface for purchasing items."""
     app.state.mode = "SHOP"
     app.shop_category_index = 0
     app.shop_item_index = 0
     app.shop_view = "categories"  # "categories" or "items"
-    app.shop_categories = list(shop_manager.SHOP_CATEGORIES.keys())
+    app.shop_title = title
+    if categories:
+        app.shop_categories = [cat for cat in categories if cat in shop_manager.SHOP_CATEGORIES]
+    else:
+        app.shop_categories = list(shop_manager.SHOP_CATEGORIES.keys())
 
     balance = currency_manager.get_balance(app.state.settings)
     balance_text = currency_manager.format_balance(balance)
-    announcement = (
-        f"Shop. You have {balance_text}. Use Up and Down arrows to browse. "
-        f"Press Enter to select a category. Press Escape to return to main menu."
-    )
+    if len(app.shop_categories) == 1:
+        cat_id = app.shop_categories[0]
+        cat_info = shop_manager.SHOP_CATEGORIES[cat_id]
+        app.shop_view = "items"
+        announcement = (
+            f"{title}. {cat_info['name']}. You have {balance_text}. "
+            "Use Up and Down arrows to browse items. Press Enter to purchase. "
+            "Press Escape to return to main menu."
+        )
+    else:
+        announcement = (
+            f"{title}. You have {balance_text}. Use Up and Down arrows to browse. "
+            f"Press Enter to select a category. Press Escape to return to main menu."
+        )
     app.speech.say(announcement, priority=True, protect_seconds=3.0)
 
     if app.shop_categories:
         first_cat = app.shop_categories[0]
-        cat_info = shop_manager.SHOP_CATEGORIES[first_cat]
-        app.speech.say(f"{cat_info['name']}. {cat_info['description']}")
+        if app.shop_view == "items":
+            items = shop_manager.get_category_items(first_cat)
+            if items:
+                announce_shop_item(app, items[0])
+            else:
+                app.speech.say("No items in this category.", priority=True)
+        else:
+            cat_info = shop_manager.SHOP_CATEGORIES[first_cat]
+            app.speech.say(f"{cat_info['name']}. {cat_info['description']}")
 
 
 def handle_shop_input(app, event, mods: int) -> None:
@@ -109,8 +131,10 @@ def announce_shop_item(app, item_id: str) -> None:
     else:
         if owned:
             status = "Already owned. "
+    balance = currency_manager.get_balance(app.state.settings)
+    affordability = "You can afford this." if balance >= cost else f"You need {cost - balance} more coins."
 
-    announcement = f"{name}. {cost} coins. {status}{description}"
+    announcement = f"{name}. {cost} coins. {status}{description} {affordability}"
     app.speech.say(announcement)
 
 
@@ -125,7 +149,10 @@ def purchase_shop_item(app, item_id: str) -> None:
     success, message = shop_manager.purchase_item(app.state.settings, item_id)
     if success:
         app.audio.play_success()
-        app.speech.say(message, priority=True)
+        extra_hint = ""
+        if item_id.startswith("pet_"):
+            extra_hint = " Open Pets from the main menu to use or view pet items."
+        app.speech.say(f"{message}{extra_hint}", priority=True)
         app.save_progress()
 
         balance = currency_manager.get_balance(app.state.settings)
@@ -134,4 +161,3 @@ def purchase_shop_item(app, item_id: str) -> None:
     else:
         app.audio.beep_bad()
         app.speech.say(message, priority=True)
-

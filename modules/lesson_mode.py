@@ -10,6 +10,7 @@ except Exception:  # pragma: no cover
 
 from modules import badge_manager
 from modules import challenge_manager
+from modules import currency_manager
 from modules import dashboard_manager
 from modules import input_utils
 from modules import key_analytics
@@ -364,6 +365,10 @@ def evaluate_lesson_performance(app) -> None:
         xp_earned += xp_manager.XP_AWARDS["new_best_accuracy"]
 
     xp_result = xp_manager.award_xp(app.state.settings, xp_earned, f"Lesson {lesson_state.stage} completed")
+    coins_earned = currency_manager.award_coins(app.state.settings, "lesson_completed")
+    earned_parts = [f"XP +{xp_earned}"]
+    if coins_earned:
+        earned_parts.append(f"Coins +{coins_earned}")
 
     quest_progress_data = {
         "lesson_num": lesson_state.stage,
@@ -378,6 +383,7 @@ def evaluate_lesson_performance(app) -> None:
             xp_manager.award_xp(app.state.settings, quest["xp_reward"], f"Quest: {quest['name']}")
 
     challenge = challenge_manager.get_today_challenge()
+    challenge_summary = ""
     if not app.state.settings.daily_challenge_completed:
         if challenge["type"] == "lesson_accuracy":
             progress = challenge_manager.check_challenge_progress(
@@ -388,16 +394,25 @@ def evaluate_lesson_performance(app) -> None:
             if progress["completed"]:
                 challenge_result = challenge_manager.complete_daily_challenge(app.state.settings)
                 xp_manager.award_xp(app.state.settings, challenge_result["xp_earned"], "Daily Challenge")
+                challenge_coins = currency_manager.award_coins(app.state.settings, "daily_challenge_completed")
+                challenge_summary = (
+                    f"Daily challenge complete. Earned {challenge_result['xp_earned']} XP"
+                    f"{f' and {challenge_coins} coins' if challenge_coins else ''}."
+                )
 
     session_data = {
         "type": "lesson",
+        "summary": f"Lesson {lesson_state.stage}",
         "lesson_num": lesson_state.stage,
         "wpm": wpm,
         "accuracy": accuracy,
         "duration": duration,
         "stars": stars,
         "xp_earned": xp_earned,
+        "earned": ", ".join(earned_parts),
     }
+    if challenge_summary:
+        session_data["earned"] += f". {challenge_summary}"
     dashboard_manager.record_session(app.state.settings, session_data)
 
     key_perf_dict = None
@@ -465,12 +480,6 @@ def evaluate_lesson_performance(app) -> None:
         prev_stars=prev_stars,
     )
 
-    app.show_guided_results_dialog(
-        results_text,
-        title="Lesson Results",
-        enter_target="continue to your choices",
-    )
-
     if unlocked_new:
         app.audio.play_unlock()
         pygame.time.wait(500)
@@ -478,7 +487,7 @@ def evaluate_lesson_performance(app) -> None:
     app.show_badge_notifications()
     app.show_level_up_notification(xp_result)
     app.show_quest_notifications()
-    app.apply_pet_session_progress(
+    pet_result = app.apply_pet_session_progress(
         recent_performance={
             "new_best_wpm": wpm > prev_wpm,
             "new_best_accuracy": accuracy > prev_accuracy,
@@ -487,6 +496,19 @@ def evaluate_lesson_performance(app) -> None:
             "streak_broken": False,
         },
         xp_amount=max(10, int(xp_earned * 0.25)),
+    )
+
+    if challenge_summary:
+        results_text += f"\n\n{challenge_summary}"
+    if coins_earned:
+        results_text += f"\n\n{currency_manager.get_coin_announcement('lesson_completed', coins_earned)}"
+    if pet_result.get("has_pet"):
+        results_text += f"\n\nPet status: {pet_result.get('summary', '')}"
+
+    app.show_guided_results_dialog(
+        results_text,
+        title="Lesson Results",
+        enter_target="continue to your choices",
     )
 
     app.state.mode = "RESULTS"

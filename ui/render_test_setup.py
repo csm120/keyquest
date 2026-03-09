@@ -1,3 +1,4 @@
+from modules import sentences_manager
 from ui.a11y import draw_action_emphasis, draw_active_panel, draw_focus_frame, get_visible_window
 from ui.text_wrap import wrap_text
 
@@ -14,32 +15,61 @@ def draw_test_setup_screen(
     accent,
     hilite,
     duration_input: str,
+    view: str,
+    topic_options,
+    topic_index: int,
     focus_assist: bool = False,
 ):
     title_surf, _ = title_font.render("Speed Test Setup", hilite)
     screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 100))
 
-    question_surf, _ = text_font.render("How many minutes for the test?", fg)
-    screen.blit(question_surf, (screen_w // 2 - question_surf.get_width() // 2, 200))
+    if view == "topic":
+        question_surf, _ = text_font.render("Choose language", fg)
+        screen.blit(question_surf, (screen_w // 2 - question_surf.get_width() // 2, 180))
 
-    input_label_surf, _ = text_font.render("Type minutes:", accent)
-    screen.blit(input_label_surf, (screen_w // 2 - input_label_surf.get_width() // 2, 245))
+        y = 250
+        for idx, topic in enumerate(topic_options):
+            selected = idx == topic_index
+            color = hilite if selected else fg
+            display_topic = sentences_manager.get_practice_topic_display_name(topic)
+            label = f"> {display_topic}" if selected else f"  {display_topic}"
+            line_surf, _ = text_font.render(label, color)
+            line_rect = line_surf.get_rect(topleft=(screen_w // 2 - line_surf.get_width() // 2, y))
+            if selected:
+                draw_active_panel(screen, line_rect, accent, fg, strong=focus_assist)
+                draw_focus_frame(screen, line_rect, hilite, accent)
+                draw_action_emphasis(screen, line_rect, hilite, strong=focus_assist)
+            screen.blit(line_surf, line_rect)
+            y += 55
 
-    input_text = duration_input if duration_input else "_"
-    input_surf, _ = title_font.render(input_text, hilite)
-    input_rect = input_surf.get_rect(topleft=(screen_w // 2 - input_surf.get_width() // 2, 280))
-    draw_active_panel(screen, input_rect, accent, fg, strong=focus_assist)
-    screen.blit(input_surf, input_rect)
-    draw_focus_frame(screen, input_rect, hilite, accent)
-    draw_action_emphasis(screen, input_rect, hilite, strong=focus_assist)
+        instructions = [
+            "",
+            "Up/Down: Choose language",
+            "Enter/Space: Continue",
+            "Escape: Return to menu",
+        ]
+    else:
+        question_surf, _ = text_font.render("How many minutes for the test?", fg)
+        screen.blit(question_surf, (screen_w // 2 - question_surf.get_width() // 2, 200))
 
-    instructions = [
-        "",
-        "Type a number (1-60 minutes)",
-        "Press Enter to start",
-        "Press Backspace to correct",
-        "Press Escape for menu",
-    ]
+        input_label_surf, _ = text_font.render("Type minutes:", accent)
+        screen.blit(input_label_surf, (screen_w // 2 - input_label_surf.get_width() // 2, 245))
+
+        input_text = duration_input if duration_input else "_"
+        input_surf, _ = title_font.render(input_text, hilite)
+        input_rect = input_surf.get_rect(topleft=(screen_w // 2 - input_surf.get_width() // 2, 280))
+        draw_active_panel(screen, input_rect, accent, fg, strong=focus_assist)
+        screen.blit(input_surf, input_rect)
+        draw_focus_frame(screen, input_rect, hilite, accent)
+        draw_action_emphasis(screen, input_rect, hilite, strong=focus_assist)
+
+        instructions = [
+            "",
+            "Type a number (1-60 minutes)",
+            "Press Enter to start",
+            "Press Backspace to correct",
+            "Press Escape to go back",
+        ]
 
     y = 380
     for line in instructions:

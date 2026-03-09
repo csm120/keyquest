@@ -103,9 +103,14 @@ PRACTICE_TOPICS = [
     "Vocabulary Building",
 ]
 
+PRACTICE_TOPIC_DISPLAY_NAMES = {
+    "English": "English General",
+    "Spanish": "Spanish General",
+}
+
 PRACTICE_TOPIC_EXPLANATIONS = {
-    "English": "Practice with English sentences.",
-    "Spanish": "Practice with Spanish sentences.",
+    "English": "Practice with general English sentences.",
+    "Spanish": "Practice with general Spanish sentences.",
     "Windows Commands": "Learn Windows keyboard shortcuts and commands while typing.",
     "JAWS Commands": "Practice JAWS screen reader commands and shortcuts.",
     "NVDA Commands": "Practice NVDA screen reader commands and shortcuts.",
@@ -121,6 +126,11 @@ PRACTICE_TOPIC_EXPLANATIONS = {
 def get_practice_topics():
     """Return the canonical list of practice topic names."""
     return list(PRACTICE_TOPICS)
+
+
+def get_practice_topic_display_name(topic: str) -> str:
+    """Return the user-facing label for a practice topic."""
+    return PRACTICE_TOPIC_DISPLAY_NAMES.get(topic, topic)
 
 
 def get_practice_topic_explanation(topic: str) -> str:

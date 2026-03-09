@@ -1,4 +1,4 @@
-from ui.a11y import draw_controls_hint, draw_focus_frame, get_visible_window
+from ui.a11y import draw_action_emphasis, draw_active_panel, draw_controls_hint, draw_focus_frame, get_visible_window
 
 
 def draw_options(
@@ -16,7 +16,7 @@ def draw_options(
     hilite,
 ):
     title = "Options"
-    title_surf, _ = title_font.render(title, fg)
+    title_surf, _ = title_font.render(title, hilite)
     screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 50))
 
     visible_count = max(6, min(8, (screen_h - 220) // 50))
@@ -35,9 +35,12 @@ def draw_options(
         text_surf, _ = text_font.render(option_text, color)
         x = screen_w // 2 - text_surf.get_width() // 2
         option_rect = text_surf.get_rect(topleft=(x, y))
+        if selected:
+            draw_active_panel(screen, option_rect, accent, fg)
         screen.blit(text_surf, option_rect)
         if selected:
             draw_focus_frame(screen, option_rect, hilite, accent)
+            draw_action_emphasis(screen, option_rect, hilite)
         y += 50
 
     if end < len(options):

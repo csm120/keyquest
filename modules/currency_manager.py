@@ -40,6 +40,7 @@ def award_coins(settings, activity: str, multiplier: int = 1) -> int:
 
     coins_earned = COIN_REWARDS[activity] * multiplier
     settings.coins += coins_earned
+    settings.total_coins_earned += coins_earned
 
     return coins_earned
 
@@ -110,9 +111,7 @@ def get_total_coins_earned(settings) -> int:
     Returns:
         Total coins earned lifetime
     """
-    # Lifetime totals require tracking earned and spent values separately.
-    # Current behavior returns the live balance.
-    return settings.coins
+    return settings.total_coins_earned
 
 
 # Coin earning announcements

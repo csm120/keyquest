@@ -1,6 +1,6 @@
 from modules import currency_manager
 from modules import shop_manager
-from ui.a11y import draw_controls_hint, draw_focus_frame, get_visible_window
+from ui.a11y import draw_action_emphasis, draw_active_panel, draw_controls_hint, draw_focus_frame, get_visible_window
 from ui.text_wrap import wrap_text
 
 
@@ -16,13 +16,13 @@ def draw_shop(
     accent,
     hilite,
     settings,
+    shop_title: str,
     shop_view: str,
     shop_categories,
     shop_category_index: int,
     shop_item_index: int,
 ):
-    title = "Shop"
-    title_surf, _ = title_font.render(title, fg)
+    title_surf, _ = title_font.render(shop_title, hilite)
     screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 50))
 
     balance = currency_manager.get_balance(settings)
@@ -47,9 +47,12 @@ def draw_shop(
             text_surf, _ = text_font.render(item_text, color)
             x = screen_w // 2 - text_surf.get_width() // 2
             item_rect = text_surf.get_rect(topleft=(x, y))
+            if selected:
+                draw_active_panel(screen, item_rect, accent, fg)
             screen.blit(text_surf, item_rect)
             if selected:
                 draw_focus_frame(screen, item_rect, hilite, accent)
+                draw_action_emphasis(screen, item_rect, hilite)
             y += 40
 
             if selected:
@@ -103,9 +106,12 @@ def draw_shop(
         text_surf, _ = small_font.render(item_text, color)
         x = screen_w // 2 - text_surf.get_width() // 2
         item_rect = text_surf.get_rect(topleft=(x, y))
+        if selected:
+            draw_active_panel(screen, item_rect, accent, fg)
         screen.blit(text_surf, item_rect)
         if selected:
             draw_focus_frame(screen, item_rect, hilite, accent)
+            draw_action_emphasis(screen, item_rect, hilite)
         y += 35
 
         if selected:

@@ -42,13 +42,13 @@ class WordTypingGame(BaseGame):
     NAME = "Word Typing"
     DESCRIPTION = "Type words as quickly and accurately as you can in a 30-second session."
     INSTRUCTIONS = (
-        "Words appear one at a time. Type the current word and press Enter to submit. "
+        "Words appear one at a time. Type the current word and press Space to submit. "
         "The session ends after 30 seconds. Results show corrected words per minute, "
         "total words per minute, and accuracy. Press Escape during play to end the "
         "session. In the results dialog, press Space or Escape to close."
     )
     HOTKEYS = """Type the word: Letter keys
-Submit word: Enter
+Submit word: Space
 Correct mistakes: Backspace
 Repeat current word: Ctrl+Space
 Escape: End session and return to game menu"""
@@ -146,7 +146,7 @@ Escape: End session and return to game menu"""
             return None
 
         # Submit word
-        elif event.key == pygame.K_RETURN:
+        elif event.key in (pygame.K_SPACE, pygame.K_RETURN):
             if self.typed_text:
                 self.check_word()
             return None
@@ -237,8 +237,6 @@ Best WPM: {self.best_wpm}
 Best Accuracy: {self.best_accuracy}%
 
 {perf_msg}
-
---- End of file ---
 """
         self.show_game_results(
             results,

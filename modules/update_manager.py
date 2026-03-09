@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import ssl
 import sys
 import tempfile
 import urllib.request
@@ -17,6 +18,11 @@ LATEST_RELEASE_API_URL = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_R
 DEFAULT_TIMEOUT_SECONDS = 15
 INSTALLER_NAME = "KeyQuestSetup.exe"
 PORTABLE_ZIP_NAME = "KeyQuest-win64.zip"
+
+try:
+    import certifi
+except Exception:
+    certifi = None
 
 
 def can_self_update() -> bool:
@@ -67,6 +73,13 @@ def parse_release_version(release: dict) -> str:
     return normalize_version(raw)
 
 
+def _build_ssl_context() -> ssl.SSLContext:
+    """Build an SSL context that prefers the certifi bundle when available."""
+    if certifi is not None:
+        return ssl.create_default_context(cafile=certifi.where())
+    return ssl.create_default_context()
+
+
 def select_installer_asset(release: dict) -> dict | None:
     """Return the preferred installer asset from a GitHub release."""
     assets = release.get("assets", [])
@@ -112,7 +125,7 @@ def fetch_latest_release(url: str = LATEST_RELEASE_API_URL, timeout: int = DEFAU
             "User-Agent": "KeyQuest-Updater",
         },
     )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
+    with urllib.request.urlopen(request, timeout=timeout, context=_build_ssl_context()) as response:
         return json.loads(response.read().decode("utf-8"))
 
 
@@ -128,7 +141,11 @@ def download_file(url: str, destination: Path, progress_callback=None, timeout: 
     request = urllib.request.Request(url, headers={"User-Agent": "KeyQuest-Updater"})
     destination.parent.mkdir(parents=True, exist_ok=True)
 
-    with urllib.request.urlopen(request, timeout=timeout) as response, open(destination, "wb") as handle:
+    with urllib.request.urlopen(
+        request,
+        timeout=timeout,
+        context=_build_ssl_context(),
+    ) as response, open(destination, "wb") as handle:
         total = response.headers.get("Content-Length")
         total_bytes = int(total) if total and total.isdigit() else 0
         downloaded = 0

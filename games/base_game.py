@@ -132,8 +132,6 @@ class BaseGame:
 HOW TO PLAY
 
 {self.INSTRUCTIONS}
-
---- End of file ---
 """
         self.show_info_dialog(f"{self.NAME} - Game Info", content)
 
@@ -146,8 +144,6 @@ HOW TO PLAY
         content = f"""KEYBOARD CONTROLS
 
 {self.HOTKEYS}
-
---- End of file ---
 """
         self.show_info_dialog(f"{self.NAME} - Keyboard Controls", content)
 

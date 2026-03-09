@@ -8,6 +8,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VERSION_FILE = REPO_ROOT / "modules" / "version.py"
+README_HTML_FILE = REPO_ROOT / "README.html"
 
 
 def read_version() -> str:
@@ -31,6 +32,26 @@ def write_version(version: str) -> None:
     if updated == source:
         raise SystemExit("Could not update modules/version.py")
     with open(VERSION_FILE, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(updated)
+
+
+def sync_readme_version(version: str) -> None:
+    """Keep the plain-language guide version text aligned with the app version."""
+    source = README_HTML_FILE.read_text(encoding="utf-8")
+    updated = source.replace("{{APP_VERSION}}", version)
+    updated = re.sub(
+        r"(<p><strong>Version )[^<]+(</strong></p>)",
+        rf"\g<1>{version}\g<2>",
+        updated,
+        count=1,
+    )
+    updated = re.sub(
+        r"(<li><strong>Application</strong>: KeyQuest )[^<]+(</li>)",
+        rf"\g<1>{version}\g<2>",
+        updated,
+        count=1,
+    )
+    with open(README_HTML_FILE, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(updated)
 
 
@@ -117,6 +138,7 @@ def main() -> None:
         current = read_version()
         new_version = bump_version(current, args.apply)
         write_version(new_version)
+        sync_readme_version(new_version)
         print(new_version)
         return
 

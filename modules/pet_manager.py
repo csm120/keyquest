@@ -462,11 +462,22 @@ def apply_session_pet_progress(settings, recent_performance: Dict, xp_amount: in
 
     xp_result = award_pet_xp(settings, max(0, int(xp_amount)))
 
+    stage = calculate_pet_stage(settings.pet_xp)
+    stage_info = get_pet_stage_info(settings.pet_type, stage) or {"name": f"Stage {stage}"}
+    summary = (
+        f"{settings.pet_name or get_pet_info(settings.pet_type)['name']}: "
+        f"{stage_info['name']}, {settings.pet_happiness}% happiness, "
+        f"{settings.pet_xp} XP"
+    )
+
     return {
         "has_pet": True,
         "mood": mood,
         "mood_changed": mood_changed,
         "mood_message": get_mood_message(mood),
         "happiness": settings.pet_happiness,
+        "stage": stage,
+        "stage_name": stage_info["name"],
+        "summary": summary,
         **xp_result,
     }

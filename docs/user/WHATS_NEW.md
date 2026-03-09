@@ -1,5 +1,20 @@
 # New in Key Quest
 
+## Monday March 9th 2026 at 1:05PM
+
+Version 1.1.1
+
+This update smooths out several rough edges in daily use.
+
+- Menus, setup screens, shop screens, pet screens, and confirmation dialogs were tightened so they behave more consistently.
+- The Pet Shop now opens as a true pet-only shop instead of showing the full store.
+- Word Typing now accepts Space to submit a word, and several leftover separator messages were removed from visible screens.
+- Hangman results no longer keep repeating "round complete" while you move through the post-round menu.
+- Hangman sentence practice now uses shorter prompts instead of repeating "type it exactly as shown" before every sentence.
+- The Practice Log now uses friendlier dates and times, more natural duration wording, clearer activity names and results, simple day-to-day comparison notes, and a copy-to-clipboard option.
+- Update failures now create a local error log, offer the setup download, and can open a prefilled GitHub bug report with a log excerpt.
+- General unexpected app errors can also offer the same GitHub bug-report flow.
+
 ## Saturday March 7th 2026 at 10:35PM
 
 Version 1.1.1

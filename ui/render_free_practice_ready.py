@@ -1,4 +1,4 @@
-from ui.a11y import draw_controls_hint
+from ui.a11y import draw_active_panel, draw_controls_hint, draw_focus_frame
 
 
 def draw_free_practice_ready_screen(
@@ -26,7 +26,11 @@ def draw_free_practice_ready_screen(
 
     for line in instructions:
         line_surf, _ = text_font.render(line, fg)
-        screen.blit(line_surf, (screen_w // 2 - line_surf.get_width() // 2, y))
+        line_rect = line_surf.get_rect(topleft=(screen_w // 2 - line_surf.get_width() // 2, y))
+        if line.startswith("Press Enter"):
+            draw_active_panel(screen, line_rect, hilite, fg)
+            draw_focus_frame(screen, line_rect, hilite, hilite)
+        screen.blit(line_surf, line_rect)
         y += 50
 
     draw_controls_hint(

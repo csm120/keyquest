@@ -555,7 +555,7 @@ Esc x3: Exit to main menu"""
         if item.startswith("Definition:"):
             self.speech.say(item, priority=True, protect_seconds=2.0)
             return
-        self.speech.say(f"Round complete. {item}.", priority=True, protect_seconds=1.2)
+        self.speech.say(item, priority=True, protect_seconds=1.2)
 
     def _set_clipboard_text(self, text: str) -> bool:
         """Copy text to system clipboard."""
@@ -600,11 +600,11 @@ Esc x3: Exit to main menu"""
         self.sentence_index = 0
         self.sentence_typed = ""
         self.sentence_correct = 0
-        self.sentence_feedback = "Type the sentence exactly as shown, including capitals and punctuation, then press Enter."
+        self.sentence_feedback = "Match capitals and punctuation."
         self.speech.say(
-            "Sentence practice started. Type each sentence exactly as shown, including capitalization and punctuation, then press Enter.",
+            "Sentence practice started.",
             priority=True,
-            protect_seconds=2.0,
+            protect_seconds=1.4,
         )
         self.announce_current_sentence()
 
@@ -613,7 +613,7 @@ Esc x3: Exit to main menu"""
             return
         current = self.sentence_items[self.sentence_index]
         self.speech.say(
-            f"Sentence {self.sentence_index + 1} of {len(self.sentence_items)}. Type it exactly as shown. {current}",
+            f"Sentence {self.sentence_index + 1} of {len(self.sentence_items)}. {current}",
             priority=True,
             protect_seconds=2.5,
         )
@@ -821,24 +821,7 @@ Esc x3: Exit to main menu"""
             return None
         if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
             target = self.sentence_items[self.sentence_index]
-            if self.sentence_typed == target:
-                self.sentence_correct += 1
-                self.sentence_feedback = "Correct sentence."
-                self.play_sound(sounds.level_complete())
-                self.speech.say("Correct sentence.", priority=True)
-                self.sentence_index += 1
-                self.sentence_typed = ""
-                if self.sentence_index >= len(self.sentence_items):
-                    self.mode = "RESULTS"
-                    self.speech.say(
-                        f"Sentence practice complete. {self.sentence_correct} of {len(self.sentence_items)} correct.",
-                        priority=True,
-                        protect_seconds=2.0,
-                    )
-                    self._announce_results_menu()
-                    return None
-                self.announce_current_sentence()
-            else:
+            if self.sentence_typed != target:
                 self.sentence_feedback = "Sentence does not match. Try again."
                 self.play_sound(sounds.letter_miss())
                 self.speech.say("Sentence does not match. Try again.", priority=True)
@@ -846,7 +829,32 @@ Esc x3: Exit to main menu"""
 
         ch = event.unicode if event.unicode else ""
         if ch and ch.isprintable() and ch not in ("\r", "\n"):
-            self.sentence_typed += ch
+            target = self.sentence_items[self.sentence_index]
+            pos = len(self.sentence_typed)
+            if pos < len(target) and ch == target[pos]:
+                self.sentence_typed += ch
+                if self.sentence_typed == target:
+                    self.sentence_correct += 1
+                    self.sentence_feedback = "Correct sentence."
+                    self.play_sound(sounds.level_complete())
+                    self.speech.say("Correct sentence.", priority=True)
+                    self.sentence_index += 1
+                    self.sentence_typed = ""
+                    if self.sentence_index >= len(self.sentence_items):
+                        self.mode = "RESULTS"
+                        self.speech.say(
+                            f"Sentence practice complete. {self.sentence_correct} of {len(self.sentence_items)} correct.",
+                            priority=True,
+                            protect_seconds=2.0,
+                        )
+                        self._announce_results_menu()
+                        return None
+                    self.announce_current_sentence()
+            else:
+                remaining = target[pos:]
+                self.sentence_feedback = speech_format.build_remaining_text_feedback(remaining)
+                self.play_sound(sounds.letter_miss())
+                self.speech.say(self.sentence_feedback, priority=True, protect_seconds=1.5)
         return None
 
     def handle_input(self, event, mods):
@@ -961,7 +969,7 @@ Esc x3: Exit to main menu"""
         feedback_surf, _ = self.small_font.render(self.sentence_feedback, self.FG)
         self.screen.blit(feedback_surf, (60, 386))
 
-        hint, _ = self.small_font.render("Match capitals and punctuation. Enter submit; Ctrl+Space remaining text; Esc back", self.ACCENT)
+        hint, _ = self.small_font.render("Match capitals and punctuation. Ctrl+Space remaining text; Esc back", self.ACCENT)
         self.screen.blit(hint, (60, 560))
 
     def draw(self):

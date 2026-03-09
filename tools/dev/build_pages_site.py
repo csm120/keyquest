@@ -11,6 +11,17 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_DIR = REPO_ROOT / "site"
 README_HTML = REPO_ROOT / "README.html"
 CHANGELOG_MD = REPO_ROOT / "docs" / "user" / "WHATS_NEW.md"
+VERSION_FILE = REPO_ROOT / "modules" / "version.py"
+
+
+def read_version() -> str:
+    match = re.search(
+        r'__version__\s*=\s*"([^"]+)"',
+        VERSION_FILE.read_text(encoding="utf-8"),
+    )
+    if not match:
+        return ""
+    return match.group(1)
 
 
 def _inline_markup(text: str) -> str:
@@ -219,6 +230,9 @@ def build_changelog_page() -> str:
 
 def build_index_page() -> str:
     source = README_HTML.read_text(encoding="utf-8")
+    version = read_version()
+    if version:
+        source = source.replace("{{APP_VERSION}}", version)
     if 'href="changelog.html"' not in source:
         source = source.replace(
             '<li><a href="#help">Need Help</a></li>',

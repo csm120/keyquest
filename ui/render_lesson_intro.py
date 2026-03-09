@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from ui.text_wrap import wrap_text
-from ui.a11y import draw_controls_hint, draw_focus_frame
+from ui.a11y import draw_action_emphasis, draw_active_panel, draw_controls_hint, draw_focus_frame
 
 
 def draw_lesson_intro_screen(
@@ -22,7 +22,7 @@ def draw_lesson_intro_screen(
     keys_found_display: str,
 ):
     title = f"Lesson {lesson_num}: {lesson_name}"
-    title_surf, _ = title_font.render(title, fg)
+    title_surf, _ = title_font.render(title, hilite)
     screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 40))
 
     if lesson_info:
@@ -54,8 +54,10 @@ def draw_lesson_intro_screen(
             for line in wrap_text(small_font, keys_to_find_display, screen_w - 100, fg):
                 keys_surf, _ = small_font.render(line, fg)
                 keys_rect = keys_surf.get_rect(topleft=(screen_w // 2 - keys_surf.get_width() // 2, y))
+                draw_active_panel(screen, keys_rect, accent, fg)
                 screen.blit(keys_surf, keys_rect)
                 draw_focus_frame(screen, keys_rect, hilite, accent)
+                draw_action_emphasis(screen, keys_rect, hilite)
                 y += 30
 
         if keys_found_display:

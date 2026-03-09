@@ -3,6 +3,22 @@ from modules import challenge_manager
 from modules import dashboard_manager
 from modules import key_analytics
 from modules import quest_manager
+from modules import dialog_manager
+
+
+def _copy_text_to_clipboard(text: str) -> bool:
+    try:
+        import tkinter as tk
+
+        root = tk.Tk()
+        root.withdraw()
+        root.clipboard_clear()
+        root.clipboard_append(text)
+        root.update()
+        root.destroy()
+        return True
+    except Exception:
+        return False
 
 
 def show_badge_viewer(app) -> None:
@@ -54,6 +70,24 @@ def show_progress_dashboard(app) -> None:
     app._return_to_main_menu()
 
 
+def show_practice_log(app) -> None:
+    """Show recent practice history."""
+    log_text = dashboard_manager.format_practice_log(app.state.settings)
+    app.speech.say("Practice Log.", priority=True, protect_seconds=2.0)
+    app.show_info_dialog("Practice Log", log_text)
+    if dialog_manager.show_yes_no_dialog(
+        "Copy Practice Log",
+        "Would you like to copy the practice log to the clipboard?",
+        yes_label="Copy Log",
+        no_label="Close",
+    ):
+        if _copy_text_to_clipboard(log_text):
+            app.speech.say("Practice log copied to clipboard.", priority=True)
+        else:
+            app.speech.say("Unable to copy the practice log to clipboard.", priority=True)
+    app._return_to_main_menu()
+
+
 def show_daily_challenge(app) -> None:
     """Show today's daily challenge."""
     if challenge_manager.check_if_new_day(app.state.settings):
@@ -61,6 +95,10 @@ def show_daily_challenge(app) -> None:
         app.save_progress()
 
     challenge_text = challenge_manager.format_challenge_announcement(app.state.settings)
+    if app.state.settings.daily_challenge_completed:
+        challenge_text += "\n\nStatus: Completed today."
+    else:
+        challenge_text += "\n\nStatus: Not completed yet."
 
     challenge = challenge_manager.get_today_challenge()
     if app.state.settings.daily_challenge_completed:
@@ -88,4 +126,3 @@ def show_key_performance_report(app) -> None:
 
     app.show_info_dialog("Key Performance Report", report_text)
     app._return_to_main_menu()
-

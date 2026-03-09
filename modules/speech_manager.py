@@ -1,3 +1,4 @@
+import subprocess
 import threading
 import time
 import traceback
@@ -77,7 +78,10 @@ class Speech:
                     f"Tolk loaded - Screen reader detected: {self._screen_reader_detected or 'None'}"
                 )
 
-                if self._screen_reader_detected:
+                if not self._screen_reader_detected and self._detect_narrator_process():
+                    self._screen_reader_detected = "Narrator"
+
+                if self._screen_reader_detected and self._screen_reader_detected != "Narrator":
                     self._tolk_loaded = True
                     self.backend = "tolk"
                     print(f"Using screen reader: {self._screen_reader_detected}")
@@ -96,6 +100,20 @@ class Speech:
             self.backend = "tts"
 
         print(f"Speech initialized with backend: {self.backend}")
+
+    def _detect_narrator_process(self) -> bool:
+        """Return True when the Windows Narrator process appears to be running."""
+        try:
+            result = subprocess.run(
+                ["tasklist", "/FI", "IMAGENAME eq Narrator.exe"],
+                capture_output=True,
+                text=True,
+                timeout=2,
+                check=False,
+            )
+            return "Narrator.exe" in result.stdout
+        except Exception:
+            return False
 
     def _init_tts_engine(self) -> bool:
         """Initialize TTS backend (prefer native SAPI on Windows)."""
@@ -248,7 +266,7 @@ class Speech:
         self.enabled = True
 
         if mode == "auto":
-            if self._screen_reader_detected:
+            if self._screen_reader_detected and self._screen_reader_detected != "Narrator":
                 self.backend = "tolk"
                 self._tolk_loaded = True
                 print(f"Auto mode: Using screen reader ({self._screen_reader_detected})")
@@ -261,7 +279,10 @@ class Speech:
             return
 
         if mode == "screen_reader":
-            if self._tolk_available:
+            if self._screen_reader_detected == "Narrator" and (self._sapi_voice or self._engine or self._init_tts_engine()):
+                self.backend = "tts"
+                self.say("Narrator detected. Using built-in speech because Narrator is not exposed through Tolk.")
+            elif self._tolk_available:
                 self.backend = "tolk"
                 self._tolk_loaded = True
                 if not self._screen_reader_detected:
@@ -317,9 +338,12 @@ class Speech:
                 log_exception(e)
                 detected_reader = None
 
+        if not detected_reader and self._detect_narrator_process():
+            detected_reader = "Narrator"
+
         self._screen_reader_detected = detected_reader
 
-        if detected_reader:
+        if detected_reader and detected_reader != "Narrator":
             self.backend = "tolk"
             self._tolk_loaded = True
         elif self._sapi_voice or self._engine or self._init_tts_engine():
