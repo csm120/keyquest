@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import html
 import re
+import shutil
 from pathlib import Path
 
 
@@ -12,6 +13,7 @@ OUTPUT_DIR = REPO_ROOT / "site"
 README_HTML = REPO_ROOT / "README.html"
 CHANGELOG_MD = REPO_ROOT / "docs" / "user" / "WHATS_NEW.md"
 VERSION_FILE = REPO_ROOT / "modules" / "version.py"
+ASSETS_DIR = REPO_ROOT / "docs" / "assets"
 
 
 def read_version() -> str:
@@ -246,6 +248,8 @@ def main() -> None:
     (OUTPUT_DIR / ".nojekyll").write_text("", encoding="utf-8")
     (OUTPUT_DIR / "index.html").write_text(build_index_page(), encoding="utf-8")
     (OUTPUT_DIR / "changelog.html").write_text(build_changelog_page(), encoding="utf-8")
+    if ASSETS_DIR.exists():
+        shutil.copytree(ASSETS_DIR, OUTPUT_DIR / "docs" / "assets", dirs_exist_ok=True)
 
 
 if __name__ == "__main__":
