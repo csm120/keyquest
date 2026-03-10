@@ -11,7 +11,6 @@ import sys
 import tempfile
 import urllib.request
 from pathlib import Path
-from urllib.error import URLError
 
 
 GITHUB_OWNER = "csm120"
