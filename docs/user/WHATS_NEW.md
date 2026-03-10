@@ -9,6 +9,8 @@ This patch fixes a pet screen crash and makes update errors stay local.
 - The pet screen no longer crashes if older saved state or a partial startup path leaves the pet menu data missing.
 - Update failures now write details to `keyquest_error.log` and offer the setup download without opening a GitHub bug report automatically.
 - Unexpected app errors now also stay local and tell you where the error log was saved.
+- If KeyQuest has to use the Windows PowerShell fallback during update checks, it now does that without flashing a visible console window.
+- When KeyQuest writes an update or app error, it can now offer to copy the local error log to the clipboard.
 
 ## Monday March 9th 2026
 

@@ -6,10 +6,12 @@ import json
 import os
 import re
 import ssl
+import subprocess
 import sys
 import tempfile
 import urllib.request
 from pathlib import Path
+from urllib.error import URLError
 
 
 GITHUB_OWNER = "csm120"
@@ -84,6 +86,83 @@ def _build_ssl_context() -> ssl.SSLContext:
     return context
 
 
+def _is_tls_verification_error(error: BaseException) -> bool:
+    """Return True when the exception looks like a certificate-chain verification failure."""
+    message = str(error).lower()
+    if "certificate verify failed" in message:
+        return True
+    if "unable to get local issuer certificate" in message:
+        return True
+    if isinstance(error, ssl.SSLCertVerificationError):
+        return True
+    reason = getattr(error, "reason", None)
+    return isinstance(reason, ssl.SSLCertVerificationError)
+
+
+def _run_powershell(script: str, timeout: int) -> subprocess.CompletedProcess:
+    """Run a PowerShell script and return the completed process."""
+    startupinfo = None
+    creationflags = 0
+    if os.name == "nt":
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        startupinfo.wShowWindow = 0
+        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    return subprocess.run(
+        [
+            "powershell",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            script,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        check=False,
+        startupinfo=startupinfo,
+        creationflags=creationflags,
+    )
+
+
+def _fetch_latest_release_via_powershell(
+    url: str = LATEST_RELEASE_API_URL,
+    timeout: int = DEFAULT_TIMEOUT_SECONDS,
+) -> dict:
+    """Fetch release metadata with PowerShell as a Windows-native fallback."""
+    script = (
+        "$ProgressPreference='SilentlyContinue'; "
+        "$headers=@{Accept='application/vnd.github+json'; 'User-Agent'='KeyQuest-Updater'}; "
+        f"$response=Invoke-RestMethod -Uri '{url}' -Headers $headers -TimeoutSec {int(timeout)}; "
+        "$response | ConvertTo-Json -Depth 100 -Compress"
+    )
+    result = _run_powershell(script, timeout=max(timeout + 5, 10))
+    if result.returncode != 0:
+        stderr = (result.stderr or "").strip()
+        raise RuntimeError(stderr or "PowerShell release fetch failed.")
+    return json.loads((result.stdout or "").strip())
+
+
+def _download_file_via_powershell(
+    url: str,
+    destination: Path,
+    timeout: int = DEFAULT_TIMEOUT_SECONDS,
+) -> Path:
+    """Download a file with PowerShell as a Windows-native fallback."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    script = (
+        "$ProgressPreference='SilentlyContinue'; "
+        f"Invoke-WebRequest -Uri '{url}' -Headers @{{'User-Agent'='KeyQuest-Updater'}} "
+        f"-OutFile '{destination}' -TimeoutSec {int(timeout)}"
+    )
+    result = _run_powershell(script, timeout=max(timeout + 10, 20))
+    if result.returncode != 0:
+        stderr = (result.stderr or "").strip()
+        raise RuntimeError(stderr or "PowerShell download failed.")
+    return destination
+
+
 def select_installer_asset(release: dict) -> dict | None:
     """Return the preferred installer asset from a GitHub release."""
     assets = release.get("assets", [])
@@ -129,8 +208,13 @@ def fetch_latest_release(url: str = LATEST_RELEASE_API_URL, timeout: int = DEFAU
             "User-Agent": "KeyQuest-Updater",
         },
     )
-    with urllib.request.urlopen(request, timeout=timeout, context=_build_ssl_context()) as response:
-        return json.loads(response.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(request, timeout=timeout, context=_build_ssl_context()) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except Exception as error:
+        if os.name == "nt" and _is_tls_verification_error(error):
+            return _fetch_latest_release_via_powershell(url=url, timeout=timeout)
+        raise
 
 
 def get_updates_dir() -> Path:
@@ -145,24 +229,32 @@ def download_file(url: str, destination: Path, progress_callback=None, timeout: 
     request = urllib.request.Request(url, headers={"User-Agent": "KeyQuest-Updater"})
     destination.parent.mkdir(parents=True, exist_ok=True)
 
-    with urllib.request.urlopen(
-        request,
-        timeout=timeout,
-        context=_build_ssl_context(),
-    ) as response, open(destination, "wb") as handle:
-        total = response.headers.get("Content-Length")
-        total_bytes = int(total) if total and total.isdigit() else 0
-        downloaded = 0
-        while True:
-            chunk = response.read(65536)
-            if not chunk:
-                break
-            handle.write(chunk)
-            downloaded += len(chunk)
+    try:
+        with urllib.request.urlopen(
+            request,
+            timeout=timeout,
+            context=_build_ssl_context(),
+        ) as response, open(destination, "wb") as handle:
+            total = response.headers.get("Content-Length")
+            total_bytes = int(total) if total and total.isdigit() else 0
+            downloaded = 0
+            while True:
+                chunk = response.read(65536)
+                if not chunk:
+                    break
+                handle.write(chunk)
+                downloaded += len(chunk)
+                if progress_callback:
+                    progress_callback(downloaded, total_bytes)
+        return destination
+    except Exception as error:
+        if os.name == "nt" and _is_tls_verification_error(error):
+            downloaded_path = _download_file_via_powershell(url, destination, timeout=timeout)
             if progress_callback:
-                progress_callback(downloaded, total_bytes)
-
-    return destination
+                total_bytes = downloaded_path.stat().st_size if downloaded_path.exists() else 0
+                progress_callback(total_bytes, total_bytes)
+            return downloaded_path
+        raise
 
 
 def build_installer_filename(version: str) -> str:

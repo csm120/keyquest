@@ -73,3 +73,36 @@ def read_log_tail(max_chars: int = 2000) -> str:
     if len(text) <= max_chars:
         return text.strip()
     return text[-max_chars:].strip()
+
+
+def read_full_log() -> str:
+    """Return the full local error log contents."""
+    try:
+        with open(touch_log_file(), "r", encoding="utf-8", errors="replace") as f:
+            return f.read()
+    except OSError:
+        return ""
+
+
+def copy_text_to_clipboard(text: str) -> bool:
+    """Copy text to the system clipboard."""
+    try:
+        import tkinter as tk
+
+        root = tk.Tk()
+        root.withdraw()
+        root.clipboard_clear()
+        root.clipboard_append(text)
+        root.update()
+        root.destroy()
+        return True
+    except Exception:
+        return False
+
+
+def copy_log_to_clipboard() -> bool:
+    """Copy the full local error log to the clipboard."""
+    text = read_full_log()
+    if not text:
+        return False
+    return copy_text_to_clipboard(text)

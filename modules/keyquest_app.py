@@ -141,6 +141,16 @@ def _offer_general_error_github_report(summary: str) -> None:
         "KeyQuest hit an unexpected error.\n\n"
         f"The details were written to:\n{log_path}",
     )
+    if dialog_manager.show_yes_no_dialog(
+        "Copy Error Log",
+        "Would you like to copy the local error log to the clipboard?",
+        yes_label="Copy Log",
+        no_label="Close",
+    ):
+        if error_logging.copy_log_to_clipboard():
+            print("Local error log copied to clipboard.")
+        else:
+            print("Unable to copy the local error log to clipboard.")
 
 class KeyQuestApp:
     def __init__(self):
@@ -601,11 +611,27 @@ class KeyQuestApp:
         """Persist updater failures to the local log file."""
         error_logging.log_message("Updater Error", summary, tb_str=tb_str)
 
+    def _offer_copy_error_log(self):
+        """Offer to copy the local error log to the clipboard."""
+        if not dialog_manager.show_yes_no_dialog(
+            "Copy Error Log",
+            "Would you like to copy the local error log to the clipboard?",
+            yes_label="Copy Log",
+            no_label="Not Now",
+        ):
+            return
+
+        if error_logging.copy_log_to_clipboard():
+            self.speech.say("Error log copied to clipboard.", priority=True)
+        else:
+            self.speech.say("Unable to copy the error log to clipboard.", priority=True)
+
     def _offer_update_failure_recovery(self, summary: str, tb_str: str = ""):
         """Offer recovery actions after an updater error."""
         log_path = error_logging.touch_log_file()
         self._record_update_error(summary, tb_str=tb_str)
         self._update_error_message = f"{summary} Local log saved to {log_path}."
+        self._offer_copy_error_log()
         self._offer_installer_download_after_update_failure()
 
     def _handle_about_select(self, item):
