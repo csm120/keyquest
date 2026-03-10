@@ -16,6 +16,25 @@
 
 - `py -3.9 keyquest.pyw`
 
+## Common Development Commands
+
+Here are the commands you'll need most often as a contributor:
+
+### Run the application
+```powershell
+py -3.9 keyquest.pyw
+```
+
+### Run linting (code quality check)
+```powershell
+ruff check .
+```
+
+### Run tests
+```powershell
+pytest -q
+```
+
 Notes:
 - On Windows, screen reader support uses `cytolk` (Tolk). If it is not installed/available, KeyQuest falls back to `pyttsx3`.
 - `keyquest.pyw` attempts to relaunch itself with Python 3.9 if Windows opens it with a different interpreter.

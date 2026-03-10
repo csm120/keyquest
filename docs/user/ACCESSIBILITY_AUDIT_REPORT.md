@@ -1,19 +1,19 @@
-# KeyQuest Accessibility Audit Report
+﻿# KeyQuest Accessibility Audit Report
 
 **Date:** 2025-11-11
 **Auditor:** Claude Code Accessibility Review
-**Standard:** WCAG 2.1 Level AA
+**Standard Reference:** WCAG 2.1 Level AA
 
-> Historical report note: this document captures the 2025-11-11 WCAG 2.1 baseline.  
+> Historical report note: this document captures the 2025-11-11 WCAG 2.1 baseline code review and fix pass.  
 > For current behavior (including 2026-02-17 low-vision focus visibility updates), see:
 > - Additional accessibility documentation in `docs/user/`
 > - `docs/user/ACCESSIBILITY_COMPLIANCE_SUMMARY.md`
 
 ## Executive Summary
 
-This audit reviewed KeyQuest for visual accessibility compliance and screen reader/visual content synchronization. The application demonstrates strong accessibility foundations with a few areas requiring improvement.
+This audit reviewed KeyQuest for visual accessibility checks and screen reader/visual content synchronization. The application demonstrates strong accessibility foundations with a few areas requiring improvement.
 
-**Overall Status:** ✅ COMPLIANT (after fixes applied)
+**Overall Status:** Historical baseline review with fixes applied
 
 ---
 
@@ -22,7 +22,7 @@ This audit reviewed KeyQuest for visual accessibility compliance and screen read
 ### Methodology
 Tested all color combinations against WCAG 2.1 AA standards:
 - **Normal text (< 24px):** Requires 4.5:1 minimum contrast ratio
-- **Large text (≥ 24px):** Requires 3:1 minimum contrast ratio
+- **Large text (â‰¥ 24px):** Requires 3:1 minimum contrast ratio
 - **UI components:** Requires 3:1 minimum contrast ratio
 
 ### Font Sizes in KeyQuest
@@ -35,24 +35,24 @@ Tested all color combinations against WCAG 2.1 AA standards:
 #### Dark Theme (default)
 | Element | Color on Background | Contrast Ratio | WCAG AA Status |
 |---------|---------------------|----------------|----------------|
-| FG (main text) | (255,255,255) on (0,0,0) | 21.00:1 | ✅ PASS (all sizes) |
-| ACCENT (hints) | (180,220,255) on (0,0,0) | 14.62:1 | ✅ PASS (all sizes) |
-| HILITE (original) | (60,100,160) on (0,0,0) | 3.52:1 | ❌ **FAIL** for 20px text |
-| HILITE (fixed) | (80,120,180) on (0,0,0) | 4.69:1 | ✅ PASS (all sizes) |
+| FG (main text) | (255,255,255) on (0,0,0) | 21.00:1 | âœ… PASS (all sizes) |
+| ACCENT (hints) | (180,220,255) on (0,0,0) | 14.62:1 | âœ… PASS (all sizes) |
+| HILITE (original) | (60,100,160) on (0,0,0) | 3.52:1 | âŒ **FAIL** for 20px text |
+| HILITE (fixed) | (80,120,180) on (0,0,0) | 4.69:1 | âœ… PASS (all sizes) |
 
 #### Light Theme
 | Element | Color on Background | Contrast Ratio | WCAG AA Status |
 |---------|---------------------|----------------|----------------|
-| FG (main text) | (0,0,0) on (255,255,255) | 21.00:1 | ✅ PASS (all sizes) |
-| ACCENT (hints) | (0,100,200) on (255,255,255) | 5.74:1 | ✅ PASS (all sizes) |
-| HILITE (selected) | (0,0,255) on (255,255,255) | 8.59:1 | ✅ PASS (all sizes) |
+| FG (main text) | (0,0,0) on (255,255,255) | 21.00:1 | âœ… PASS (all sizes) |
+| ACCENT (hints) | (0,100,200) on (255,255,255) | 5.74:1 | âœ… PASS (all sizes) |
+| HILITE (selected) | (0,0,255) on (255,255,255) | 8.59:1 | âœ… PASS (all sizes) |
 
 #### High Contrast Theme
 | Element | Color on Background | Contrast Ratio | WCAG AA Status |
 |---------|---------------------|----------------|----------------|
-| FG (main text) | (255,255,255) on (0,0,0) | 21.00:1 | ✅ PASS (all sizes) |
-| ACCENT (yellow) | (255,255,0) on (0,0,0) | 19.56:1 | ✅ PASS (all sizes) |
-| HILITE (white) | (255,255,255) on (0,0,0) | 21.00:1 | ✅ PASS (all sizes) |
+| FG (main text) | (255,255,255) on (0,0,0) | 21.00:1 | âœ… PASS (all sizes) |
+| ACCENT (yellow) | (255,255,0) on (0,0,0) | 19.56:1 | âœ… PASS (all sizes) |
+| HILITE (white) | (255,255,255) on (0,0,0) | 21.00:1 | âœ… PASS (all sizes) |
 
 ### Issue #1: Dark Theme HILITE Color (FIXED)
 
@@ -77,41 +77,41 @@ Systematically reviewed all `speech.say()` calls and compared with corresponding
 
 ### Audit Results
 
-#### ✅ PASS: Proper Synchronization
+#### âœ… PASS: Proper Synchronization
 
 The following screens properly synchronize screen reader and visual content:
 
 1. **Main Menu** (`draw_menu`, lines 2895-2920)
    - Screen reader: Announces menu items, streak, unlocked lessons count
    - Visual: Shows all menu items, streak, unlocked lessons count
-   - ✅ Content matches
+   - âœ… Content matches
 
 2. **Options Menu** (`draw_options`, lines 3025-3047)
    - Screen reader: Announces all 6 options (Speech, TTS Rate, Volume, Voice, Theme, Topic)
    - Visual: Shows all 6 options (FIXED in previous session)
-   - ✅ Content matches
+   - âœ… Content matches
 
 3. **Tutorial** (`draw_tutorial`, lines 3145-3196)
    - Screen reader: Announces current key to press, guidance for wrong keys
    - Visual: Shows current key, progress counters, guidance messages
-   - ✅ Content matches
+   - âœ… Content matches
 
 4. **Lesson Active** (`draw_lesson`, lines 3198+)
    - Screen reader: Announces target word/phrase
    - Visual: Shows target, typed text, accuracy feedback
-   - ✅ Content matches
+   - âœ… Content matches
 
 5. **Speed Test/Practice** (`draw_test`, `draw_practice`)
    - Screen reader: Announces sentences, completion info
    - Visual: Shows current sentence, progress, timer
-   - ✅ Content matches
+   - âœ… Content matches
 
 6. **Information Dialogs** (Badges, Quests, Progress Dashboard, etc.)
    - All use `show_info_dialog()` which displays full formatted text
    - Screen reader receives same content as dialog
-   - ✅ Content matches
+   - âœ… Content matches
 
-#### ❌ ISSUE #2: Lesson Intro Screen - Missing Visual Information (FIXED)
+#### âŒ ISSUE #2: Lesson Intro Screen - Missing Visual Information (FIXED)
 
 **Problem:** Screen reader announced phonetic alphabet ("F, like Foxtrot") but visual only showed letter names ("F").
 
@@ -150,25 +150,25 @@ Found: (shows completed keys)
 ## 3. Visual Design Accessibility
 
 ### Text Size
-✅ **PASS** - All text sizes meet or exceed WCAG minimums:
+âœ… **PASS** - All text sizes meet or exceed WCAG minimums:
 - Smallest text (20px) is above typical minimum (16px)
 - Most text is 28px or larger (large text category)
 - Title text is 36px (excellent readability)
 
 ### Color Usage
-✅ **PASS** - Colors used meaningfully with good contrast:
+âœ… **PASS** - Colors used meaningfully with good contrast:
 - FG: Primary content (perfect contrast on all themes)
 - ACCENT: Control hints and supplementary info (excellent contrast)
 - HILITE: Selected items and important status (now meets AA standards)
 
 ### Visual Hierarchy
-✅ **PASS** - Clear visual hierarchy:
+âœ… **PASS** - Clear visual hierarchy:
 - Titles (36px) > Main content (28px) > Hints (20px)
 - Selected items use HILITE color with sufficient contrast
 - Control hints consistently placed at bottom in ACCENT color
 
 ### Focus Indicators
-✅ **PASS** - Clear focus indicators:
+âœ… **PASS** - Clear focus indicators:
 - Current menu item shown in HILITE color (high contrast)
 - Cursor position clearly indicated in typing modes
 - Selected game highlighted with description
@@ -177,10 +177,10 @@ Found: (shows completed keys)
 
 ## 4. Recommendations
 
-### Completed in This Audit ✅
-1. ✅ Fixed dark theme HILITE color for WCAG AA compliance
-2. ✅ Added phonetic alphabet to lesson intro visual display
-3. ✅ Verified all screen reader announcements match visual displays
+### Completed in This Audit âœ…
+1. âœ… Fixed dark theme HILITE color for WCAG AA compliance
+2. âœ… Added phonetic alphabet to lesson intro visual display
+3. âœ… Verified all screen reader announcements match visual displays
 
 ### Future Enhancements (Optional)
 These are suggestions for future consideration, not critical issues:
@@ -201,20 +201,20 @@ These are suggestions for future consideration, not critical issues:
 
 ## 5. Compliance Summary
 
-### WCAG 2.1 Level AA Compliance
+### WCAG 2.1 Level AA Reference Checks
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
-| **1.4.3 Contrast (Minimum)** | ✅ PASS | All text meets 4.5:1 (normal) or 3:1 (large) after fix |
-| **1.4.6 Contrast (Enhanced)** | ⚠️ PARTIAL | Some colors don't meet AAA (7:1), but AA is target |
-| **1.4.11 Non-text Contrast** | ✅ PASS | UI components have sufficient contrast |
-| **1.4.12 Text Spacing** | ✅ PASS | Adequate spacing, no text overlap |
-| **2.4.7 Focus Visible** | ✅ PASS | Clear focus indicators on all interactive elements |
-| **3.2.4 Consistent Identification** | ✅ PASS | Consistent UI patterns throughout |
-| **4.1.3 Status Messages** | ✅ PASS | Screen reader announcements match visual content |
+| **1.4.3 Contrast (Minimum)** | âœ… PASS | All text meets 4.5:1 (normal) or 3:1 (large) after fix |
+| **1.4.6 Contrast (Enhanced)** | âš ï¸ PARTIAL | Some colors don't meet AAA (7:1), but AA is target |
+| **1.4.11 Non-text Contrast** | âœ… PASS | UI components have sufficient contrast |
+| **1.4.12 Text Spacing** | âœ… PASS | Adequate spacing, no text overlap |
+| **2.4.7 Focus Visible** | âœ… PASS | Clear focus indicators on all interactive elements |
+| **3.2.4 Consistent Identification** | âœ… PASS | Consistent UI patterns throughout |
+| **4.1.3 Status Messages** | âœ… PASS | Screen reader announcements match visual content |
 
 ### Screen Reader Compatibility
-✅ **FULLY COMPATIBLE** - Comprehensive screen reader support:
+âœ… **Strong support observed in this review**:
 - All content announced appropriately
 - Visual and auditory content synchronized
 - Priority announcements for important events
@@ -243,7 +243,7 @@ These are suggestions for future consideration, not critical issues:
 
 ## 7. Conclusion
 
-KeyQuest demonstrates strong accessibility design with comprehensive screen reader support and good visual accessibility. The two issues identified (HILITE color contrast and missing phonetic alphabet in visuals) have been fixed, bringing the application into full WCAG 2.1 Level AA compliance.
+KeyQuest demonstrates strong accessibility design with comprehensive screen reader support and good visual accessibility. The two issues identified in this review (HILITE color contrast and missing phonetic alphabet in visuals) were fixed during that pass.
 
 ### Key Strengths
 - Excellent screen reader integration with detailed announcements
@@ -253,13 +253,14 @@ KeyQuest demonstrates strong accessibility design with comprehensive screen read
 - Thoughtful use of phonetic alphabet for letter identification
 
 ### Fixes Applied
-1. ✅ Enhanced dark theme HILITE color from (60,100,160) to (80,120,180)
-2. ✅ Added phonetic alphabet to lesson intro visual display
+1. âœ… Enhanced dark theme HILITE color from (60,100,160) to (80,120,180)
+2. âœ… Added phonetic alphabet to lesson intro visual display
 
-The application now provides an equivalent experience for both screen reader users and visual users, meeting WCAG 2.1 Level AA standards.
+The application now aims to provide an equivalent experience for both screen reader users and visual users across the reviewed flows. This report should be read as a historical review record, not as a standing certification claim.
 
 ---
 
 **Report Generated:** 2025-11-11
 **Tools Used:** WCAG 2.1 contrast ratio calculator, comprehensive code analysis
-**Status:** ✅ COMPLIANT
+**Status:** Historical review completed
+
