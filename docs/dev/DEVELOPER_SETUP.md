@@ -1,5 +1,34 @@
 # KeyQuest Developer Setup (Windows)
 
+## Quick Command Reference
+
+**Essential commands for contributors:**
+
+```powershell
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the app
+py -3.9 keyquest.pyw
+
+# Check code style (lint)
+ruff check .
+
+# Run tests
+pytest -q
+
+# Auto-fix lint issues
+ruff check . --fix
+
+# Build executable
+tools\build\build_exe.bat
+
+# Build installer
+tools\build\build_installer.bat
+```
+
+See sections below for detailed explanations of each command.
+
 ## Prerequisites
 
 - Python 3.9 (project standard for local runs, GitHub workflows, and release checks)

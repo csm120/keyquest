@@ -16,6 +16,41 @@ KeyQuest is a Windows typing game built with Python, with a strong focus on keyb
 
 KeyQuest currently targets Python 3.9.
 
+### Quick Command Reference
+
+**Setup and run:**
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python keyquest.pyw
+```
+
+**Validation and testing:**
+```powershell
+# Lint code style
+ruff check .
+
+# Run tests
+pytest -q
+
+# Auto-fix lint issues
+ruff check . --fix
+```
+
+**Building and packaging:**
+```powershell
+# Build executable (.exe)
+tools\build\build_exe.bat
+
+# Build installer
+tools\build\build_installer.bat
+
+# Full release (version bump + tag + publish)
+powershell -ExecutionPolicy Bypass -File tools/ship_updates.ps1
+```
+
+### Detailed Setup
+
 Basic local setup:
 
 ```powershell
