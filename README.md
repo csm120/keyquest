@@ -2,6 +2,8 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/csm120/KeyQuest)](https://github.com/csm120/KeyQuest/releases/latest)
 
+![KeyQuest banner](docs/assets/keyquest-hero.svg)
+
 KeyQuest is an accessible typing adventure game for Windows, built with Python and designed for keyboard, screen reader, and low-vision users.
 
 It focuses on players who want stronger non-visual support than most game projects provide, including clear spoken feedback, keyboard-first navigation, and packaged documentation for both web and desktop reading.
