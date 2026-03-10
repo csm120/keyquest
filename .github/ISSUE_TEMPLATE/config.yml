@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and community discussion
+    url: https://github.com/csm120/KeyQuest/discussions
+    about: Ask setup questions, share ideas, or start a general discussion.
+  - name: KeyQuest website
+    url: https://csm120.github.io/KeyQuest/
+    about: Read the user guide and release notes before opening an issue.
