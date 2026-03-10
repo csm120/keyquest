@@ -27,8 +27,14 @@ python keyquest.pyw
 Common validation commands:
 
 ```powershell
+# Check code quality
 ruff check .
+
+# Run tests
 pytest -q
+
+# Run both before opening a PR
+ruff check . && pytest -q
 ```
 
 ## Accessibility Expectations
