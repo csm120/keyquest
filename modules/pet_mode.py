@@ -6,6 +6,22 @@ from modules import pet_ui_data
 from modules import shop_manager
 
 
+def ensure_pet_ui_state(app) -> None:
+    """Populate pet UI attributes when older or partial app objects are missing them."""
+    if not hasattr(app, "pet_options"):
+        app.pet_options = list(pet_ui_data.PET_MENU_OPTIONS)
+    if not hasattr(app, "pet_types"):
+        app.pet_types = []
+    if not hasattr(app, "pet_view"):
+        app.pet_view = "status"
+    if not hasattr(app, "pet_menu_index"):
+        app.pet_menu_index = 0
+    if not hasattr(app, "pet_choose_index"):
+        app.pet_choose_index = 0
+    if not hasattr(app, "pet_choose_mode"):
+        app.pet_choose_mode = "new"
+
+
 def _build_pet_visual_items_text(settings) -> str:
     owned = getattr(settings, "owned_items", set())
     labels = []
@@ -34,6 +50,7 @@ def _build_pet_visual_items_text(settings) -> str:
 
 def show_pet(app) -> None:
     """Show pet interface."""
+    ensure_pet_ui_state(app)
     app.state.mode = "PET"
     app.pet_menu_index = 0
 
@@ -71,6 +88,7 @@ def show_pet(app) -> None:
 
 def handle_pet_input(app, event, mods: int) -> None:
     """Handle pet navigation and interactions."""
+    ensure_pet_ui_state(app)
     if event.key == pygame.K_ESCAPE:
         if app.pet_view == "choose" and getattr(app, "pet_choose_mode", "new") == "change":
             app.pet_view = "status"
@@ -136,6 +154,7 @@ def handle_pet_input(app, event, mods: int) -> None:
 
 def announce_pet_type(app, pet_type: str) -> None:
     """Announce a pet type with description."""
+    ensure_pet_ui_state(app)
     pet_info = pet_manager.get_pet_info(pet_type)
     if pet_info:
         app.speech.say(f"{pet_info['name']}. {pet_info['description']}")
@@ -143,6 +162,7 @@ def announce_pet_type(app, pet_type: str) -> None:
 
 def handle_pet_action(app, action: str) -> None:
     """Handle pet actions."""
+    ensure_pet_ui_state(app)
     if action == "View Status":
         pet_status = pet_manager.get_pet_status(app.state.settings)
         status_text = (

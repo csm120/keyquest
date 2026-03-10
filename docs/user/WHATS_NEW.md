@@ -1,5 +1,15 @@
 # New in Key Quest
 
+## Tuesday March 10th 2026
+
+Version 1.1.3
+
+This patch fixes a pet screen crash and makes update errors stay local.
+
+- The pet screen no longer crashes if older saved state or a partial startup path leaves the pet menu data missing.
+- Update failures now write details to `keyquest_error.log` and offer the setup download without opening a GitHub bug report automatically.
+- Unexpected app errors now also stay local and tell you where the error log was saved.
+
 ## Monday March 9th 2026
 
 Version 1.1.2
@@ -20,8 +30,8 @@ This update smooths out several rough edges in daily use.
 - Hangman results no longer keep repeating "round complete" while you move through the post-round menu.
 - Hangman sentence practice now uses shorter prompts instead of repeating "type it exactly as shown" before every sentence.
 - The Practice Log now uses friendlier dates and times, more natural duration wording, clearer activity names and results, simple day-to-day comparison notes, and a copy-to-clipboard option.
-- Update failures now create a local error log, offer the setup download, and can open a prefilled GitHub bug report with a log excerpt.
-- General unexpected app errors can also offer the same GitHub bug-report flow.
+- Update failures now create a local error log and offer the setup download.
+- General unexpected app errors now write to the same local error log.
 
 ## Saturday March 7th 2026
 

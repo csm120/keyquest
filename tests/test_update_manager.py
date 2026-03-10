@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from modules import update_manager
 
@@ -38,6 +39,18 @@ class TestUpdateManager(unittest.TestCase):
     def test_parse_release_version_uses_tag_name(self):
         release = {"tag_name": "v1.4.2"}
         self.assertEqual(update_manager.parse_release_version(release), "1.4.2")
+
+    def test_build_ssl_context_uses_default_store_and_loads_certifi_bundle(self):
+        fake_context = mock.Mock()
+        fake_certifi = mock.Mock()
+        fake_certifi.where.return_value = "C:\\certifi\\cacert.pem"
+
+        with mock.patch("modules.update_manager.ssl.create_default_context", return_value=fake_context):
+            with mock.patch.object(update_manager, "certifi", fake_certifi):
+                context = update_manager._build_ssl_context()
+
+        self.assertIs(context, fake_context)
+        fake_context.load_verify_locations.assert_called_once_with(cafile="C:\\certifi\\cacert.pem")
 
     def test_create_update_launcher_contains_silent_install_and_restart(self):
         with tempfile.TemporaryDirectory() as tmpdir:

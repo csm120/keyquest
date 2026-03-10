@@ -74,10 +74,14 @@ def parse_release_version(release: dict) -> str:
 
 
 def _build_ssl_context() -> ssl.SSLContext:
-    """Build an SSL context that prefers the certifi bundle when available."""
+    """Build an SSL context using the OS trust store plus certifi when available."""
+    context = ssl.create_default_context()
     if certifi is not None:
-        return ssl.create_default_context(cafile=certifi.where())
-    return ssl.create_default_context()
+        try:
+            context.load_verify_locations(cafile=certifi.where())
+        except Exception:
+            pass
+    return context
 
 
 def select_installer_asset(release: dict) -> dict | None:

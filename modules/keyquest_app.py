@@ -7,6 +7,7 @@ import time
 import random
 import threading
 import subprocess
+import traceback
 import urllib.parse
 import webbrowser
 from collections import Counter
@@ -133,20 +134,13 @@ def _build_github_issue_url(summary: str, issue_title: str) -> str:
 
 
 def _offer_general_error_github_report(summary: str) -> None:
-    """Offer a browser-based GitHub report for an unexpected app error."""
-    should_open = dialog_manager.show_yes_no_dialog(
+    """Inform the user that an unexpected app error was written to the local log."""
+    log_path = error_logging.touch_log_file()
+    dialog_manager.show_info_dialog(
         "KeyQuest Error",
-        "KeyQuest hit an unexpected error.\n\nWould you like to open a prefilled GitHub bug report in your browser?",
-        yes_label="Open GitHub",
-        no_label="Close",
+        "KeyQuest hit an unexpected error.\n\n"
+        f"The details were written to:\n{log_path}",
     )
-    if not should_open:
-        return
-
-    try:
-        webbrowser.open(_build_github_issue_url(summary, "Bug report: unexpected KeyQuest error"))
-    except Exception:
-        pass
 
 class KeyQuestApp:
     def __init__(self):
@@ -603,30 +597,16 @@ class KeyQuestApp:
         except Exception as e:
             self.speech.say(f"Unable to open the KeyQuest setup download. {e}", priority=True)
 
-    def _offer_github_issue_report(self, summary: str):
-        """Offer to open a prefilled GitHub issue in the browser."""
-        should_open = dialog_manager.show_yes_no_dialog(
-            "Open GitHub Issue",
-            "Would you like to open a prefilled GitHub bug report in your browser?",
-            yes_label="Open GitHub",
-            no_label="Not Now",
-        )
-        if not should_open:
-            return
+    def _record_update_error(self, summary: str, tb_str: str = ""):
+        """Persist updater failures to the local log file."""
+        error_logging.log_message("Updater Error", summary, tb_str=tb_str)
 
-        try:
-            webbrowser.open(_build_github_issue_url(summary, "Bug report: updater failure"))
-            self.speech.say("Opening a GitHub bug report in your browser.", priority=True)
-        except Exception as e:
-            self.speech.say(f"Unable to open the GitHub bug report. {e}", priority=True)
-
-    def _offer_update_failure_recovery(self, summary: str):
+    def _offer_update_failure_recovery(self, summary: str, tb_str: str = ""):
         """Offer recovery actions after an updater error."""
         log_path = error_logging.touch_log_file()
-        error_logging.log_message("Updater Error", summary)
+        self._record_update_error(summary, tb_str=tb_str)
         self._update_error_message = f"{summary} Local log saved to {log_path}."
         self._offer_installer_download_after_update_failure()
-        self._offer_github_issue_report(summary)
 
     def _handle_about_select(self, item):
         item_id = item.get("id", "")
@@ -914,7 +894,12 @@ class KeyQuestApp:
                     "Secure connection to GitHub could not be verified. "
                     "Check your Windows date and time, antivirus web filtering, or network certificate settings."
                 )
-            result = {"status": "error", "manual": manual, "message": message}
+            result = {
+                "status": "error",
+                "manual": manual,
+                "message": message,
+                "traceback": traceback.format_exc(),
+            }
 
         with self._update_lock:
             self._update_check_result = result
@@ -988,7 +973,11 @@ class KeyQuestApp:
             )
             result = {"status": "downloaded", "version": version, "download_path": str(installer_path)}
         except Exception as e:
-            result = {"status": "error", "message": str(e)}
+            result = {
+                "status": "error",
+                "message": str(e),
+                "traceback": traceback.format_exc(),
+            }
 
         with self._update_lock:
             self._update_download_result = result
@@ -1036,7 +1025,10 @@ class KeyQuestApp:
                 self.speech.say(f"Update check failed. {self._update_error_message}", priority=True)
             else:
                 self.speech.say("Update check failed.", priority=True)
-            self._offer_update_failure_recovery(self._update_error_message)
+            self._offer_update_failure_recovery(
+                self._update_error_message,
+                tb_str=result.get("traceback", ""),
+            )
             return
 
         if status != "update_available":
@@ -1057,7 +1049,10 @@ class KeyQuestApp:
             self._update_status = "Update download failed."
             self.state.mode = "MENU"
             self.speech.say(f"Update download failed. {self._update_error_message}", priority=True)
-            self._offer_update_failure_recovery(self._update_error_message)
+            self._offer_update_failure_recovery(
+                self._update_error_message,
+                tb_str=result.get("traceback", ""),
+            )
             self.main_menu.announce_current()
             return
 
@@ -1259,10 +1254,12 @@ class KeyQuestApp:
 
     def show_pet(self):
         """Show pet interface."""
+        pet_mode.ensure_pet_ui_state(self)
         pet_mode.show_pet(self)
 
     def handle_pet_input(self, event, mods):
         """Handle pet navigation and interactions."""
+        pet_mode.ensure_pet_ui_state(self)
         pet_mode.handle_pet_input(self, event, mods)
 
     def _announce_pet_type(self, pet_type: str):
@@ -2478,6 +2475,7 @@ class KeyQuestApp:
 
     def draw_pet(self):
         """Draw the pet interface."""
+        pet_mode.ensure_pet_ui_state(self)
         draw_pet(
             screen=self.screen,
             title_font=self.title_font,
