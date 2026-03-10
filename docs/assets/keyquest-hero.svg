@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
-  <title id="title">KeyQuest hero image</title>
-  <desc id="desc">Decorative banner for KeyQuest showing the project name, the phrase accessible typing adventure for Windows, and keyboard-inspired panels on a high-contrast blue and gold background.</desc>
+  <title id="title">KeyQuest banner</title>
+  <desc id="desc">KeyQuest banner showing the KeyQuest name and describing it as an accessible typing adventure game for Windows with keyboard, screen reader, and low-vision support.</desc>
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0d1b2a"/>
