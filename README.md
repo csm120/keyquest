@@ -1,6 +1,7 @@
 # KeyQuest
 
 [![Latest Release](https://img.shields.io/github/v/release/csm120/KeyQuest)](https://github.com/csm120/KeyQuest/releases/latest)
+[![CI](https://github.com/csm120/KeyQuest/actions/workflows/ci.yml/badge.svg)](https://github.com/csm120/KeyQuest/actions/workflows/ci.yml)
 
 ![KeyQuest banner showing the KeyQuest name and describing it as an accessible typing adventure game for Windows with keyboard, screen reader, and low-vision support.](docs/assets/keyquest-hero.svg)
 
