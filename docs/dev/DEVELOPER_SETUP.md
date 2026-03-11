@@ -35,11 +35,6 @@ ruff check .
 pytest -q
 ```
 
-### Check open PRs, issues, and recent comments needing follow-up
-```powershell
-powershell -ExecutionPolicy Bypass -File tools/dev/check_maintainer_inbox.ps1
-```
-
 Notes:
 - On Windows, screen reader support uses `cytolk` (Tolk). If it is not installed/available, KeyQuest falls back to `pyttsx3`.
 - `keyquest.pyw` attempts to relaunch itself with Python 3.9 if Windows opens it with a different interpreter.
