@@ -13,7 +13,7 @@ import urllib.request
 from pathlib import Path
 
 
-GITHUB_OWNER = "csm120"
+GITHUB_OWNER = "WebFriendlyHelp"
 GITHUB_REPO = "KeyQuest"
 LATEST_RELEASE_API_URL = f"https://api.github.com/repos/{GITHUB_OWNER}/{GITHUB_REPO}/releases/latest"
 DEFAULT_TIMEOUT_SECONDS = 15
