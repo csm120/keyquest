@@ -219,12 +219,12 @@ All items from the accessibility recommendations audit are now implemented. `doc
 ### 2026-02-19: GitHub Publish + Release Assets + README Contact Link
 
 - Initialized git repo in workspace and published source to GitHub:
-  - Repo: `https://github.com/csm120/KeyQuest`
+  - Repo: `https://github.com/WebFriendlyHelp/KeyQuest`
   - Default branch: `main`
 - Created and published release tag `v1.0` with downloadable assets:
   - `KeyQuestSetup-1.0.exe`
   - `KeyQuest-1.0-win64.zip`
-  - Release page: `https://github.com/csm120/KeyQuest/releases/tag/v1.0`
+  - Release page: `https://github.com/WebFriendlyHelp/KeyQuest/releases/tag/v1.0`
 - Updated README feedback links to include email subject:
   - `mailto:help@webfriendlyhelp.com?subject=KeyQuest%20Feedback`
 - Removed dedicated Hangman item from the user-facing Games list in `README.html` while keeping Hangman implemented in app.

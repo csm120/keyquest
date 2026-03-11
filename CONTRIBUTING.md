@@ -8,9 +8,24 @@ KeyQuest is a Windows typing game built with Python, with a strong focus on keyb
 
 - Read [README.md](README.md) for the project overview.
 - Read [docs/dev/DEVELOPER_SETUP.md](docs/dev/DEVELOPER_SETUP.md) for local setup details.
-- Check existing [Issues](https://github.com/csm120/KeyQuest/issues) and [Discussions](https://github.com/csm120/KeyQuest/discussions) before opening something new.
+- Check existing [Issues](https://github.com/WebFriendlyHelp/KeyQuest/issues) and [Discussions](https://github.com/WebFriendlyHelp/KeyQuest/discussions) before opening something new.
 - Use Discussions for questions, ideas, and general feedback.
 - Use Issues for confirmed bugs, regressions, and concrete feature work.
+
+## Drive-By Contributions
+
+You do not need to be assigned to contribute.
+
+- If you want to work on an issue, leave a short comment so others can see it is in progress.
+- For larger changes, open a draft PR early instead of waiting for assignment.
+- Small documentation, typo, or focused test fixes can usually go straight to a PR.
+- Maintainers may use labels such as `claimed` or `needs maintainer` to keep work visible, but labels are coordination tools, not permission gates.
+
+### Claiming Work
+
+- The first contributor who comments with a clear plan normally gets priority on that issue.
+- If there is no visible progress for about 7 days, maintainers may open the issue back up for others.
+- If your plans change, leave a quick comment so someone else can pick it up.
 
 ## Development Setup
 
@@ -51,10 +66,11 @@ If you change behavior that affects accessibility, mention it clearly in your pu
 ## Pull Request Process
 
 1. Fork the repo and create a branch from `main`.
-2. Keep the change focused. Avoid mixing unrelated fixes in one PR.
-3. Update tests, docs, or release notes when they are affected.
-4. Run `ruff check .` and `pytest -q` before opening the PR.
-5. Fill out the PR template completely.
+2. If the PR relates to an issue, link it in the PR body and mention whether you commented on the issue first.
+3. Keep the change focused. Avoid mixing unrelated fixes in one PR.
+4. Update tests, docs, or release notes when they are affected.
+5. Run `ruff check .` and `pytest -q` before opening the PR.
+6. Fill out the PR template completely.
 
 ## Release Notes and User-Facing Changes
 
@@ -91,4 +107,4 @@ If you want to contribute but do not know where to start, look for issues labele
 
 If you are unsure whether something should be an issue, a discussion, or a pull request, start with a Discussion:
 
-https://github.com/csm120/KeyQuest/discussions
+https://github.com/WebFriendlyHelp/KeyQuest/discussions

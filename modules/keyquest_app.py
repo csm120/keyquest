@@ -74,10 +74,13 @@ from ui.text_wrap import wrap_text
 from ui.render_updating import draw_updating_screen
 
 
-PAGES_GUIDE_URL = "https://csm120.github.io/KeyQuest/"
-PAGES_CHANGELOG_URL = "https://csm120.github.io/KeyQuest/changelog.html"
-INSTALLER_DOWNLOAD_URL = "https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe"
-GITHUB_NEW_ISSUE_URL = "https://github.com/csm120/KeyQuest/issues/new"
+REPO_OWNER = "csm120"
+REPO_NAME = "KeyQuest"
+GITHUB_REPO_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}"
+PAGES_GUIDE_URL = f"https://{REPO_OWNER}.github.io/{REPO_NAME}/"
+PAGES_CHANGELOG_URL = f"{PAGES_GUIDE_URL}changelog.html"
+INSTALLER_DOWNLOAD_URL = f"{GITHUB_REPO_URL}/releases/latest/download/KeyQuestSetup.exe"
+GITHUB_NEW_ISSUE_URL = f"{GITHUB_REPO_URL}/issues/new"
 
 # Optional wxPython for accessible dialogs
 try:

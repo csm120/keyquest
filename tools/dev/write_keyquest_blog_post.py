@@ -6,6 +6,14 @@ from docx.shared import Pt
 import os
 import subprocess
 
+REPO_OWNER = "csm120"
+REPO_NAME = "KeyQuest"
+GITHUB_REPO_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}"
+PAGES_GUIDE_URL = f"https://{REPO_OWNER}.github.io/{REPO_NAME}/"
+PAGES_CHANGELOG_URL = f"{PAGES_GUIDE_URL}changelog.html"
+INSTALLER_DOWNLOAD_URL = f"{GITHUB_REPO_URL}/releases/latest/download/KeyQuestSetup.exe"
+PORTABLE_DOWNLOAD_URL = f"{GITHUB_REPO_URL}/releases/latest/download/KeyQuest-win64.zip"
+
 
 def add_hyperlink(paragraph, text, url):
     part = paragraph.part
@@ -462,7 +470,7 @@ def build_post(output_path):
     add_hyperlink(
         paragraph,
         'Installer.exe',
-        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe',
+        INSTALLER_DOWNLOAD_URL,
     )
     paragraph.add_run(
         ': Great if you want a standard setup with shortcuts and a familiar '
@@ -472,7 +480,7 @@ def build_post(output_path):
     add_hyperlink(
         paragraph,
         'Portable.zip',
-        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuest-win64.zip',
+        PORTABLE_DOWNLOAD_URL,
     )
     paragraph.add_run(
         ': Great if you prefer to extract and run KeyQuest.exe directly '
@@ -490,7 +498,7 @@ def build_post(output_path):
     add_hyperlink(
         paragraph,
         'KeyQuest User Guide',
-        'https://csm120.github.io/KeyQuest/',
+        PAGES_GUIDE_URL,
     )
     paragraph.add_run('.')
 
@@ -498,7 +506,7 @@ def build_post(output_path):
     add_hyperlink(
         paragraph,
         'New in Key Quest',
-        'https://csm120.github.io/KeyQuest/changelog.html',
+        PAGES_CHANGELOG_URL,
     )
     paragraph.add_run('.')
 
@@ -508,7 +516,7 @@ def build_post(output_path):
     add_hyperlink(
         paragraph,
         'KeyQuest Installer.exe',
-        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe',
+        INSTALLER_DOWNLOAD_URL,
     )
     paragraph.add_run('.')
 
@@ -518,7 +526,7 @@ def build_post(output_path):
     add_hyperlink(
         paragraph,
         'KeyQuest Portable.zip',
-        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuest-win64.zip',
+        PORTABLE_DOWNLOAD_URL,
     )
     paragraph.add_run('.')
 
@@ -528,7 +536,7 @@ def build_post(output_path):
     add_hyperlink(
         paragraph,
         'KeyQuest GitHub repository',
-        'https://github.com/csm120/KeyQuest',
+        GITHUB_REPO_URL,
     )
     paragraph.add_run('.')
 
@@ -642,13 +650,13 @@ def build_post(output_path):
     add_hyperlink(
         final_para,
         'Get KeyQuest Installer.exe',
-        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuestSetup.exe',
+        INSTALLER_DOWNLOAD_URL,
     )
     final_para = doc.add_paragraph()
     add_hyperlink(
         final_para,
         'Get KeyQuest Portable.zip',
-        'https://github.com/csm120/KeyQuest/releases/latest/download/KeyQuest-win64.zip',
+        PORTABLE_DOWNLOAD_URL,
     )
     final_para = doc.add_paragraph()
     final_para.add_run('Qapla!')

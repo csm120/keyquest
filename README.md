@@ -1,7 +1,7 @@
 # KeyQuest
 
-[![Latest Release](https://img.shields.io/github/v/release/csm120/KeyQuest)](https://github.com/csm120/KeyQuest/releases/latest)
-[![CI](https://github.com/csm120/KeyQuest/actions/workflows/ci.yml/badge.svg)](https://github.com/csm120/KeyQuest/actions/workflows/ci.yml)
+[![Latest Release](https://img.shields.io/github/v/release/csm120/KeyQuest)](https://github.com/WebFriendlyHelp/KeyQuest/releases/latest)
+[![CI](https://github.com/WebFriendlyHelp/KeyQuest/actions/workflows/ci.yml/badge.svg)](https://github.com/WebFriendlyHelp/KeyQuest/actions/workflows/ci.yml)
 
 ![KeyQuest banner showing the KeyQuest name and describing it as an accessible typing adventure game for Windows with keyboard, screen reader, and low-vision support.](docs/assets/keyquest-hero.svg)
 
@@ -9,7 +9,7 @@ KeyQuest is an accessible typing adventure game for Windows, built with Python a
 
 It focuses on players who want stronger non-visual support than most game projects provide, including clear spoken feedback, keyboard-first navigation, and packaged documentation for both web and desktop reading.
 
-Download the latest installer or portable ZIP from the [Releases page](https://github.com/csm120/KeyQuest/releases), or browse the user guide on the [project website](https://csm120.github.io/KeyQuest/).
+Download the latest installer or portable ZIP from the [Releases page](https://github.com/WebFriendlyHelp/KeyQuest/releases), or browse the user guide on the [project website](https://WebFriendlyHelp.github.io/KeyQuest/).
 
 ## Why KeyQuest
 
@@ -27,7 +27,7 @@ py -3.9 keyquest.pyw
 
 ## For Users
 
-Start with the [project website](https://csm120.github.io/KeyQuest/) or open [README.html](README.html) in a web browser for the plain-language guide.
+Start with the [project website](https://WebFriendlyHelp.github.io/KeyQuest/) or open [README.html](README.html) in a web browser for the plain-language guide.
 
 Recent user-facing changes are tracked in [WHATS_NEW.md](docs/user/WHATS_NEW.md).
 
@@ -64,8 +64,11 @@ Developer notes and session context live under [docs/dev](docs/dev).
 
 ## Community
 
-- Use [GitHub Issues](https://github.com/csm120/KeyQuest/issues) for bugs and actionable feature requests.
+- Use [GitHub Issues](https://github.com/WebFriendlyHelp/KeyQuest/issues) for bugs and actionable feature requests.
 - Use GitHub Discussions for questions, accessibility feedback, gameplay ideas, and general project conversation.
+- Contributors do not need issue assignment before opening a PR.
+- If you want to take an issue, leave a comment first and open a draft PR early for larger changes.
+- Small drive-by fixes, especially docs and tests, are welcome without waiting for maintainer approval.
 
 ## Contact
 
