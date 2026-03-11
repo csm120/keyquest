@@ -74,7 +74,7 @@ from ui.text_wrap import wrap_text
 from ui.render_updating import draw_updating_screen
 
 
-REPO_OWNER = "csm120"
+REPO_OWNER = "WebFriendlyHelp"
 REPO_NAME = "KeyQuest"
 GITHUB_REPO_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}"
 PAGES_GUIDE_URL = f"https://{REPO_OWNER}.github.io/{REPO_NAME}/"

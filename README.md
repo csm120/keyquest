@@ -1,6 +1,6 @@
 # KeyQuest
 
-[![Latest Release](https://img.shields.io/github/v/release/csm120/KeyQuest)](https://github.com/WebFriendlyHelp/KeyQuest/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/WebFriendlyHelp/KeyQuest)](https://github.com/WebFriendlyHelp/KeyQuest/releases/latest)
 [![CI](https://github.com/WebFriendlyHelp/KeyQuest/actions/workflows/ci.yml/badge.svg)](https://github.com/WebFriendlyHelp/KeyQuest/actions/workflows/ci.yml)
 
 ![KeyQuest banner showing the KeyQuest name and describing it as an accessible typing adventure game for Windows with keyboard, screen reader, and low-vision support.](docs/assets/keyquest-hero.svg)
@@ -9,7 +9,7 @@ KeyQuest is an accessible typing adventure game for Windows, built with Python a
 
 It focuses on players who want stronger non-visual support than most game projects provide, including clear spoken feedback, keyboard-first navigation, and packaged documentation for both web and desktop reading.
 
-Download the latest installer or portable ZIP from the [Releases page](https://github.com/WebFriendlyHelp/KeyQuest/releases), or browse the user guide on the [project website](https://WebFriendlyHelp.github.io/KeyQuest/).
+Download the latest installer or portable ZIP from the [Releases page](https://github.com/WebFriendlyHelp/KeyQuest/releases), or browse the user guide on the [project website](https://webfriendlyhelp.github.io/KeyQuest/).
 
 ## Why KeyQuest
 
@@ -27,7 +27,7 @@ py -3.9 keyquest.pyw
 
 ## For Users
 
-Start with the [project website](https://WebFriendlyHelp.github.io/KeyQuest/) or open [README.html](README.html) in a web browser for the plain-language guide.
+Start with the [project website](https://webfriendlyhelp.github.io/KeyQuest/) or open [README.html](README.html) in a web browser for the plain-language guide.
 
 Recent user-facing changes are tracked in [WHATS_NEW.md](docs/user/WHATS_NEW.md).
 
