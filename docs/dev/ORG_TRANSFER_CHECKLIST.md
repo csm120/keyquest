@@ -1,6 +1,7 @@
 # Organization Transfer Checklist
 
-Use this checklist when moving `KeyQuest` from `csm120` to `webfriendlyhelp`.
+This checklist documents the move of `KeyQuest` from `csm120` to `WebFriendlyHelp`
+and can be reused for similar future transfers.
 
 ## What Cannot Be Automated Here
 
@@ -9,14 +10,14 @@ Use this checklist when moving `KeyQuest` from `csm120` to `webfriendlyhelp`.
 
 ## Recommended Setup
 
-- Create the `webfriendlyhelp` organization.
+- Create the `WebFriendlyHelp` organization.
 - Keep `csm120` as an org owner.
 - Transfer `KeyQuest` only after the org exists and you have owner access.
 
 ## Before Transfer
 
 1. Create the organization in GitHub.
-2. Confirm the final target is `webfriendlyhelp/KeyQuest`.
+2. Confirm the final target is `WebFriendlyHelp/KeyQuest`.
 3. Review current repo settings:
    - Issues
    - Discussions
@@ -27,13 +28,13 @@ Use this checklist when moving `KeyQuest` from `csm120` to `webfriendlyhelp`.
 4. Preview link updates:
 
 ```powershell
-py tools/dev/update_repo_links.py --new-owner webfriendlyhelp
+py tools/dev/update_repo_links.py --new-owner WebFriendlyHelp
 ```
 
 ## Transfer
 
-1. Open the repository settings for `csm120/KeyQuest`.
-2. Use GitHub's transfer flow to move it to `webfriendlyhelp`.
+1. Open the repository settings for the current source repo.
+2. Use GitHub's transfer flow to move it to the target organization, such as `WebFriendlyHelp`.
 3. Confirm the repo remains public after transfer.
 
 ## After Transfer
@@ -41,7 +42,7 @@ py tools/dev/update_repo_links.py --new-owner webfriendlyhelp
 1. Apply owner-link updates:
 
 ```powershell
-py tools/dev/update_repo_links.py --new-owner webfriendlyhelp --apply
+py tools/dev/update_repo_links.py --new-owner WebFriendlyHelp --apply
 ```
 
 2. Review the changed files and commit them.
