@@ -5,6 +5,18 @@
 
 ![KeyQuest banner showing the KeyQuest name and describing it as an accessible typing adventure game for Windows with keyboard, screen reader, and low-vision support.](docs/assets/keyquest-hero.svg)
 
+## Screenshots
+
+The following screenshots show the current KeyQuest interface, including the main menu and a tutorial gameplay screen.
+
+### Main Menu
+
+![Main menu showing the KeyQuest start screen with options such as Tutorial, Lessons, Free Practice, Settings, and Exit, designed for keyboard navigation and accessibility.](docs/assets/main-menu.png)
+
+### Tutorial Gameplay
+
+![Tutorial gameplay screen teaching the space bar key with instructions displayed for the player and typing feedback.](docs/assets/gameplay.png)
+
 KeyQuest is an accessible typing adventure game for Windows, built with Python and designed for keyboard, screen reader, and low-vision users.
 
 It focuses on players who want stronger non-visual support than most game projects provide, including clear spoken feedback, keyboard-first navigation, and packaged documentation for both web and desktop reading.
