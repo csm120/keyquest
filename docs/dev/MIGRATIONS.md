@@ -34,6 +34,5 @@ Recommended approach:
 
 ## Notes
 
-- Keep `progress.sample.json` as a tiny example only; the app does not read it.
+- Keep `docs/dev/samples/progress.sample.json` as a tiny example only; the app does not read it.
 - If you add new complex structures (dicts/sets), store JSON-friendly forms (lists and dicts) and convert in code.
-

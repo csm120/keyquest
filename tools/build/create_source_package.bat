@@ -50,7 +50,7 @@ copy README.md "%PACKAGE_NAME%\" >nul
 copy docs\user\SOURCE_PACKAGE_README.txt "%PACKAGE_NAME%\EXTRACTION_INSTRUCTIONS.txt" >nul
 copy requirements.txt "%PACKAGE_NAME%\" >nul
 copy tools\build\KeyQuest-RootFolders.spec "%PACKAGE_NAME%\" >nul
-copy progress.sample.json "%PACKAGE_NAME%\" >nul 2>nul
+copy docs\dev\samples\progress.sample.json "%PACKAGE_NAME%\" >nul 2>nul
 copy docs\dev\DEVELOPER_SETUP.md "%PACKAGE_NAME%\" >nul 2>nul
 if exist COMPREHENSIVE_IMPROVEMENT_RESEARCH.md copy COMPREHENSIVE_IMPROVEMENT_RESEARCH.md "%PACKAGE_NAME%\" >nul
 if exist INTEGRATION_TEST_CHECKLIST.md copy INTEGRATION_TEST_CHECKLIST.md "%PACKAGE_NAME%\" >nul
