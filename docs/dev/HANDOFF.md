@@ -70,7 +70,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 - Core app + Phases 1-4 features implemented.
 - New user-facing guide is now `README.html` (plain-language, WCAG-friendly structure). `README.md` is a pointer.
 - Keyboard command sentence files were cleaned up for clearer, less technical wording.
-- Blog-post source now lives in `tools/dev/write_keyquest_blog_post.py`, and the public DOCX wording should be synced back there before rebuilding the document.
+- Blog-post helper content is now maintained locally outside Git and should not be treated as a tracked repo asset.
 - Hangman is fully integrated and significantly expanded:
   - offline dictionary-backed words/definitions
   - weighted word-length selection centered on common lengths, with occasional short and very long words
