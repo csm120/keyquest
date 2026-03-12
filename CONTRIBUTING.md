@@ -63,6 +63,18 @@ When making UI, input, menu, dialog, documentation, or release changes:
 
 If you change behavior that affects accessibility, mention it clearly in your pull request.
 
+## AI-Assisted Contributions
+
+AI-assisted development is allowed in this repository, but it must stay reviewable
+and safe to merge.
+
+- Read [AI_CODE_GENERATION_POLICY.md](AI_CODE_GENERATION_POLICY.md) before submitting AI-assisted changes.
+- Treat generated output as draft material, not as automatically trustworthy code.
+- Prefer small, readable changes over large generated drops.
+- Do not ask AI tools to reproduce a specific third-party project or codebase.
+- If generated output appears copied or suspiciously close to a known source, discard it and replace it.
+- If AI assistance materially affected the change, say so in the pull request and describe how you validated it.
+
 ## Pull Request Process
 
 1. Fork the repo and create a branch from `main`.

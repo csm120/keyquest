@@ -11,6 +11,7 @@ Explain the problem, user need, or issue this PR addresses.
 - [ ] `ruff check .`
 - [ ] `pytest -q`
 - [ ] Manual testing completed where relevant
+- [ ] AI-assisted output, if used, was reviewed for correctness and third-party code concerns
 
 Describe the testing you performed:
 
