@@ -65,6 +65,11 @@ Notes:
 - Optional single entrypoint (logs to `tests/logs/`):
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target all -Clean` (exe + source)
   - `powershell -ExecutionPolicy Bypass -File tools/build.ps1 -Target installer` (installer only)
+- Optional local git-driven `dist/` refresh:
+  - `powershell -ExecutionPolicy Bypass -File tools/dev/install_git_hooks.ps1`
+  - installs repo-local hooks from `.githooks/`
+  - refreshes ignored local `dist/` before commit, and after branch checkout / merge when relevant files changed
+  - does not track `dist/` in git
 
 ## Package Sanity Check
 

@@ -41,8 +41,8 @@ Current keyboard navigation highlights:
 
 - `Home` jumps to the first item and `End` jumps to the last item in menus, lesson lists, options, and post-session choice menus.
 - After lessons and Free Practice, KeyQuest now shows a regular up/down choice menu instead of relying on `OK` wording.
-- Lesson prompts now try to speak real practice words naturally, while letter patterns such as `asas` or `aass` are spelled out more clearly.
-- Recent consistency work also tightened the shared menu, dialog, shop, pet, and setup screen patterns so more screens now behave alike.
+- Lesson prompts now speak real practice words naturally, while letter patterns such as `asas` or `aass` are spelled out more clearly.
+- Menu, dialog, shop, pet, and setup screens were tightened to behave more consistently.
 - Update failures now write `keyquest_error.log`, offer the setup download, and stay local instead of auto-opening a GitHub bug report.
 - The Practice Log now uses friendlier dates and durations, includes activity names and results, and can be copied to the clipboard.
 

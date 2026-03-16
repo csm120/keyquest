@@ -19,7 +19,7 @@ Version 1.1.2
 This update makes the Practice Log easier to understand and keeps the app on one Python version more consistently.
 
 - The Practice Log now says what activity was done in the day summary instead of only saying how many activities there were.
-- Change wording in the Practice Log is now clearer about the current item, such as whether today was faster or slower than the previous recorded day, or whether this activity did better or worse than the last similar activity.
+- Wording in the Practice Log is now clearer about the current item, such as whether today was faster or slower than the previous recorded day, or whether this activity did better or worse than the last similar activity.
 - Internal release, Pages, and linting tools are now aligned to Python 3.9, which matches the app launcher and helps avoid version-related startup problems.
 
 Version 1.1.1
@@ -64,26 +64,24 @@ This release fixes the Windows release build.
 
 - The release build now uses a `cytolk` version that matches what KeyQuest already uses locally, so GitHub can publish the installer and portable downloads again.
 
-Release update
+Release pipeline fix
 
 This release fixes the update pipeline itself.
 
 - GitHub release publishing was repaired so shipped updates can build and publish the installer and portable downloads correctly again.
 - The release process now has a clearer split between a plain GitHub push and a full shipped update.
 
-Release update
-
 Keyboard command practice is clearer.
 
 - Windows, NVDA, and JAWS command topics were cleaned up so the wording feels more practical and less technical.
 - Several command lines now read more naturally while still teaching the same shortcuts.
 
-The guide and blog wording are easier to follow.
+Guide and download wording improved.
 
 - Download links now use cleaner names like `Installer.exe` and `Portable.zip`.
 - The public guide, changelog, and blog wording were smoothed out to be clearer for new users, AT instructors, and educators.
 
-Release update
+Screen and menu layout improved.
 
 The screen is easier to follow while you type and move through menus.
 
@@ -102,7 +100,7 @@ Typing reminders are clearer.
 - If you make a sentence mistake, KeyQuest gives a simpler spoken hint about what to type next.
 - Quit now stays at the very end of the Main Menu.
 
-KeyQuest now has a clearer help and update experience.
+Help and updates are easier to access.
 
 - There is now a Main Menu item for the online guide.
 - There is now a Main Menu item for this What's New page.
@@ -112,9 +110,7 @@ KeyQuest now has a clearer help and update experience.
 
 ## Wednesday February 25th 2026
 
-Release update
-
-Reading and visual support are better.
+Visual and reading options expanded.
 
 - Text can now be made larger with the Font Size option.
 - Key presses can show a brief visual flash as well as playing sounds.
