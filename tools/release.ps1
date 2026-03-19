@@ -41,6 +41,77 @@ function Test-Command {
     return $null -ne (Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Get-GitHubRepoFullName {
+    $originUrl = git remote get-url origin 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $originUrl) {
+        throw "Could not read origin remote URL."
+    }
+
+    $originUrl = $originUrl.Trim()
+    if ($originUrl -match 'github\.com[:/](?<repo>[^/]+/[^/.]+?)(?:\.git)?$') {
+        return $Matches.repo
+    }
+
+    throw "Could not determine GitHub repository name from origin URL: $originUrl"
+}
+
+function Wait-ForGitHubRelease {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$RepoFullName,
+        [Parameter(Mandatory = $true)]
+        [string]$TagName,
+        [int]$TimeoutSeconds = 1800,
+        [int]$PollSeconds = 15
+    )
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    $runId = $null
+    $runUrl = $null
+
+    while ((Get-Date) -lt $deadline) {
+        $runJson = gh run list `
+            --repo $RepoFullName `
+            --workflow release.yml `
+            --branch $TagName `
+            --event push `
+            --limit 10 `
+            --json databaseId,headBranch,status,conclusion,url `
+            2>$null
+
+        if ($LASTEXITCODE -eq 0 -and $runJson) {
+            $runs = $runJson | ConvertFrom-Json
+            $matchingRun = $runs |
+                Where-Object { $_.headBranch -eq $TagName } |
+                Select-Object -First 1
+
+            if ($null -ne $matchingRun) {
+                $runId = $matchingRun.databaseId
+                $runUrl = $matchingRun.url
+
+                if ($matchingRun.status -eq "completed") {
+                    if ($matchingRun.conclusion -ne "success") {
+                        throw "GitHub Release workflow failed for $TagName. Run: $runUrl"
+                    }
+
+                    gh release view $TagName --repo $RepoFullName --json url 1>$null 2>$null
+                    if ($LASTEXITCODE -eq 0) {
+                        return
+                    }
+                }
+            }
+        }
+
+        Start-Sleep -Seconds $PollSeconds
+    }
+
+    if ($runUrl) {
+        throw "Timed out waiting for GitHub Release publication for $TagName. Latest workflow run: $runUrl"
+    }
+
+    throw "Timed out waiting for GitHub Release workflow to start for $TagName."
+}
+
 function Get-FileSha256 {
     param(
         [Parameter(Mandatory = $true)]
@@ -76,6 +147,9 @@ if (-not (Test-Command git)) {
 if (-not (Test-Command python)) {
     throw "python is required."
 }
+if (-not $DryRun -and -not (Test-Command gh)) {
+    throw "gh is required to confirm that the GitHub Release workflow completed."
+}
 
 $version = python -c "from modules.version import __version__; print(__version__)" 2>$null
 if (-not $version) {
@@ -84,6 +158,7 @@ if (-not $version) {
 
 $version = $version.Trim()
 $tagName = "v$version"
+$repoFullName = Get-GitHubRepoFullName
 
 if (-not $CommitMessage) {
     $CommitMessage = "Release $tagName"
@@ -190,6 +265,10 @@ if ($DryRun) {
     Invoke-Step "Push release tag" {
         Invoke-GitOrThrow "git push origin $tagName"
     }
+
+    Invoke-Step "Wait for GitHub Release publication" {
+        Wait-ForGitHubRelease -RepoFullName $repoFullName -TagName $tagName
+    }
 }
 
 Write-Host ""
@@ -197,4 +276,4 @@ Write-Host "Release submitted successfully." -ForegroundColor Green
 Write-Host "Version: $version"
 Write-Host "Tag: $tagName"
 Write-Host "GitHub Pages will update from main."
-Write-Host "GitHub Release assets will be built from the pushed tag."
+Write-Host "GitHub Release is published and visible to the updater."

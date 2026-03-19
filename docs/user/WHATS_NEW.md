@@ -2,7 +2,7 @@
 
 ## Thursday March 19th 2026
 
-Version 1.5.0
+Version 1.5.1
 
 This update improves lesson guidance, game accessibility, and large-text layout behavior.
 
@@ -13,6 +13,8 @@ This update improves lesson guidance, game accessibility, and large-text layout 
 - The app window can be resized and tries to maximize on startup, which helps larger text stay visible.
 - Menus and current game screens now do a better job of using the live window size instead of older fixed-size layout assumptions.
 - Unexpected app and startup errors now save the local log, try to copy it to the clipboard automatically, and report the result with accessible dialogs instead of relying on console output.
+- The GitHub project page now points new visitors to downloads, the full guide, recent changes, and contributor notes more clearly.
+- Release automation now waits for GitHub to finish publishing the release, so a shipped update is less likely to stop at a pushed tag without visible downloads.
 
 Letter and word game feedback is clearer.
 

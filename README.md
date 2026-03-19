@@ -7,9 +7,11 @@
 
 KeyQuest is an accessible typing adventure game for Windows, built with Python and designed for keyboard, screen reader, and low-vision users.
 
-It focuses on players who want stronger non-visual support than most game projects provide, including clear spoken feedback, keyboard-first navigation, and packaged documentation for both web and desktop reading.
+It is built for learners who want stronger non-visual support than most typing games provide, including clear spoken feedback, keyboard-first navigation, and packaged documentation for both web and desktop reading.
 
-Download the latest installer or portable ZIP from the [Releases page](https://github.com/WebFriendlyHelp/KeyQuest/releases), or browse the user guide on the [project website](https://webfriendlyhelp.github.io/KeyQuest/).
+Download the latest installer or portable ZIP from the [Releases page](https://github.com/WebFriendlyHelp/KeyQuest/releases).
+
+If you want the full plain-language user guide, open the [project website](https://webfriendlyhelp.github.io/KeyQuest/) or [README.html](README.html).
 
 ## Why KeyQuest
 
@@ -17,6 +19,13 @@ Download the latest installer or portable ZIP from the [Releases page](https://g
 - Typing practice delivered through game structure instead of drills alone
 - Windows releases available as both installer and portable ZIP
 - Expandable game and sentence content stored in plain project folders
+
+## Start Here
+
+- New users: download the latest release from the [Releases page](https://github.com/WebFriendlyHelp/KeyQuest/releases)
+- User guide: open the [project website](https://webfriendlyhelp.github.io/KeyQuest/) or [README.html](README.html)
+- What's new: read [docs/user/WHATS_NEW.md](docs/user/WHATS_NEW.md)
+- Contributors: jump to [For Contributors](#for-contributors)
 
 **Quick start** (requires Python 3.9):
 

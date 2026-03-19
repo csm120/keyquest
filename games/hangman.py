@@ -12,7 +12,7 @@ from games import sounds
 from modules import speech_format
 from ui.a11y import draw_controls_hint, draw_focus_frame
 from ui.game_layout import draw_game_title
-from ui.layout import center_x, draw_centered_text, draw_left_wrapped_text, get_content_width, get_footer_y
+from ui.layout import draw_centered_text, draw_left_wrapped_text, get_content_width, get_footer_y
 from ui.text_wrap import wrap_text
 
 

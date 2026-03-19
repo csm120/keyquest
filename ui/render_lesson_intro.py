@@ -42,7 +42,6 @@ def draw_lesson_intro_screen(
                 line_surf, _ = small_font.render(line, fg)
                 widest = max(widest, line_surf.get_width())
                 rendered.append(line_surf)
-            block_x = screen_w // 2 - widest // 2
             block_rect = None
             for line_surf in rendered:
                 line_rect = line_surf.get_rect(topleft=(screen_w // 2 - line_surf.get_width() // 2, block_bottom))

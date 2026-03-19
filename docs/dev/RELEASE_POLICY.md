@@ -32,6 +32,7 @@ Meaning:
 - commit and push `main`
 - create and push the matching version tag
 - trigger the GitHub Release workflow
+- wait for the GitHub Release workflow to finish successfully
 - make the new release visible to the in-app updater
 
 Use this for:
