@@ -8,7 +8,6 @@ import random
 import threading
 import subprocess
 import traceback
-import urllib.parse
 import webbrowser
 from collections import Counter
 from pathlib import Path
@@ -80,7 +79,6 @@ GITHUB_REPO_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}"
 PAGES_GUIDE_URL = f"https://{REPO_OWNER}.github.io/{REPO_NAME}/"
 PAGES_CHANGELOG_URL = f"{PAGES_GUIDE_URL}changelog.html"
 INSTALLER_DOWNLOAD_URL = f"{GITHUB_REPO_URL}/releases/latest/download/KeyQuestSetup.exe"
-GITHUB_NEW_ISSUE_URL = f"{GITHUB_REPO_URL}/issues/new"
 DONATE_URL = "https://square.link/u/XfI4Icmm"
 
 # Optional wxPython for accessible dialogs
@@ -100,61 +98,21 @@ SYSTEM_THEME = theme_manager.detect_theme()
 BG, FG, ACCENT, HILITE = theme_manager.get_theme_colors(SYSTEM_THEME)
 
 
-def _build_github_issue_url(summary: str, issue_title: str) -> str:
-    """Build a prefilled GitHub issue URL for a local error report."""
-    log_path = error_logging.touch_log_file()
-    log_excerpt = error_logging.read_log_tail(1200)
-    notes = ["Attach the local log file if possible."]
-    if log_excerpt:
-        notes.extend(
-            [
-                "",
-                "## Log excerpt",
-                "```text",
-                log_excerpt,
-                "```",
-            ]
-        )
-    title = urllib.parse.quote(issue_title)
-    body = urllib.parse.quote(
-        "\n".join(
-            [
-                "## What happened",
-                summary,
-                "",
-                "## Environment",
-                f"- KeyQuest version: {__version__}",
-                f"- Local log file: {log_path}",
-                "",
-                "## What I was doing",
-                "Describe what you were doing when the problem happened.",
-                "",
-                "## Notes",
-                *notes,
-            ]
-        )
-    )
-    return f"{GITHUB_NEW_ISSUE_URL}?title={title}&body={body}"
-
-
-def _offer_general_error_github_report(summary: str) -> None:
+def _offer_general_error_log_copy() -> None:
     """Inform the user that an unexpected app error was written to the local log."""
     log_path = error_logging.touch_log_file()
-    dialog_manager.show_info_dialog(
-        "KeyQuest Error",
-        "KeyQuest hit an unexpected error.\n\n"
+    copied = error_logging.copy_log_to_clipboard()
+    message = [
+        "KeyQuest hit an unexpected error.",
+        "",
         f"The details were written to:\n{log_path}",
-    )
-    if dialog_manager.show_yes_no_dialog(
-        "Copy Error Log",
-        "Would you like to copy the local error log to the clipboard?",
-        yes_label="Copy Log",
-        no_label="Close",
-    ):
-        if error_logging.copy_log_to_clipboard():
-            print("Local error log copied to clipboard.")
-        else:
-            print("Unable to copy the local error log to clipboard.")
+        "",
+    ]
+    if copied:
+        message.append("The local error log was also copied to the clipboard.")
+    else:
+        message.append("KeyQuest could not copy the local error log to the clipboard automatically.")
+    dialog_manager.show_info_dialog("KeyQuest Error", "\n".join(message))
 
 class KeyQuestApp:
     def __init__(self):
@@ -621,27 +579,33 @@ class KeyQuestApp:
         """Persist updater failures to the local log file."""
         error_logging.log_message("Updater Error", summary, tb_str=tb_str)
 
-    def _offer_copy_error_log(self):
-        """Offer to copy the local error log to the clipboard."""
-        if not dialog_manager.show_yes_no_dialog(
-            "Copy Error Log",
-            "Would you like to copy the local error log to the clipboard?",
-            yes_label="Copy Log",
-            no_label="Not Now",
-        ):
-            return
-
-        if error_logging.copy_log_to_clipboard():
+    def _copy_error_log_with_feedback(self, title: str = "Error Log") -> bool:
+        """Copy the local error log to the clipboard and report the result accessibly."""
+        log_path = error_logging.touch_log_file()
+        copied = error_logging.copy_log_to_clipboard()
+        if copied:
             self.speech.say("Error log copied to clipboard.", priority=True)
-        else:
-            self.speech.say("Unable to copy the error log to clipboard.", priority=True)
+            dialog_manager.show_info_dialog(
+                title,
+                "KeyQuest saved the local error log and copied it to the clipboard.\n\n"
+                f"Log location:\n{log_path}",
+            )
+            return True
+
+        self.speech.say("Unable to copy the error log to clipboard.", priority=True)
+        dialog_manager.show_info_dialog(
+            title,
+            "KeyQuest saved the local error log, but could not copy it to the clipboard automatically.\n\n"
+            f"Log location:\n{log_path}",
+        )
+        return False
 
     def _offer_update_failure_recovery(self, summary: str, tb_str: str = ""):
         """Offer recovery actions after an updater error."""
         log_path = error_logging.touch_log_file()
         self._record_update_error(summary, tb_str=tb_str)
         self._update_error_message = f"{summary} Local log saved to {log_path}."
-        self._offer_copy_error_log()
+        self._copy_error_log_with_feedback(title="Update Error")
         self._offer_installer_download_after_update_failure()
 
     def _handle_about_select(self, item):
@@ -2887,7 +2851,7 @@ def main():
         error_logging.log_exception(e)
         summary = f"{type(e).__name__}: {e}"
         error_logging.log_message("Unexpected KeyQuest Error", summary)
-        _offer_general_error_github_report(summary)
+        _offer_general_error_log_copy()
         if sys.stdin and sys.stdin.isatty():
             input("Press Enter to exit...")
 

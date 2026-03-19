@@ -5,6 +5,30 @@ import shutil
 import subprocess
 import sys
 
+
+def _show_startup_error_dialog(error_logging_module) -> None:
+    """Report an early startup failure with the local log path and clipboard status."""
+    log_path = error_logging_module.touch_log_file()
+    copied = error_logging_module.copy_log_to_clipboard()
+    lines = [
+        "KeyQuest could not finish starting.",
+        "",
+        f"The details were written to:\n{log_path}",
+        "",
+    ]
+    if copied:
+        lines.append("The local error log was also copied to the clipboard.")
+    else:
+        lines.append("KeyQuest could not copy the local error log to the clipboard automatically.")
+
+    try:
+        from modules import dialog_manager
+
+        dialog_manager.show_info_dialog("KeyQuest Startup Error", "\n".join(lines))
+    except Exception:
+        pass
+
+
 if sys.version_info[:2] != (3, 9):
     launcher = shutil.which("pyw") or shutil.which("py")
     if launcher:
@@ -27,6 +51,8 @@ except Exception as e:
         from modules import error_logging
 
         error_logging.log_exception(e)
+        error_logging.log_message("KeyQuest Startup Error", f"{type(e).__name__}: {e}")
+        _show_startup_error_dialog(error_logging)
     except Exception:
         pass
     raise

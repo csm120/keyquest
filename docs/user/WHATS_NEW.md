@@ -2,7 +2,7 @@
 
 ## Thursday March 19th 2026
 
-Version 1.4.0
+Version 1.5.0
 
 This update improves lesson guidance, game accessibility, and large-text layout behavior.
 
@@ -12,6 +12,7 @@ This update improves lesson guidance, game accessibility, and large-text layout 
 - The About screen and guide now include a direct donation link for KeyQuest.
 - The app window can be resized and tries to maximize on startup, which helps larger text stay visible.
 - Menus and current game screens now do a better job of using the live window size instead of older fixed-size layout assumptions.
+- Unexpected app and startup errors now save the local log, try to copy it to the clipboard automatically, and report the result with accessible dialogs instead of relying on console output.
 
 Letter and word game feedback is clearer.
 
@@ -32,10 +33,10 @@ Version 1.1.3
 This patch fixes a pet screen crash and makes update errors stay local.
 
 - The pet screen no longer crashes if older saved state or a partial startup path leaves the pet menu data missing.
-- Update failures now write details to `keyquest_error.log` and offer the setup download without opening a GitHub bug report automatically.
+- Update failures now write details to `keyquest_error.log`, try to copy that log to the clipboard automatically, and offer the setup download.
 - Unexpected app errors now also stay local and tell you where the error log was saved.
 - If KeyQuest has to use the Windows PowerShell fallback during update checks, it now does that without flashing a visible console window.
-- When KeyQuest writes an update or app error, it can now offer to copy the local error log to the clipboard.
+- When KeyQuest writes an update or app error, it now tries to copy the local error log to the clipboard automatically.
 
 ## Monday March 9th 2026
 

@@ -44,7 +44,7 @@ Current keyboard navigation highlights:
 - Lesson prompts now speak real practice words naturally, while letter patterns such as `asas` or `aass` are spelled out more clearly.
 - Menu, dialog, shop, pet, and setup screens were tightened to behave more consistently.
 - Screen layouts now respond better to larger font sizes and live window sizing across menus and current game screens.
-- Update failures now write `keyquest_error.log`, offer the setup download, and stay local instead of auto-opening a GitHub bug report.
+- Update failures now write `keyquest_error.log`, automatically copy that log to the clipboard when possible, and offer the setup download.
 - The Practice Log now uses friendlier dates and durations, includes activity names and results, and can be copied to the clipboard.
 
 ## For Contributors

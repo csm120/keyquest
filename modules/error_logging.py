@@ -3,7 +3,7 @@ import os
 from modules.app_paths import get_app_dir
 
 LOG_FILE = "keyquest_error.log"
-_MAX_LOG_BYTES = 2 * 1024 * 1024  # 2 MB
+_MAX_LOG_BYTES = 512 * 1024  # 512 KB
 
 
 def get_log_file_path() -> str:
@@ -30,7 +30,7 @@ def _rotate_if_needed() -> None:
         log_path = touch_log_file()
         if os.path.getsize(log_path) > _MAX_LOG_BYTES:
             with open(log_path, "w", encoding="utf-8") as f:
-                f.write("=== Log rotated (exceeded 2 MB) ===\n")
+                f.write("=== Log rotated (exceeded 512 KB) ===\n")
     except OSError:
         pass
 
@@ -63,7 +63,7 @@ def log_message(label: str, message: str, tb_str: str = "") -> None:
 
 
 def read_log_tail(max_chars: int = 2000) -> str:
-    """Return the tail of the local log for bug-report prefills."""
+    """Return the tail of the local log for previews or support sharing."""
     try:
         with open(touch_log_file(), "r", encoding="utf-8", errors="replace") as f:
             text = f.read()

@@ -94,7 +94,7 @@
     <div class="content-block">
     <h1>New in Key Quest</h1>
 <h2>Thursday March 19th 2026</h2>
-<p>Version 1.4.0</p>
+<p>Version 1.5.0</p>
 <p>This update improves lesson guidance, game accessibility, and large-text layout behavior.</p>
 <ul>
 <li>Home-row lessons and Keyboard Explorer now mention the F and J bumps more directly, including the cue that if your left hand is lined up on F, your pinky should land on A.</li>
@@ -103,6 +103,7 @@
 <li>The About screen and guide now include a direct donation link for KeyQuest.</li>
 <li>The app window can be resized and tries to maximize on startup, which helps larger text stay visible.</li>
 <li>Menus and current game screens now do a better job of using the live window size instead of older fixed-size layout assumptions.</li>
+<li>Unexpected app and startup errors now save the local log, try to copy it to the clipboard automatically, and report the result with accessible dialogs instead of relying on console output.</li>
 </ul>
 <p>Letter and word game feedback is clearer.</p>
 <ul>
@@ -121,10 +122,10 @@
 <p>This patch fixes a pet screen crash and makes update errors stay local.</p>
 <ul>
 <li>The pet screen no longer crashes if older saved state or a partial startup path leaves the pet menu data missing.</li>
-<li>Update failures now write details to <code>keyquest_error.log</code> and offer the setup download without opening a GitHub bug report automatically.</li>
+<li>Update failures now write details to <code>keyquest_error.log</code>, try to copy that log to the clipboard automatically, and offer the setup download.</li>
 <li>Unexpected app errors now also stay local and tell you where the error log was saved.</li>
 <li>If KeyQuest has to use the Windows PowerShell fallback during update checks, it now does that without flashing a visible console window.</li>
-<li>When KeyQuest writes an update or app error, it can now offer to copy the local error log to the clipboard.</li>
+<li>When KeyQuest writes an update or app error, it now tries to copy the local error log to the clipboard automatically.</li>
 </ul>
 <h2>Monday March 9th 2026</h2>
 <p>Version 1.1.2</p>
