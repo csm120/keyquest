@@ -62,6 +62,11 @@ function Invoke-LocalDistBuild {
     if ($LASTEXITCODE -ne 0) {
         throw "Portable ZIP build failed."
     }
+
+    cmd /c tools\build\build_installer.bat --nopause
+    if ($LASTEXITCODE -ne 0) {
+        throw "Installer build failed."
+    }
 }
 
 $pathsToInspect = @($ChangedPaths | Where-Object { $_ -and $_.Trim() })
