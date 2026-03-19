@@ -1,6 +1,6 @@
 # New in Key Quest
 
-## Friday March 19th 2026
+## Thursday March 19th 2026
 
 Version 1.4.0
 
