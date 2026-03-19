@@ -1,4 +1,5 @@
 import unittest
+import pygame
 
 from modules import lesson_intro_mode
 from modules import lesson_manager
@@ -61,7 +62,18 @@ class TestLessonIntroMode(unittest.TestCase):
         self.assertEqual(app.audio.ok_count, 1)
         self.assertEqual(app.started_lesson, 0)
 
+    def test_handle_lesson_intro_input_allows_review_navigation(self):
+        app = _DummyApp()
+        lesson_intro_mode.show_lesson_intro(app, 0)
+
+        self.assertEqual(app.state.lesson_intro.intro_index, 0)
+
+        lesson_intro_mode.handle_lesson_intro_input(app, _Event(key=pygame.K_DOWN), mods=0)
+        self.assertEqual(app.state.lesson_intro.intro_index, 1)
+
+        lesson_intro_mode.handle_lesson_intro_input(app, _Event(key=pygame.K_UP), mods=0)
+        self.assertEqual(app.state.lesson_intro.intro_index, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
-

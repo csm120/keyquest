@@ -125,14 +125,14 @@ KEY_LOCATIONS = {
     3: {  # Letter F
         "keys": "f",
         "description": "Letter F is on the home row. It usually has a small raised bump.",
-        "location": "Your left index finger rests on F. Feel for a small bump or ridge on this key, it helps you find home position.",
-        "finding": "From D, move one key to the right. F has a tactile marker. Your left hand home position is complete, A S D F.",
+        "location": "Your left index finger rests on F. Feel for the small bump or ridge on F. If your hand is lined up correctly there, your left pinky should land on A.",
+        "finding": "From D, move one key to the right. F has the tactile marker that helps you find home row quickly.",
     },
     4: {  # Letter J
         "keys": "j",
-        "description": "Letter J is on the home row, right side.",
-        "location": "Your right index finger rests on J. Like F, it has a small raised bump to help you find home position.",
-        "finding": "From the space bar with your right hand, move up two rows. Your index finger should feel a bump, that is J.",
+        "description": "Letter J is on the home row, right side, and usually has a small raised bump.",
+        "location": "Your right index finger rests on J. Feel for the bump on J to confirm your right hand is on home row.",
+        "finding": "From the space bar with your right hand, move up two rows until your index finger feels the bump on J.",
     },
     5: {  # Letter K
         "keys": "k",

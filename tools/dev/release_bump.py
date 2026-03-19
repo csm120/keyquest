@@ -9,6 +9,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VERSION_FILE = REPO_ROOT / "modules" / "version.py"
 README_HTML_FILE = REPO_ROOT / "README.html"
+WHATS_NEW_FILE = REPO_ROOT / "docs" / "user" / "WHATS_NEW.md"
+BUILD_PAGES_SITE = REPO_ROOT / "tools" / "dev" / "build_pages_site.py"
 
 
 def read_version() -> str:
@@ -35,9 +37,8 @@ def write_version(version: str) -> None:
         handle.write(updated)
 
 
-def sync_readme_version(version: str) -> None:
-    """Keep the plain-language guide version text aligned with the app version."""
-    source = README_HTML_FILE.read_text(encoding="utf-8")
+def sync_readme_version_text(source: str, version: str) -> str:
+    """Return README.html content with the version text aligned."""
     updated = source.replace("{{APP_VERSION}}", version)
     updated = re.sub(
         r"(<p><strong>Version )[^<]+(</strong></p>)",
@@ -51,8 +52,45 @@ def sync_readme_version(version: str) -> None:
         updated,
         count=1,
     )
+    return updated
+
+
+def sync_readme_version(version: str) -> None:
+    """Keep the plain-language guide version text aligned with the app version."""
+    source = README_HTML_FILE.read_text(encoding="utf-8")
+    updated = sync_readme_version_text(source, version)
     with open(README_HTML_FILE, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(updated)
+
+
+def sync_whats_new_version_text(source: str, version: str) -> str:
+    """Return What's New content with the top release version aligned."""
+    updated, count = re.subn(
+        r"(?m)^(Version )([0-9]+(?:\.[0-9]+)*)$",
+        rf"\g<1>{version}",
+        source,
+        count=1,
+    )
+    if count == 0:
+        raise SystemExit("Could not update the top version entry in docs/user/WHATS_NEW.md")
+    return updated
+
+
+def sync_whats_new_version(version: str) -> None:
+    """Update the first visible release version in What's New."""
+    source = WHATS_NEW_FILE.read_text(encoding="utf-8")
+    updated = sync_whats_new_version_text(source, version)
+    with open(WHATS_NEW_FILE, "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(updated)
+
+
+def rebuild_pages_site() -> None:
+    """Regenerate static site files that mirror README.html."""
+    subprocess.run(
+        ["python", str(BUILD_PAGES_SITE)],
+        cwd=REPO_ROOT,
+        check=True,
+    )
 
 
 def bump_version(version: str, bump: str) -> str:
@@ -139,6 +177,8 @@ def main() -> None:
         new_version = bump_version(current, args.apply)
         write_version(new_version)
         sync_readme_version(new_version)
+        sync_whats_new_version(new_version)
+        rebuild_pages_site()
         print(new_version)
         return
 

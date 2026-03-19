@@ -1,5 +1,30 @@
 # New in Key Quest
 
+## Friday March 19th 2026
+
+Version 1.4.0
+
+This update improves lesson guidance, game accessibility, and large-text layout behavior.
+
+- Home-row lessons and Keyboard Explorer now mention the F and J bumps more directly, including the cue that if your left hand is lined up on F, your pinky should land on A.
+- Lesson intros can now be reviewed with Up and Down arrows so screen reader users do not have to hear the whole intro in one long block.
+- Free Practice now lets you choose from your unlocked lessons first.
+- The About screen and guide now include a direct donation link for KeyQuest.
+- The app window can be resized and tries to maximize on startup, which helps larger text stay visible.
+- Menus and current game screens now do a better job of using the live window size instead of older fixed-size layout assumptions.
+
+Letter and word game feedback is clearer.
+
+- Letter Fall now uses one active target at a time, with stronger speech and visual emphasis on the current target.
+- Letter Fall now slows itself down automatically when speech is active, uses clearer countdown cues, repeats only the current target on `Ctrl+Space`, and uses `Tab` to report the current target plus how many letters are waiting.
+- Letter Fall and Word Typing now use the same correct and wrong key tones used elsewhere in lessons.
+- Word Typing now starts more directly, and `Ctrl+Space` repeats only the current word.
+
+Speech for confusing letters is also clearer again where it helps.
+
+- A small set of letters such as A, C, D, E, K, and P can now use brief hints like `A, like alpha` in places where hearing the letter name alone can be confusing.
+- Greek symbols and unusual old-style letters were removed from gameplay content.
+
 ## Tuesday March 10th 2026
 
 Version 1.1.3

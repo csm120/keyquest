@@ -4,6 +4,39 @@ Canonical handoff / current context: `docs/dev/HANDOFF.md`
 
 Note: Older entries may reference historical file layouts (e.g., `keyquest.pyw:<line>`) from before the modularization work.
 
+## 2026-03-19 - Shared Layout Helpers and Responsive Screen Pass
+
+### New Shared UI Modules
+- Added `ui/layout.py` for shared layout primitives:
+  - live screen size lookup
+  - safe content width calculation
+  - centered placement helpers
+  - wrapped centered and left-aligned text blocks
+  - footer row placement
+- Added `ui/game_layout.py` for shared game chrome:
+  - centered game titles
+  - centered status-line stacks
+
+### Refactors
+- `games/base_game.py`: game menus now use the shared layout helpers for live screen size, centering, and footer placement.
+- `ui/render_menus.py`: main menu, lesson menu, and games menu now use the shared layout helpers for centering, wrapped descriptions, and footer placement.
+- `games/word_typing.py`: active word and typed text blocks now use the shared wrapped layout helpers instead of local centering math.
+- `games/letter_fall.py`: title, status stack, warning placement, and footer now use shared layout helpers while target rendering stays local.
+- `games/hangman.py`: title, results text blocks, sentence-practice status, and footer now use shared layout helpers.
+
+### Accessibility / Maintenance Guidance
+- The helper split is now intentional:
+  - `ui/layout.py` owns geometry and flow.
+  - `ui/game_layout.py` owns shared game chrome.
+  - `ui/a11y.py` continues to own focus frames, active panels, and controls hints.
+- New render code should avoid hardcoded `900`, `600`, `450`, or single-line footer assumptions unless there is a documented gameplay reason.
+
+### Tests
+- Added `tests/test_layout.py` for the new layout helper module.
+- Verified with:
+  - `python -m pytest tests/test_layout.py tests/test_base_game.py tests/test_render_menus.py tests/test_word_typing.py tests/test_letter_fall.py tests/test_hangman.py`
+  - `python -m pytest tests/test_speech_manager.py tests/test_build_pages_site.py`
+
 ## 2026-03-07 - Code Quality, Test Coverage, and Modularisation Pass
 
 ### Source Launcher Reliability

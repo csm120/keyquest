@@ -63,6 +63,9 @@ class Speech:
         self._priority_until = 0.0
         self._last_text = ""
         self._last_speak_time = 0.0
+        self.tts_rate = 200
+        self.tts_volume = 1.0
+        self.tts_voice_id = ""
         print("Speech basic init complete")
 
         # Initialize TTS before Tolk to avoid COM apartment conflicts on Windows.
@@ -394,6 +397,9 @@ class Speech:
         try:
             rate = max(50, min(400, rate))
             volume = max(0.0, min(1.0, volume))
+            self.tts_rate = rate
+            self.tts_volume = volume
+            self.tts_voice_id = voice_id
 
             if self._sapi_voice is not None:
                 sapi_rate = int((rate - 200) / 20)

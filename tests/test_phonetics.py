@@ -6,15 +6,12 @@ from modules import phonetics
 class TestPhonetics(unittest.TestCase):
     def test_format_needed_keys_for_speech(self):
         text = phonetics.format_needed_keys_for_speech(["a", "1", " "])
-        self.assertIn("A, like alpha", text)
-        self.assertIn("1, like one", text)
+        self.assertEqual(text, "A, like alpha, 1, Space")
 
     def test_format_needed_keys_for_display(self):
         text = phonetics.format_needed_keys_for_display(["b", "2"])
-        self.assertIn("B (like Bravo)", text)
-        self.assertIn("2 (like Two)", text)
+        self.assertEqual(text, "B (like Bravo), 2")
 
 
 if __name__ == "__main__":
     unittest.main()
-

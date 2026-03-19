@@ -21,6 +21,12 @@ class TestBuildPagesSite(unittest.TestCase):
         html = MODULE.build_index_page()
         self.assertIn('href="changelog.html"', html)
 
+    def test_build_index_page_inlines_current_app_version(self):
+        html = MODULE.build_index_page()
+        version = MODULE.read_version()
+        self.assertIn(f"Version {version}", html)
+        self.assertIn(f"Application</strong>: KeyQuest {version}", html)
+
     def test_build_changelog_page_uses_user_friendly_title(self):
         html = MODULE.build_changelog_page()
         self.assertIn("<title>New in Key Quest</title>", html)

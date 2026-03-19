@@ -93,6 +93,29 @@
   <main id="main-content">
     <div class="content-block">
     <h1>New in Key Quest</h1>
+<h2>Friday March 19th 2026</h2>
+<p>Version 1.4.0</p>
+<p>This update improves lesson guidance, game accessibility, and large-text layout behavior.</p>
+<ul>
+<li>Home-row lessons and Keyboard Explorer now mention the F and J bumps more directly, including the cue that if your left hand is lined up on F, your pinky should land on A.</li>
+<li>Lesson intros can now be reviewed with Up and Down arrows so screen reader users do not have to hear the whole intro in one long block.</li>
+<li>Free Practice now lets you choose from your unlocked lessons first.</li>
+<li>The About screen and guide now include a direct donation link for KeyQuest.</li>
+<li>The app window can be resized and tries to maximize on startup, which helps larger text stay visible.</li>
+<li>Menus and current game screens now do a better job of using the live window size instead of older fixed-size layout assumptions.</li>
+</ul>
+<p>Letter and word game feedback is clearer.</p>
+<ul>
+<li>Letter Fall now uses one active target at a time, with stronger speech and visual emphasis on the current target.</li>
+<li>Letter Fall now slows itself down automatically when speech is active, uses clearer countdown cues, repeats only the current target on <code>Ctrl+Space</code>, and uses <code>Tab</code> to report the current target plus how many letters are waiting.</li>
+<li>Letter Fall and Word Typing now use the same correct and wrong key tones used elsewhere in lessons.</li>
+<li>Word Typing now starts more directly, and <code>Ctrl+Space</code> repeats only the current word.</li>
+</ul>
+<p>Speech for confusing letters is also clearer again where it helps.</p>
+<ul>
+<li>A small set of letters such as A, C, D, E, K, and P can now use brief hints like <code>A, like alpha</code> in places where hearing the letter name alone can be confusing.</li>
+<li>Greek symbols and unusual old-style letters were removed from gameplay content.</li>
+</ul>
 <h2>Tuesday March 10th 2026</h2>
 <p>Version 1.1.3</p>
 <p>This patch fixes a pet screen crash and makes update errors stay local.</p>
@@ -108,7 +131,7 @@
 <p>This update makes the Practice Log easier to understand and keeps the app on one Python version more consistently.</p>
 <ul>
 <li>The Practice Log now says what activity was done in the day summary instead of only saying how many activities there were.</li>
-<li>Change wording in the Practice Log is now clearer about the current item, such as whether today was faster or slower than the previous recorded day, or whether this activity did better or worse than the last similar activity.</li>
+<li>Wording in the Practice Log is now clearer about the current item, such as whether today was faster or slower than the previous recorded day, or whether this activity did better or worse than the last similar activity.</li>
 <li>Internal release, Pages, and linting tools are now aligned to Python 3.9, which matches the app launcher and helps avoid version-related startup problems.</li>
 </ul>
 <p>Version 1.1.1</p>
@@ -147,24 +170,23 @@
 <ul>
 <li>The release build now uses a <code>cytolk</code> version that matches what KeyQuest already uses locally, so GitHub can publish the installer and portable downloads again.</li>
 </ul>
-<p>Release update</p>
+<p>Release pipeline fix</p>
 <p>This release fixes the update pipeline itself.</p>
 <ul>
 <li>GitHub release publishing was repaired so shipped updates can build and publish the installer and portable downloads correctly again.</li>
 <li>The release process now has a clearer split between a plain GitHub push and a full shipped update.</li>
 </ul>
-<p>Release update</p>
 <p>Keyboard command practice is clearer.</p>
 <ul>
 <li>Windows, NVDA, and JAWS command topics were cleaned up so the wording feels more practical and less technical.</li>
 <li>Several command lines now read more naturally while still teaching the same shortcuts.</li>
 </ul>
-<p>The guide and blog wording are easier to follow.</p>
+<p>Guide and download wording improved.</p>
 <ul>
 <li>Download links now use cleaner names like <code>Installer.exe</code> and <code>Portable.zip</code>.</li>
 <li>The public guide, changelog, and blog wording were smoothed out to be clearer for new users, AT instructors, and educators.</li>
 </ul>
-<p>Release update</p>
+<p>Screen and menu layout improved.</p>
 <p>The screen is easier to follow while you type and move through menus.</p>
 <ul>
 <li>Long sentences no longer try to stay on one line. They break across lines so they are easier to read.</li>
@@ -182,7 +204,7 @@
 <li>If you make a sentence mistake, KeyQuest gives a simpler spoken hint about what to type next.</li>
 <li>Quit now stays at the very end of the Main Menu.</li>
 </ul>
-<p>KeyQuest now has a clearer help and update experience.</p>
+<p>Help and updates are easier to access.</p>
 <ul>
 <li>There is now a Main Menu item for the online guide.</li>
 <li>There is now a Main Menu item for this What's New page.</li>
@@ -191,8 +213,7 @@
 <li>If you added your own sentence files, KeyQuest keeps them during updates and also brings in new built-in sentences.</li>
 </ul>
 <h2>Wednesday February 25th 2026</h2>
-<p>Release update</p>
-<p>Reading and visual support are better.</p>
+<p>Visual and reading options expanded.</p>
 <ul>
 <li>Text can now be made larger with the Font Size option.</li>
 <li>Key presses can show a brief visual flash as well as playing sounds.</li>

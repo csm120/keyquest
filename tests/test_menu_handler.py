@@ -33,6 +33,10 @@ class TestMenuHandler(unittest.TestCase):
         options = menu_handler.get_options_items(settings)
         self.assertIn("Auto Start Next Lesson: Off", options)
 
+    def test_cycle_tts_voice_from_default_selects_first_voice(self):
+        voices = [("voice-1", "Voice One"), ("voice-2", "Voice Two")]
+        self.assertEqual(menu_handler.cycle_tts_voice("", voices, "right"), "voice-1")
+
     def test_navigate_first_and_last_helpers(self):
         self.assertEqual(menu_handler.navigate_first(5), 0)
         self.assertEqual(menu_handler.navigate_last(5), 4)
@@ -93,6 +97,31 @@ class TestMenuHandler(unittest.TestCase):
 
         options_menu.handle_input(type("Event", (), {"key": menu_handler.pygame.K_END})())
         self.assertEqual(options_menu.current_index, 2)
+
+    def test_options_menu_applies_change_before_speaking(self):
+        state = {"value": "old"}
+        calls = []
+
+        options_menu = menu_handler.OptionsMenu(
+            name="Options",
+            options=[
+                {
+                    "name": "voice",
+                    "get_value": lambda: state["value"],
+                    "set_value": lambda v: state.__setitem__("value", v),
+                    "get_text": lambda: f"Voice: {state['value']}",
+                    "get_explanation": lambda: "Changed",
+                    "cycle": lambda _value, _direction: "new",
+                }
+            ],
+            speech_system=type("Speech", (), {"say": lambda _self, text, **_kwargs: calls.append(text)})(),
+            on_change_callback=lambda *_args: calls.append(f"changed:{state['value']}"),
+        )
+
+        options_menu.cycle_current("right")
+
+        self.assertEqual(calls[0], "changed:new")
+        self.assertEqual(calls[1], "Voice: new. Changed")
 
 
 if __name__ == "__main__":

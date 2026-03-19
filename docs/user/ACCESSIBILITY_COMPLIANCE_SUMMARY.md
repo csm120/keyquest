@@ -1,7 +1,7 @@
 ﻿# KeyQuest Accessibility Compliance Summary
 
-**Last Updated:** 2026-02-25
-**Version:** 1.0
+**Last Updated:** 2026-03-19
+**Version:** 1.1.4
 **Accessibility Reference:** WCAG 2.2 Level AA
 
 ---
@@ -78,13 +78,13 @@ All screens provide equivalent information to both visual and screen reader user
 
 #### Keyboard Explorer (`ui/render_keyboard_explorer.py` + `modules/keyboard_explorer.py`)
 - **Visual:** Title, three instruction lines, control hints
-- **Speech:** "Keyboard Explorer. Press any key to hear its name and location. No timing, no scoring, no pressure. Press Escape three times to return to the menu."
-- **Status:** âœ… Perfect sync
+- **Speech:** Key name, location, and brief orientation help where relevant, including F/J tactile bump cues
+- **Status:** âœ… Synchronized, including home-row tactile orientation help
 
 #### Lesson Intro (`ui/render_lesson_intro.py` + `modules/lesson_intro_mode.py`)
-- **Visual:** Lesson name, description, location, finding instructions, keys to find WITH PHONETIC ALPHABET, found keys
-- **Speech:** Lesson name, description, location, finding, keys WITH PHONETIC ALPHABET
-- **Status:** âœ… Fixed and synchronized (added phonetic alphabet to visual)
+- **Visual:** Lesson name, current intro text item, key-finding instructions, found keys
+- **Speech:** Matching lesson intro text with limited phonetic hints only where needed
+- **Status:** âœ… Synchronized and now reviewable one item at a time with arrow keys
 
 #### Lesson Active (`ui/render_lesson.py` + `modules/lesson_mode.py`)
 - **Visual:** Target word/keys, typed text, progress
@@ -184,7 +184,7 @@ All games inherit from `BaseGame` which provides:
    - Results displayed in accessible dialog
 
 3. **Game-Specific Accessibility:**
-   - **Letter Fall:** Tab key lists current falling letters, Ctrl+Space repeats score
+   - **Letter Fall:** One active target at a time, Tab reports target plus waiting count, Ctrl+Space repeats only the current target, timing slows automatically when speech is active
    - **Word Typing:** Ctrl+Space repeats current word, clear visual/audio feedback
 
 All game screens checked:
@@ -251,6 +251,14 @@ KeyQuest shows strong accessibility support across the reviewed screens, menus, 
 
 The identified issues from the recorded review passes were addressed, and the project currently presents a strong accessibility-focused experience for sighted users, screen reader users, and deaf or hard-of-hearing users. Follow-up review is still appropriate when visual presentation, speech behavior, or navigation patterns change.
 
+### Follow-Up Update (2026-03-19)
+
+1. âœ… Lesson intros now support arrow-key review instead of forcing one long introduction
+2. âœ… Keyboard Explorer and early home-row guidance now include clearer F/J tactile orientation cues
+3. âœ… Letter Fall now uses a speech-safer single-target model with current-target repeat and queue reporting
+4. âœ… Word Typing repeat behavior and audio feedback were aligned with the current lesson patterns
+5. âœ… Menus and current game screens now use more responsive layout handling for larger text and resized windows
+
 ### WCAG 2.2 Baseline and Follow-Up
 
 **2025-11-14:** Internal WCAG 2.2 AA review baseline recorded.
@@ -264,6 +272,7 @@ The identified issues from the recorded review passes were addressed, and the pr
 **WCAG 2.2 Compliance Audit:** 2025-11-14
 **Follow-Up Update:** 2026-02-17
 **Enhancement Pass:** 2026-02-25
+**Follow-Up Update:** 2026-03-19
 **Status:** Accessibility-focused project with documented review history
 
 

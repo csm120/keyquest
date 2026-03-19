@@ -81,6 +81,7 @@ PAGES_GUIDE_URL = f"https://{REPO_OWNER}.github.io/{REPO_NAME}/"
 PAGES_CHANGELOG_URL = f"{PAGES_GUIDE_URL}changelog.html"
 INSTALLER_DOWNLOAD_URL = f"{GITHUB_REPO_URL}/releases/latest/download/KeyQuestSetup.exe"
 GITHUB_NEW_ISSUE_URL = f"{GITHUB_REPO_URL}/issues/new"
+DONATE_URL = "https://square.link/u/XfI4Icmm"
 
 # Optional wxPython for accessible dialogs
 try:
@@ -180,9 +181,10 @@ class KeyQuestApp:
             error_logging.log_exception(e)
             raise
 
-        self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
+        self.screen = pygame.display.set_mode((SCREEN_W, SCREEN_H), pygame.RESIZABLE)
         pygame.display.set_caption("Key Quest")
         self.clock = pygame.time.Clock()
+        self._maximize_window()
 
         self.title_font = pygame.freetype.SysFont(FONT_NAME, TITLE_SIZE)
         self.text_font = pygame.freetype.SysFont(FONT_NAME, TEXT_SIZE)
@@ -357,8 +359,8 @@ class KeyQuestApp:
             },
             {
                 "id": "company",
-                "display": "Company: Web Friendly Help",
-                "speak": "Company: Web Friendly Help.",
+                "display": "Company: Web Friendly Help LLC",
+                "speak": "Company: Web Friendly Help L L C.",
             },
             {
                 "id": "tagline",
@@ -367,8 +369,8 @@ class KeyQuestApp:
             },
             {
                 "id": "copyright",
-                "display": "Copyright: (c) 2026 Casey Mathews and Web Friendly Help",
-                "speak": "Copyright 2026 Casey Mathews and Web Friendly Help.",
+                "display": "Copyright: (c) 2026 Casey Mathews and Web Friendly Help LLC",
+                "speak": "Copyright 2026 Casey Mathews and Web Friendly Help L L C.",
             },
             {
                 "id": "license",
@@ -379,6 +381,11 @@ class KeyQuestApp:
                 "id": "website",
                 "display": "Website: webfriendlyhelp.com",
                 "speak": "Website: webfriendlyhelp.com. Press Enter to open in your browser.",
+            },
+            {
+                "id": "donate",
+                "display": "Donate: Support KeyQuest",
+                "speak": "Donate: Support KeyQuest. Press Enter to open the donation page in your browser.",
             },
             {
                 "id": "credits",
@@ -558,7 +565,7 @@ class KeyQuestApp:
 
     def _get_about_menu_announcement(self) -> str:
         return (
-            f"About menu. KeyQuest version {__version__}. Name: Casey Mathews. Company: Web Friendly Help. "
+            f"About menu. KeyQuest version {__version__}. Name: Casey Mathews. Company: Web Friendly Help L L C. "
             "Use Up and Down to choose. Press Enter or Space to select. "
             "Press Escape to return to main menu."
         )
@@ -646,6 +653,13 @@ class KeyQuestApp:
             except Exception:
                 self.speech.say("Unable to open website.", priority=True)
             return
+        if item_id == "donate":
+            self.speech.say("Opening the KeyQuest donation page.", priority=True)
+            try:
+                webbrowser.open(DONATE_URL, new=2)
+            except Exception:
+                self.speech.say("Unable to open donation page.", priority=True)
+            return
         if item_id == "back":
             self._return_to_main_menu()
             return
@@ -687,10 +701,11 @@ class KeyQuestApp:
     def _quit_app(self):
         """Quit the application."""
         try:
+            screen_w, screen_h = self._screen_size()
             self.screen.fill(BG)
             goodbye_font = pygame.font.SysFont(FONT_NAME, 56)
             goodbye_surface = goodbye_font.render("Goodbye!", True, FG)
-            goodbye_rect = goodbye_surface.get_rect(center=(SCREEN_W // 2, SCREEN_H // 2))
+            goodbye_rect = goodbye_surface.get_rect(center=(screen_w // 2, screen_h // 2))
             self.screen.blit(goodbye_surface, goodbye_rect)
             pygame.display.flip()
         except Exception:
@@ -1303,31 +1318,55 @@ class KeyQuestApp:
 
     def start_free_practice_setup(self):
         """Start Free Practice mode setup - allows practice without affecting progress."""
-        # Collect all learned keys from unlocked lessons
-        learned_keys = set()
-        for lesson_num in sorted(self.state.settings.unlocked_lessons):
-            if lesson_num < len(lesson_manager.STAGE_LETTERS):
-                learned_keys.update(lesson_manager.STAGE_LETTERS[lesson_num])
-
-        if not learned_keys:
+        unlocked_lessons = sorted(
+            lesson_num
+            for lesson_num in self.state.settings.unlocked_lessons
+            if lesson_num < len(lesson_manager.STAGE_LETTERS)
+        )
+        if not unlocked_lessons:
             self.speech.say("No keys learned yet. Complete the tutorial first.", priority=True, protect_seconds=2.0)
             self._return_to_main_menu()
             return
 
-        # Store available keys
-        self.state.free_practice.available_keys = learned_keys
-        self.state.free_practice.selected_keys = learned_keys.copy()  # Practice all keys by default
+        learned_keys = set()
+        for lesson_num in unlocked_lessons:
+            learned_keys.update(lesson_manager.STAGE_LETTERS[lesson_num])
 
-        # Announce and start
-        announcement = (
-            f"Free Practice Mode. Practice without affecting your progress. "
-            f"You can practice with {len(learned_keys)} learned keys. "
-            f"Press Enter to begin, or Escape to return to menu."
-        )
-        self.speech.say(announcement, priority=True, protect_seconds=3.0)
+        free_practice = self.state.free_practice
+        free_practice.available_lessons = unlocked_lessons
+        free_practice.lesson_index = 0
+        free_practice.available_keys = learned_keys
+        free_practice.selected_lesson = unlocked_lessons[0]
+        free_practice.selected_keys = set().union(*lesson_manager.STAGE_LETTERS[: unlocked_lessons[0] + 1])
+        free_practice.in_session = False
 
-        # Go directly to practice
         self.state.mode = "FREE_PRACTICE_READY"
+        self._announce_free_practice_choice(priority=True)
+
+    def _announce_free_practice_choice(self, priority: bool = False) -> None:
+        free_practice = self.state.free_practice
+        if not free_practice.available_lessons:
+            return
+
+        lesson_num = free_practice.available_lessons[free_practice.lesson_index]
+        lesson_name = (
+            lesson_manager.LESSON_NAMES[lesson_num]
+            if lesson_num < len(lesson_manager.LESSON_NAMES)
+            else f"Lesson {lesson_num}"
+        )
+        key_count = len(set().union(*lesson_manager.STAGE_LETTERS[: lesson_num + 1]))
+        self.speech.say(
+            f"Free practice setup. Lesson {lesson_num}. {lesson_name}. "
+            f"Practice keys through this lesson, {key_count} keys total. "
+            "Use Up and Down arrows to choose a lesson. Press Enter or Space to start. Escape returns to the main menu.",
+            priority=priority,
+            protect_seconds=3.0 if priority else 0.0,
+        )
+
+    def _set_free_practice_lesson(self, lesson_num: int) -> None:
+        free_practice = self.state.free_practice
+        free_practice.selected_lesson = lesson_num
+        free_practice.selected_keys = set().union(*lesson_manager.STAGE_LETTERS[: lesson_num + 1])
 
     def start_free_practice(self):
         """Start the free practice session."""
@@ -1370,7 +1409,30 @@ class KeyQuestApp:
 
     def handle_free_practice_ready_input(self, event, mods):
         """Handle input in Free Practice ready state."""
-        if event.key == pygame.K_RETURN:
+        free_practice = self.state.free_practice
+        lessons = free_practice.available_lessons
+
+        if not lessons:
+            self._return_to_main_menu()
+            return
+
+        if event.key == pygame.K_UP:
+            free_practice.lesson_index = menu_handler.navigate_up(free_practice.lesson_index, len(lessons))
+            self._announce_free_practice_choice()
+        elif event.key == pygame.K_DOWN:
+            free_practice.lesson_index = menu_handler.navigate_down(free_practice.lesson_index, len(lessons))
+            self._announce_free_practice_choice()
+        elif event.key == pygame.K_HOME:
+            free_practice.lesson_index = menu_handler.navigate_first(len(lessons))
+            self._announce_free_practice_choice()
+        elif event.key == pygame.K_END:
+            free_practice.lesson_index = menu_handler.navigate_last(len(lessons))
+            self._announce_free_practice_choice()
+        elif event.key == pygame.K_SPACE and input_utils.mod_ctrl(mods):
+            self._announce_free_practice_choice(priority=True)
+        elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
+            lesson_num = lessons[free_practice.lesson_index]
+            self._set_free_practice_lesson(lesson_num)
             self.start_free_practice()
         elif event.key == pygame.K_ESCAPE:
             self.state.free_practice.in_session = False
@@ -1497,6 +1559,9 @@ class KeyQuestApp:
             return
         if event.type == pygame.QUIT:
             self._quit_app()
+        if event.type == pygame.VIDEORESIZE:
+            self._resize_window(event.w, event.h)
+            return
         if event.type == self._startup_menu_event:
             pygame.time.set_timer(self._startup_menu_event, 0)
             self._startup_menu_armed = False
@@ -1634,6 +1699,27 @@ class KeyQuestApp:
         self.speech.say("Exiting to main menu.", priority=True)
         self.say_menu()
         return True
+
+    def _screen_size(self) -> tuple[int, int]:
+        return self.screen.get_size()
+
+    def _resize_window(self, width: int, height: int) -> None:
+        min_width = max(800, app_config.SCREEN_W)
+        min_height = max(600, app_config.SCREEN_H)
+        self.screen = pygame.display.set_mode(
+            (max(min_width, width), max(min_height, height)),
+            pygame.RESIZABLE,
+        )
+
+    def _maximize_window(self) -> None:
+        try:
+            from pygame._sdl2.video import Window
+
+            window = Window.from_display_module()
+            if window is not None:
+                window.maximize()
+        except Exception:
+            pass
 
     # ==================== MENU ====================
     def say_menu(self, on_startup: bool = False):
@@ -2344,6 +2430,8 @@ class KeyQuestApp:
         elif self.state.mode == "FREE_PRACTICE":
             self.draw_lesson()  # Reuse lesson drawing
 
+        screen_w, screen_h = self._screen_size()
+
         # Escape press counter — shown while user is mid-sequence (visual complement to speech).
         if self._escape_remaining > 0:
             presses = self._escape_remaining
@@ -2352,14 +2440,15 @@ class KeyQuestApp:
                 f"Escape: {presses} more press{'es' if presses != 1 else ''} to {noun}"
             )
             esc_surf, _ = self.small_font.render(msg, ACCENT)
-            self.screen.blit(esc_surf, (SCREEN_W // 2 - esc_surf.get_width() // 2, 6))
+            self.screen.blit(esc_surf, (screen_w // 2 - esc_surf.get_width() // 2, 6))
 
         # Render keystroke flash overlay last so it appears above all content.
         if self._flash.is_active():
             from ui.a11y import draw_keystroke_flash
-            draw_keystroke_flash(self.screen, self._flash.color, self._flash.current_alpha(), SCREEN_W, SCREEN_H)
+            draw_keystroke_flash(self.screen, self._flash.color, self._flash.current_alpha(), screen_w, screen_h)
 
     def draw_menu(self):
+        screen_w, screen_h = self._screen_size()
         streak_text = ""
         if self.state.settings.current_streak > 0:
             streak_text = self.get_streak_announcement()
@@ -2370,8 +2459,8 @@ class KeyQuestApp:
             small_font=self.small_font,
             menu_items=self.state.menu_items,
             current_index=self.main_menu.current_index,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2382,6 +2471,7 @@ class KeyQuestApp:
 
     def draw_lesson_menu(self):
         """Draw the lesson selection menu."""
+        screen_w, screen_h = self._screen_size()
         draw_lesson_menu(
             screen=self.screen,
             title_font=self.title_font,
@@ -2390,8 +2480,8 @@ class KeyQuestApp:
             unlocked_lessons=sorted(list(self.state.settings.unlocked_lessons)),
             lesson_names=lesson_manager.LESSON_NAMES,
             current_index=self.lesson_menu.current_index,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2399,6 +2489,7 @@ class KeyQuestApp:
 
     def draw_games_menu(self):
         """Draw the games selection menu."""
+        screen_w, screen_h = self._screen_size()
         draw_games_menu(
             screen=self.screen,
             title_font=self.title_font,
@@ -2406,21 +2497,22 @@ class KeyQuestApp:
             small_font=self.small_font,
             games=self.games,
             current_index=self.games_menu.current_index,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
         )
 
     def draw_learn_sounds_menu(self):
+        screen_w, screen_h = self._screen_size()
         draw_learn_sounds_menu(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2429,15 +2521,16 @@ class KeyQuestApp:
         )
 
     def draw_about(self):
+        screen_w, screen_h = self._screen_size()
         title_surf, _ = self.title_font.render("About", HILITE)
-        self.screen.blit(title_surf, (SCREEN_W // 2 - title_surf.get_width() // 2, 40))
+        self.screen.blit(title_surf, (screen_w // 2 - title_surf.get_width() // 2, 40))
 
         version_surf, _ = self.small_font.render(f"KeyQuest {__version__}", ACCENT)
-        self.screen.blit(version_surf, (SCREEN_W // 2 - version_surf.get_width() // 2, 84))
+        self.screen.blit(version_surf, (screen_w // 2 - version_surf.get_width() // 2, 84))
 
-        subtitle = "Web Friendly Help"
+        subtitle = "Web Friendly Help LLC"
         subtitle_surf, _ = self.text_font.render(subtitle, FG)
-        self.screen.blit(subtitle_surf, (SCREEN_W // 2 - subtitle_surf.get_width() // 2, 116))
+        self.screen.blit(subtitle_surf, (screen_w // 2 - subtitle_surf.get_width() // 2, 116))
 
         y = 180
         for idx, item in enumerate(self.about_items):
@@ -2460,20 +2553,21 @@ class KeyQuestApp:
             screen=self.screen,
             small_font=self.small_font,
             text="Enter select; Esc back",
-            screen_w=SCREEN_W,
-            y=SCREEN_H - 50,
+            screen_w=screen_w,
+            y=screen_h - 50,
             accent=ACCENT,
         )
 
     def draw_updating(self):
+        screen_w, screen_h = self._screen_size()
         draw_updating_screen(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
             wrap_text=self._wrap_text,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2484,13 +2578,14 @@ class KeyQuestApp:
 
     def draw_shop(self):
         """Draw the shop interface."""
+        screen_w, screen_h = self._screen_size()
         draw_shop(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2505,13 +2600,14 @@ class KeyQuestApp:
     def draw_pet(self):
         """Draw the pet interface."""
         pet_mode.ensure_pet_ui_state(self)
+        screen_w, screen_h = self._screen_size()
         draw_pet(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2530,6 +2626,7 @@ class KeyQuestApp:
 
     def draw_options(self):
         """Draw the options menu."""
+        screen_w, screen_h = self._screen_size()
         options = [opt["get_text"]() for opt in self.options_menu.options]
         draw_options(
             screen=self.screen,
@@ -2538,14 +2635,15 @@ class KeyQuestApp:
             small_font=self.small_font,
             options=options,
             current_index=self.options_menu.current_index,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
         )
 
     def draw_lesson_intro(self):
+        screen_w, screen_h = self._screen_size()
         intro = self.state.lesson_intro
         lesson_num = intro.lesson_num
 
@@ -2556,6 +2654,14 @@ class KeyQuestApp:
         )
 
         info = lesson_manager.KEY_LOCATIONS.get(lesson_num)
+        current_intro_heading = ""
+        current_intro_text = ""
+        intro_count = 0
+        intro_index = 0
+        if intro.intro_items:
+            intro_count = len(intro.intro_items)
+            intro_index = intro.intro_index
+            current_intro_heading, current_intro_text = intro.intro_items[intro.intro_index]
 
         needed_keys = sorted(list(intro.required_keys - intro.keys_found))
         keys_to_find_display = phonetics.format_needed_keys_for_display(needed_keys) if needed_keys else ""
@@ -2566,14 +2672,18 @@ class KeyQuestApp:
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
             lesson_num=lesson_num,
             lesson_name=lesson_name,
             lesson_info=info,
+            current_intro_heading=current_intro_heading,
+            current_intro_text=current_intro_text,
+            intro_index=intro_index,
+            intro_count=intro_count,
             keys_to_find_display=keys_to_find_display,
             keys_found_display=keys_found_display,
         )
@@ -2582,27 +2692,29 @@ class KeyQuestApp:
         return wrap_text(self.small_font, text, max_width, FG)
 
     def draw_keyboard_explorer(self):
+        screen_w, screen_h = self._screen_size()
         draw_keyboard_explorer_screen(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
         )
 
     def draw_tutorial(self):
+        screen_w, screen_h = self._screen_size()
         draw_tutorial_screen(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
             wrap_text=self._wrap_text,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2612,13 +2724,14 @@ class KeyQuestApp:
         )
 
     def draw_lesson(self):
+        screen_w, _screen_h = self._screen_size()
         lesson = self.state.lesson
         draw_lesson_screen(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
+            screen_w=screen_w,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2630,25 +2743,33 @@ class KeyQuestApp:
         )
 
     def draw_free_practice_ready(self):
+        screen_w, screen_h = self._screen_size()
         draw_free_practice_ready_screen(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
-            screen_w=SCREEN_W,
+            small_font=self.small_font,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
+            accent=ACCENT,
             hilite=HILITE,
+            unlocked_lessons=self.state.free_practice.available_lessons,
+            lesson_names=lesson_manager.LESSON_NAMES,
+            current_index=self.state.free_practice.lesson_index,
             available_keys_count=len(self.state.free_practice.available_keys),
         )
 
     def draw_test_setup(self):
         """Draw the test duration selection screen."""
+        screen_w, screen_h = self._screen_size()
         draw_test_setup_screen(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2661,13 +2782,14 @@ class KeyQuestApp:
 
     def draw_practice_setup(self):
         """Draw sentence practice setup screen."""
+        screen_w, screen_h = self._screen_size()
         draw_practice_setup_screen(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,
@@ -2680,6 +2802,7 @@ class KeyQuestApp:
         )
 
     def draw_test(self):
+        screen_w, screen_h = self._screen_size()
         t = self.state.test
         if t.running and t.start_time > 0:
             elapsed = time.time() - t.start_time
@@ -2696,8 +2819,8 @@ class KeyQuestApp:
             screen=self.screen,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             current_text=t.current,
@@ -2708,6 +2831,7 @@ class KeyQuestApp:
 
     def draw_practice(self):
         """Draw sentence practice screen."""
+        screen_w, screen_h = self._screen_size()
         t = self.state.test
 
         elapsed_seconds = (time.time() - t.start_time) if t.start_time > 0 else 0.0
@@ -2715,8 +2839,8 @@ class KeyQuestApp:
             screen=self.screen,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             current_text=t.current,
@@ -2727,13 +2851,14 @@ class KeyQuestApp:
         )
 
     def draw_results(self):
+        screen_w, screen_h = self._screen_size()
         draw_results_screen(
             screen=self.screen,
             title_font=self.title_font,
             text_font=self.text_font,
             small_font=self.small_font,
-            screen_w=SCREEN_W,
-            screen_h=SCREEN_H,
+            screen_w=screen_w,
+            screen_h=screen_h,
             fg=FG,
             accent=ACCENT,
             hilite=HILITE,

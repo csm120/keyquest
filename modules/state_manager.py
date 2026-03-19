@@ -158,6 +158,8 @@ class LessonIntroState:
     lesson_num: int = 0
     required_keys: Set[str] = field(default_factory=set)
     keys_found: Set[str] = field(default_factory=set)
+    intro_items: list = field(default_factory=list)  # List of (heading, text) review items
+    intro_index: int = 0  # Currently highlighted intro review item
 
 
 @dataclass
@@ -206,6 +208,9 @@ class FreePracticeState:
     """State for free practice mode."""
     selected_keys: Set[str] = field(default_factory=set)  # Keys selected for practice
     available_keys: Set[str] = field(default_factory=set)  # All learned keys
+    available_lessons: List[int] = field(default_factory=list)  # Unlocked lessons available for free practice
+    lesson_index: int = 0  # Currently highlighted free practice lesson choice
+    selected_lesson: int = 0  # Selected lesson used to build the current practice key set
     in_session: bool = False  # Whether currently practicing
 
 

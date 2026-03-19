@@ -4,7 +4,7 @@ This is the single starting point for any human or AI working on KeyQuest.
 
 ## Snapshot
 
-- **Last updated**: 2026-03-07 (Code quality, test coverage, and modularisation pass)
+- **Last updated**: 2026-03-19 (Shared layout helpers and responsive screen pass)
 - **Version**: see `modules/version.py` (single source of truth)
 - **Platform**: Windows (full accessibility) / Linux (TTS only)
 - **Accessibility**: See user accessibility docs in `docs/user/`.
@@ -106,8 +106,27 @@ This is the single starting point for any human or AI working on KeyQuest.
 - Keep visual and spoken content aligned.
 - Use `get_app_dir()` for runtime-safe path resolution (source and frozen exe).
 - Update `docs/dev/CHANGELOG.md`, `docs/user/WHATS_NEW.md`, and `docs/dev/HANDOFF.md` for meaningful behavior changes.
+- For new screens, use `ui/layout.py` for screen size, centering, wrapped blocks, and footer placement.
+- For new game chrome, use `ui/game_layout.py` for titles and status stacks.
+- Do not hardcode `900`, `600`, `450`, or assume a single-line controls footer in new render code unless there is a documented reason.
 
 ## Recent Changes
+
+### 2026-03-19: Shared Layout Helpers and Responsive Screen Pass
+
+- Added `ui/layout.py` for shared screen geometry:
+  - live screen size lookup
+  - safe content width
+  - centered placement helpers
+  - wrapped centered and left-aligned text blocks
+  - footer row placement
+- Added `ui/game_layout.py` for shared game chrome:
+  - centered game titles
+  - centered status-line stacks
+- Refactored `games/base_game.py` and `ui/render_menus.py` to use the shared layout helpers instead of repeating centering and footer math.
+- Refactored `games/word_typing.py`, `games/letter_fall.py`, and `games/hangman.py` to use the shared helpers for title, wrapped text, status, and footer placement while keeping gameplay-specific visuals local.
+- Added `tests/test_layout.py` to lock in the new helper behavior.
+- Accessibility review outcome: keep geometry in layout helpers, keep focus/emphasis in `ui/a11y.py`, and keep gameplay meaning local to each screen.
 
 ### 2026-03-07: Code Quality, Test Coverage, and Modularisation Pass
 

@@ -5,14 +5,16 @@ Provides detailed descriptions of keyboard keys for pressure-free exploration.
 
 import pygame
 
+from modules import phonetics
+
 # Comprehensive key descriptions with location and finger placement information
 KEY_DESCRIPTIONS = {
     # Letter keys - Home row
     'a': "Letter A. Home row, left side. Left pinky finger. First key in the home row letter section.",
     's': "Letter S. Home row. Left ring finger. One key to the right of A.",
     'd': "Letter D. Home row. Left middle finger. Between S and F.",
-    'f': "Letter F. Home row. Left index finger. Has a small bump you can feel. Anchor key for left hand.",
-    'j': "Letter J. Home row. Right index finger. Has a small bump you can feel. Anchor key for right hand.",
+    'f': "Letter F. Home row. Left index finger. It has a small bump you can feel. If your hand is lined up on F, your left pinky should land on A.",
+    'j': "Letter J. Home row. Right index finger. It has a small bump you can feel. Use that bump to confirm your right hand is on home row.",
     'k': "Letter K. Home row. Right middle finger.",
     'l': "Letter L. Home row. Right ring finger.",
     ';': "Semicolon. Home row. Right pinky finger. Last key of the home row.",
@@ -418,6 +420,24 @@ def get_key_name(event, mods=None):
             return 'unknown'
 
 
+def _prepend_phonetic_hint(description: str, key_name: str, *, capital: bool = False) -> str:
+    """Place the phonetic cue immediately after the letter name when available."""
+    hint = phonetics.phonetic_hint_for_key(key_name)
+    if not hint:
+        return description
+
+    if capital:
+        capital_hint = hint.replace(f"{key_name.upper()}, like", f"{key_name.upper()}, like")
+        prefix = f"Capital {key_name.upper()}."
+        return f"{prefix} {capital_hint}. {description}"
+
+    prefix = f"Letter {key_name.upper()}."
+    if description.startswith(prefix):
+        remainder = description[len(prefix):].lstrip()
+        return f"{prefix} {hint}. {remainder}"
+    return f"{hint}. {description}"
+
+
 def get_key_description(key_name, event=None):
     """Get the description for a key or key combination.
 
@@ -447,19 +467,22 @@ def get_key_description(key_name, event=None):
     if key_name.startswith('capital_'):
         letter = key_name.replace('capital_', '')
         if letter in KEY_DESCRIPTIONS:
-            return f"Capital {letter.upper()}. {KEY_DESCRIPTIONS[letter]}"
+            return _prepend_phonetic_hint(KEY_DESCRIPTIONS[letter], letter, capital=True)
         else:
             return f"Capital {letter.upper()}."
 
+    base_description = KEY_DESCRIPTIONS.get(key_name, "")
+    described_text = _prepend_phonetic_hint(base_description, key_name) if base_description else ""
+
     # Add bump detection messages for special keys
     if key_name == 'f':
-        return KEY_DESCRIPTIONS[key_name] + " Feel the bump?"
+        return described_text + " Feel the bump and check where your pinky lands."
     elif key_name == 'j':
-        return KEY_DESCRIPTIONS[key_name] + " Feel the bump?"
+        return described_text + " Feel the bump to confirm home row."
     elif key_name == 'numpad5':
         return KEY_DESCRIPTIONS[key_name] + " Feel the bump?"
 
     if key_name in KEY_DESCRIPTIONS:
-        return KEY_DESCRIPTIONS[key_name]
+        return described_text
     else:
         return f"Key {key_name}. No description available."

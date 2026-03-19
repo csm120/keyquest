@@ -9,7 +9,10 @@ import time
 import pygame
 from games.base_game import BaseGame
 from games import sounds
-from ui.a11y import draw_controls_hint, draw_focus_frame
+from modules import audio_manager
+from ui.a11y import draw_controls_hint, draw_focus_frame, draw_active_panel
+from ui.game_layout import draw_centered_status_lines, draw_game_title
+from ui.layout import draw_centered_text, draw_centered_wrapped_text, get_content_width, get_footer_y
 
 
 # Word lists by difficulty
@@ -43,6 +46,7 @@ class WordTypingGame(BaseGame):
     DESCRIPTION = "Type words as quickly and accurately as you can in a 30-second session."
     INSTRUCTIONS = (
         "Words appear one at a time. Type the current word and press Space to submit. "
+        "Press Control plus Space to hear only the current word again. "
         "The session ends after 30 seconds. Results show corrected words per minute, "
         "total words per minute, and accuracy. Press Escape during play to end the "
         "session. In the results dialog, press Space or Escape to close."
@@ -112,13 +116,10 @@ Escape: End session and return to game menu"""
         # Get first word
         self.current_word = self.word_pool[0] if self.word_pool else "word"
 
-        # Welcome
-        msg = f"{self.NAME}. Type words as fast as you can! {int(self.game_duration)} seconds. Starting now!"
-        self.speech.say(msg, priority=True, protect_seconds=2.5)
         self.play_sound(sounds.level_start())
 
         # Announce first word
-        self.speech.say(f"Type: {self.current_word}", priority=True)
+        self.speech.say(self.current_word, priority=True)
 
     def handle_game_input(self, event, mods):
         """Handle input during gameplay."""
@@ -136,7 +137,7 @@ Escape: End session and return to game menu"""
 
         # Repeat current word
         elif event.key == pygame.K_SPACE and (mods & pygame.KMOD_CTRL):
-            self.speech.say(f"Current word: {self.current_word}", priority=True)
+            self.speech.say(self.current_word, priority=True)
             return None
 
         # Backspace
@@ -174,13 +175,13 @@ Escape: End session and return to game menu"""
         # Check if word is correct
         if typed == target:
             self.words_completed += 1
-            self.play_sound(sounds.letter_hit())
+            self.play_sound(audio_manager.AudioManager.make_coin_sound())
 
             # Get next word
             self.next_word()
         else:
             # Wrong word
-            self.play_sound(sounds.letter_miss())
+            self.play_sound(audio_manager.AudioManager.make_miss_sound())
             self.speech.say("Incorrect. Try again.", priority=True)
             self.typed_text = ""
 
@@ -194,7 +195,7 @@ Escape: End session and return to game menu"""
         self.typed_text = ""
 
         # Announce new word
-        self.speech.say(f"Type: {self.current_word}", priority=True)
+        self.speech.say(self.current_word, priority=True)
 
     def end_game(self):
         """End the game and show results."""
@@ -282,45 +283,103 @@ Best Accuracy: {self.best_accuracy}%
 
     def draw_game(self):
         """Draw the game screen."""
-        # Title
-        title_surf, _ = self.title_font.render(f"{self.NAME}", self.ACCENT)
-        self.screen.blit(title_surf, (450 - title_surf.get_width() // 2, 50))
+        screen_w, screen_h = self._screen_size()
+        max_text_width = get_content_width(screen_w, max_width=780)
+
+        draw_game_title(
+            screen=self.screen,
+            title_font=self.title_font,
+            text=self.NAME,
+            color=self.ACCENT,
+            screen_w=screen_w,
+            y=40,
+        )
 
         # Timer
         elapsed = time.time() - self.game_start_time
         remaining = max(0, self.game_duration - elapsed)
-        timer_text = f"Time: {int(remaining)}s"
-        timer_surf, _ = self.text_font.render(timer_text, self.FG)
-        self.screen.blit(timer_surf, (450 - timer_surf.get_width() // 2, 120))
-
-        # Score
-        score_text = f"Words: {self.words_completed}"
-        score_surf, _ = self.text_font.render(score_text, self.GOOD)
-        self.screen.blit(score_surf, (450 - score_surf.get_width() // 2, 160))
+        draw_centered_status_lines(
+            screen=self.screen,
+            font=self.text_font,
+            entries=[
+                (f"Time: {int(remaining)}s", self.FG),
+                (f"Words: {self.words_completed}", self.GOOD),
+            ],
+            screen_w=screen_w,
+            start_y=100,
+            line_gap=10,
+        )
 
         # Current word
-        target_label, _ = self.small_font.render("Type now:", self.ACCENT)
-        self.screen.blit(target_label, (450 - target_label.get_width() // 2, 215))
-        word_surf, _ = self.title_font.render(self.current_word, self.FG)
-        word_rect = word_surf.get_rect(topleft=(450 - word_surf.get_width() // 2, 250))
-        self.screen.blit(word_surf, word_rect)
-        draw_focus_frame(self.screen, word_rect, self.GOOD, self.ACCENT)
+        target_label_y = 205
+        draw_centered_text(
+            screen=self.screen,
+            font=self.small_font,
+            text="Type now:",
+            color=self.ACCENT,
+            screen_w=screen_w,
+            y=target_label_y,
+        )
+        active_rect = draw_centered_wrapped_text(
+            screen=self.screen,
+            font=self.title_font,
+            text=self.current_word,
+            color=self.FG,
+            screen_w=screen_w,
+            y=target_label_y + 35,
+            max_width=max_text_width,
+        )
+        draw_active_panel(self.screen, active_rect, self.ACCENT, self.FG)
+        active_rect = draw_centered_wrapped_text(
+            screen=self.screen,
+            font=self.title_font,
+            text=self.current_word,
+            color=self.FG,
+            screen_w=screen_w,
+            y=target_label_y + 35,
+            max_width=max_text_width,
+        )
+        draw_focus_frame(self.screen, active_rect, self.GOOD, self.ACCENT)
 
         # Typed text
-        typed_label, _ = self.small_font.render("You typed:", self.ACCENT)
-        self.screen.blit(typed_label, (450 - typed_label.get_width() // 2, 320))
+        typed_label_y = active_rect.bottom + 28
+        draw_centered_text(
+            screen=self.screen,
+            font=self.small_font,
+            text="You typed:",
+            color=self.ACCENT,
+            screen_w=screen_w,
+            y=typed_label_y,
+        )
         typed_value = self.typed_text if self.typed_text else "_"
         # Check if correct so far
         correct_so_far = self.current_word.lower().startswith(self.typed_text.lower())
         color = self.GOOD if correct_so_far else self.DANGER
-        typed_surf, _ = self.text_font.render(typed_value, color)
-        self.screen.blit(typed_surf, (450 - typed_surf.get_width() // 2, 350))
+        typed_block = draw_centered_wrapped_text(
+            screen=self.screen,
+            font=self.text_font,
+            text=typed_value,
+            color=color,
+            screen_w=screen_w,
+            y=typed_label_y + 30,
+            max_width=max_text_width,
+        )
+        draw_active_panel(self.screen, typed_block, self.ACCENT, color)
+        draw_centered_wrapped_text(
+            screen=self.screen,
+            font=self.text_font,
+            text=typed_value,
+            color=color,
+            screen_w=screen_w,
+            y=typed_label_y + 30,
+            max_width=max_text_width,
+        )
 
         draw_controls_hint(
             screen=self.screen,
             small_font=self.small_font,
             text="Type word; Enter submit; Backspace correct; Ctrl+Space repeat; Esc quit",
-            screen_w=900,
-            y=535,
+            screen_w=screen_w,
+            y=get_footer_y(screen_h),
             accent=self.FG,
         )

@@ -1,4 +1,19 @@
-NATO_PHONETIC_ALPHABET = {
+FRIENDLY_KEY_NAMES = {
+    " ": "Space",
+    ";": "Semicolon",
+    ",": "Comma",
+    ".": "Period",
+    "/": "Slash",
+    "'": "Apostrophe",
+    "[": "Left bracket",
+    "]": "Right bracket",
+    "-": "Minus",
+    "=": "Equals",
+    "`": "Backtick",
+    "\\": "Backslash",
+}
+
+LIMITED_PHONETIC_WORDS = {
     "a": "alpha",
     "b": "bravo",
     "c": "charlie",
@@ -6,58 +21,48 @@ NATO_PHONETIC_ALPHABET = {
     "e": "echo",
     "f": "foxtrot",
     "g": "golf",
-    "h": "hotel",
-    "i": "india",
     "j": "juliet",
     "k": "kilo",
-    "l": "lima",
-    "m": "mike",
-    "n": "november",
-    "o": "oscar",
     "p": "papa",
-    "q": "quebec",
-    "r": "romeo",
-    "s": "sierra",
     "t": "tango",
-    "u": "uniform",
     "v": "victor",
-    "w": "whiskey",
-    "x": "xray",
-    "y": "yankee",
     "z": "zulu",
-    "0": "zero",
-    "1": "one",
-    "2": "two",
-    "3": "three",
-    "4": "four",
-    "5": "five",
-    "6": "six",
-    "7": "seven",
-    "8": "eight",
-    "9": "nine",
 }
 
 
+def _friendly_key_name(key) -> str:
+    """Return a plain-language key name without phonetic alphabets."""
+    text = str(key)
+    if len(text) == 1 and text.isalpha():
+        return text.upper()
+    if len(text) == 1 and text.isdigit():
+        return text
+    return FRIENDLY_KEY_NAMES.get(text, text.upper())
+
+
+def phonetic_hint_for_key(key) -> str:
+    """Return a limited phonetic hint for confusable letters only."""
+    text = str(key).lower()
+    hint = LIMITED_PHONETIC_WORDS.get(text, "")
+    if not hint:
+        return ""
+    return f"{text.upper()}, like {hint}"
+
+
 def format_needed_keys_for_speech(keys) -> str:
-    """Format keys as 'A, like alpha' for screen reader clarity."""
+    """Format keys for speech with limited phonetic hints for confusable letters."""
     parts = []
     for key in keys:
-        k = str(key).lower()
-        if k in NATO_PHONETIC_ALPHABET:
-            parts.append(f"{k.upper()}, like {NATO_PHONETIC_ALPHABET[k]}")
-        else:
-            parts.append(str(key))
+        hint = phonetic_hint_for_key(key)
+        parts.append(hint if hint else _friendly_key_name(key))
     return ", ".join(parts)
 
 
 def format_needed_keys_for_display(keys) -> str:
-    """Format keys as 'A (like Alpha)' for on-screen display."""
+    """Format keys for display with limited phonetic hints for confusable letters."""
     parts = []
     for key in keys:
-        k = str(key).lower()
-        if k in NATO_PHONETIC_ALPHABET:
-            parts.append(f"{k.upper()} (like {NATO_PHONETIC_ALPHABET[k].title()})")
-        else:
-            parts.append(str(key).upper())
+        text = _friendly_key_name(key)
+        hint = LIMITED_PHONETIC_WORDS.get(str(key).lower(), "")
+        parts.append(f"{text} (like {hint.title()})" if hint else text)
     return ", ".join(parts)
-

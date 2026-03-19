@@ -330,7 +330,7 @@ def cycle_tts_voice(current_voice_id: str, available_voices: list, direction: st
     try:
         current_idx = voice_ids.index(current_voice_id)
     except ValueError:
-        current_idx = 0  # Default to first voice if current not found
+        current_idx = -1 if direction == "right" else 0
 
     if direction == "right":
         new_idx = (current_idx + 1) % len(voice_ids)
@@ -700,14 +700,13 @@ class OptionsMenu:
         new_value = opt['cycle'](old_value, direction)
         opt['set_value'](new_value)
 
+        if self.on_change:
+            self.on_change(self.current_index, old_value, new_value)
+
         # Announce the change
         text = opt['get_text']()
         explanation = opt['get_explanation']()
         self.speech.say(f"{text}. {explanation}")
-
-        # Notify callback
-        if self.on_change:
-            self.on_change(self.current_index, old_value, new_value)
 
     def handle_input(self, event, mods=None):
         """Handle keyboard input.

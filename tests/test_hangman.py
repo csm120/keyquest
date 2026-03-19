@@ -4,6 +4,7 @@ import pygame
 from games.hangman import (
     HangmanGame,
     WORD_BANK,
+    _is_plain_ascii_word,
     build_sentence_practice_items,
     build_spoken_word_progress,
     build_visual_word_progress,
@@ -131,6 +132,10 @@ class TestHangmanProgressFormatting(unittest.TestCase):
 
     def test_word_bank_words_are_five_or_more_characters(self):
         self.assertTrue(all(len(word) >= 5 for word in WORD_BANK.keys()))
+
+    def test_ascii_word_filter_rejects_non_ascii_letters(self):
+        self.assertTrue(_is_plain_ascii_word("tomorrow"))
+        self.assertFalse(_is_plain_ascii_word("œuvre"))
 
     def test_candidate_pool_words_have_definitions(self):
         pool = load_candidate_pool()

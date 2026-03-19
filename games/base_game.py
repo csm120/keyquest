@@ -6,6 +6,7 @@ keyboard navigation, and accessibility features.
 
 from modules import dialog_manager
 from ui.a11y import draw_controls_hint, draw_focus_frame
+from ui.layout import center_x, get_footer_y, get_screen_size
 
 
 class BaseGame:
@@ -189,11 +190,16 @@ Great job!
         elif self.mode == "PLAYING":
             self.draw_game()
 
+    def _screen_size(self):
+        """Return the current screen size, falling back to the legacy layout."""
+        return get_screen_size(self.screen)
+
     def draw_menu(self):
         """Draw the game menu."""
+        screen_w, screen_h = self._screen_size()
         # Title
         title_surf, _ = self.title_font.render(self.NAME, self.ACCENT)
-        self.screen.blit(title_surf, (450 - title_surf.get_width() // 2, 80))
+        self.screen.blit(title_surf, (center_x(screen_w, title_surf.get_width()), 80))
 
         # Menu items
         y = 200
@@ -202,7 +208,7 @@ Great job!
             color = self.GOOD if selected else self.FG
             item_text = f"> {item}" if selected else f"  {item}"
             item_surf, _ = self.text_font.render(item_text, color)
-            item_rect = item_surf.get_rect(topleft=(450 - item_surf.get_width() // 2, y))
+            item_rect = item_surf.get_rect(topleft=(center_x(screen_w, item_surf.get_width()), y))
             self.screen.blit(item_surf, item_rect)
             if selected:
                 draw_focus_frame(self.screen, item_rect, self.GOOD, self.ACCENT)
@@ -213,8 +219,8 @@ Great job!
             screen=self.screen,
             small_font=self.small_font,
             text="Up/Down navigate; Enter/Space select; Esc back",
-            screen_w=900,
-            y=550,
+            screen_w=screen_w,
+            y=get_footer_y(screen_h),
             accent=self.FG,
         )
 

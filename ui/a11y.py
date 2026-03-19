@@ -1,4 +1,5 @@
 import pygame
+from ui.text_wrap import wrap_text
 
 
 def get_visible_window(item_count: int, current_index: int, max_visible: int):
@@ -75,6 +76,11 @@ def draw_action_emphasis(screen, target_rect, hilite, strong: bool = False):
 def draw_controls_hint(*, screen, small_font, text, screen_w: int, y: int, accent):
     """Draw a consistent controls row across screens."""
     message = f"Controls: {text}"
-    surf, _ = small_font.render(message, accent)
-    x = screen_w // 2 - surf.get_width() // 2
-    screen.blit(surf, (x, y))
+    lines = wrap_text(small_font, message, max(240, screen_w - 40), accent) or [message]
+    sample_surf, _ = small_font.render(lines[0], accent)
+    line_height = sample_surf.get_height() + 4
+    start_y = y - ((len(lines) - 1) * line_height)
+    for idx, line in enumerate(lines):
+        surf, _ = small_font.render(line, accent)
+        x = screen_w // 2 - surf.get_width() // 2
+        screen.blit(surf, (x, start_y + (idx * line_height)))

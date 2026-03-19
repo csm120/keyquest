@@ -10,7 +10,10 @@ import pygame
 from games.base_game import BaseGame
 from games import sounds
 from modules import speech_format
-from ui.a11y import draw_focus_frame
+from ui.a11y import draw_controls_hint, draw_focus_frame
+from ui.game_layout import draw_game_title
+from ui.layout import center_x, draw_centered_text, draw_left_wrapped_text, get_content_width, get_footer_y
+from ui.text_wrap import wrap_text
 
 
 WORD_BANK = {
@@ -41,6 +44,11 @@ _CANDIDATE_LENGTH_BUCKETS_CACHE = None
 MIN_WORD_LENGTH = 5
 
 
+def _is_plain_ascii_word(word: str) -> bool:
+    """Return True for simple A-Z words only."""
+    return word.isascii() and word.isalpha()
+
+
 def _determine_max_word_length() -> int:
     """Return maximum allowed word length based on available dictionary data."""
     lengths: list[int] = []
@@ -48,13 +56,13 @@ def _determine_max_word_length() -> int:
     definitions = load_external_definitions()
     for raw_word in definitions.keys():
         word = raw_word.strip().lower()
-        if word.isalpha() and len(word) >= MIN_WORD_LENGTH:
+        if _is_plain_ascii_word(word) and len(word) >= MIN_WORD_LENGTH:
             lengths.append(len(word))
 
     if not lengths:
         for raw_word in WORD_BANK.keys():
             word = raw_word.strip().lower()
-            if word.isalpha() and len(word) >= MIN_WORD_LENGTH:
+            if _is_plain_ascii_word(word) and len(word) >= MIN_WORD_LENGTH:
                 lengths.append(len(word))
 
     return max(lengths) if lengths else MIN_WORD_LENGTH
@@ -77,7 +85,7 @@ def load_external_words() -> list[str]:
             words = set()
             for line in f:
                 word = line.strip().lower()
-                if MIN_WORD_LENGTH <= len(word) <= max_word_length and word.isalpha():
+                if MIN_WORD_LENGTH <= len(word) <= max_word_length and _is_plain_ascii_word(word):
                     words.add(word)
             _EXTERNAL_WORDS_CACHE = sorted(words)
     except Exception:
@@ -121,7 +129,7 @@ def load_candidate_pool() -> list[tuple[str, str]]:
     for raw_word, raw_definition in external_definitions.items():
         word = raw_word.strip().lower()
         definition = raw_definition.strip() if isinstance(raw_definition, str) else ""
-        if MIN_WORD_LENGTH <= len(word) <= max_word_length and word.isalpha() and definition:
+        if MIN_WORD_LENGTH <= len(word) <= max_word_length and _is_plain_ascii_word(word) and definition:
             pool.append((word, definition))
 
     # Curated fallback only (no generic placeholder definitions).
@@ -129,7 +137,7 @@ def load_candidate_pool() -> list[tuple[str, str]]:
         for raw_word, raw_definition in WORD_BANK.items():
             word = raw_word.strip().lower()
             definition = raw_definition.strip()
-            if MIN_WORD_LENGTH <= len(word) <= max_word_length and word.isalpha() and definition:
+            if MIN_WORD_LENGTH <= len(word) <= max_word_length and _is_plain_ascii_word(word) and definition:
                 pool.append((word, definition))
 
     # Deduplicate while preserving order.
@@ -870,13 +878,28 @@ Esc x3: Exit to main menu"""
         return None
 
     def draw_game(self):
-        title_surf, _ = self.title_font.render(self.NAME, self.ACCENT)
-        self.screen.blit(title_surf, (450 - title_surf.get_width() // 2, 18))
+        screen_w, screen_h = self._screen_size()
+        draw_game_title(
+            screen=self.screen,
+            title_font=self.title_font,
+            text=self.NAME,
+            color=self.ACCENT,
+            screen_w=screen_w,
+            y=18,
+        )
 
         self._draw_hangman()
 
-        word_label, _ = self.small_font.render("Word progress", self.ACCENT)
-        self.screen.blit(word_label, (590 - word_label.get_width() // 2, 150))
+        panel_center_x = max(590, screen_w // 2 + 120)
+        panel_max_width = max(220, screen_w - panel_center_x - 30)
+        draw_centered_text(
+            screen=self.screen,
+            font=self.small_font,
+            text="Word progress",
+            color=self.ACCENT,
+            screen_w=panel_center_x * 2,
+            y=150,
+        )
 
         progress_tokens = self._get_visual_progress_tokens()
         token_surfaces = []
@@ -888,7 +911,7 @@ Esc x3: Exit to main menu"""
             total_width += surf.get_width()
         if token_surfaces:
             total_width += spacing * (len(token_surfaces) - 1)
-        x = 590 - total_width // 2
+        x = panel_center_x - total_width // 2
         y = 200
         for idx, surf in enumerate(token_surfaces):
             rect = surf.get_rect(topleft=(x, y))
@@ -898,79 +921,155 @@ Esc x3: Exit to main menu"""
             x += surf.get_width() + spacing
 
         guessed = ", ".join(sorted(ch.upper() for ch in self.guessed_letters)) if self.guessed_letters else "None"
-        guessed_surf, _ = self.small_font.render(f"Guessed: {guessed}", self.ACCENT)
-        self.screen.blit(guessed_surf, (590 - guessed_surf.get_width() // 2, 260))
+        guessed_lines = wrap_text(self.small_font, f"Guessed: {guessed}", panel_max_width, self.ACCENT)
+        y = 260
+        for line in guessed_lines:
+            guessed_surf, _ = self.small_font.render(line, self.ACCENT)
+            self.screen.blit(guessed_surf, (panel_center_x - guessed_surf.get_width() // 2, y))
+            y += guessed_surf.get_height() + 4
 
         remaining = self.remaining_guesses
         remain_color = self.DANGER if remaining <= 2 else self.GOOD
-        remaining_surf, _ = self.text_font.render(f"Remaining guesses: {remaining}", remain_color)
-        self.screen.blit(remaining_surf, (590 - remaining_surf.get_width() // 2, 320))
+        remaining_lines = wrap_text(self.text_font, f"Remaining guesses: {remaining}", panel_max_width, remain_color)
+        y = max(y + 8, 320)
+        for line in remaining_lines:
+            remaining_surf, _ = self.text_font.render(line, remain_color)
+            self.screen.blit(remaining_surf, (panel_center_x - remaining_surf.get_width() // 2, y))
+            y += remaining_surf.get_height() + 4
 
         letters_surf, _ = self.small_font.render(f"Letters in word: {len(self.word)}", self.ACCENT)
-        self.screen.blit(letters_surf, (590 - letters_surf.get_width() // 2, 348))
+        self.screen.blit(letters_surf, (panel_center_x - letters_surf.get_width() // 2, y + 4))
+        y += letters_surf.get_height() + 12
 
-        feedback_surf, _ = self.small_font.render(self.last_feedback, self.FG)
-        self.screen.blit(feedback_surf, (590 - feedback_surf.get_width() // 2, 380))
+        feedback_lines = wrap_text(self.small_font, self.last_feedback, panel_max_width, self.FG)
+        for line in feedback_lines:
+            feedback_surf, _ = self.small_font.render(line, self.FG)
+            self.screen.blit(feedback_surf, (panel_center_x - feedback_surf.get_width() // 2, y))
+            y += feedback_surf.get_height() + 4
+
+        draw_controls_hint(
+            screen=self.screen,
+            small_font=self.small_font,
+            text="Type letters; Tab word progress; Ctrl+Space guessed count; Esc quit",
+            screen_w=screen_w,
+            y=get_footer_y(screen_h),
+            accent=self.FG,
+        )
 
     def draw_results_menu(self):
-        title_surf, _ = self.title_font.render(self.round_headline, self.ACCENT)
-        self.screen.blit(title_surf, (450 - title_surf.get_width() // 2, 18))
+        screen_w, screen_h = self._screen_size()
+        draw_game_title(
+            screen=self.screen,
+            title_font=self.title_font,
+            text=self.round_headline,
+            color=self.ACCENT,
+            screen_w=screen_w,
+            y=18,
+        )
 
         y = 78
         for line in self.round_results_lines:
-            surf, _ = self.small_font.render(line, self.FG)
-            self.screen.blit(surf, (60, y))
-            y += 26
+            block = draw_left_wrapped_text(
+                screen=self.screen,
+                font=self.small_font,
+                text=line,
+                color=self.FG,
+                x=60,
+                y=y,
+                max_width=get_content_width(screen_w, side_margin=60),
+                line_gap=4,
+            )
+            y = block.bottom + 4
 
-        y = 370
+        y = max(370, y + 18)
         for idx, item in enumerate(self.results_menu_items):
             selected = idx == self.results_menu_index
             display_item = item
             if item.startswith("Definition:"):
-                display_item = item if len(item) <= 90 else f"{item[:87]}..."
+                display_item = item
             text = f"> {display_item}" if selected else f"  {display_item}"
             color = self.GOOD if selected else self.FG
             font = self.small_font if idx < 2 else self.text_font
-            surf, _ = font.render(text, color)
-            rect = surf.get_rect(topleft=(80, y))
-            self.screen.blit(surf, rect)
-            if selected:
-                draw_focus_frame(self.screen, rect, self.GOOD, self.ACCENT)
-            y += 34 if idx < 2 else 44
+            line_height = 34 if idx < 2 else 44
+            item_rect = None
+            wrapped_lines = wrap_text(font, text, screen_w - 160, color) or [text]
+            for wrapped in wrapped_lines:
+                surf, _ = font.render(wrapped, color)
+                rect = surf.get_rect(topleft=(80, y))
+                self.screen.blit(surf, rect)
+                item_rect = rect if item_rect is None else item_rect.union(rect)
+                y += surf.get_height() + 4
+            if selected and item_rect is not None:
+                draw_focus_frame(self.screen, item_rect, self.GOOD, self.ACCENT)
+            y += max(4, line_height - 22)
+
+        draw_controls_hint(
+            screen=self.screen,
+            small_font=self.small_font,
+            text="Up/Down choose; Enter select; Esc menu",
+            screen_w=screen_w,
+            y=get_footer_y(screen_h),
+            accent=self.FG,
+        )
 
     def draw_sentence_practice(self):
-        title_surf, _ = self.title_font.render("Sentence Practice", self.ACCENT)
-        self.screen.blit(title_surf, (450 - title_surf.get_width() // 2, 18))
+        screen_w, screen_h = self._screen_size()
+        draw_game_title(
+            screen=self.screen,
+            title_font=self.title_font,
+            text="Sentence Practice",
+            color=self.ACCENT,
+            screen_w=screen_w,
+            y=18,
+        )
         if not self.sentence_items:
             empty_surf, _ = self.small_font.render("No sentence prompts available.", self.FG)
             self.screen.blit(empty_surf, (60, 120))
             return
 
         status = f"Sentence {self.sentence_index + 1} of {len(self.sentence_items)}"
-        status_surf, _ = self.small_font.render(status, self.ACCENT)
-        self.screen.blit(status_surf, (60, 76))
+        draw_centered_text(
+            screen=self.screen,
+            font=self.small_font,
+            text=status,
+            color=self.ACCENT,
+            screen_w=screen_w,
+            y=76,
+        )
 
         target_label, _ = self.small_font.render("Type now:", self.ACCENT)
         self.screen.blit(target_label, (60, 120))
         current = self.sentence_items[self.sentence_index]
         y = 150
-        for line in self._wrap_text(current, max_chars=85):
+        for line in wrap_text(self.text_font, current, screen_w - 120, self.FG):
             surf, _ = self.text_font.render(line, self.FG)
             self.screen.blit(surf, (60, y))
             y += 36
 
         typed_label, _ = self.small_font.render("You typed:", self.ACCENT)
-        self.screen.blit(typed_label, (60, 300))
+        typed_label_y = max(300, y + 12)
+        self.screen.blit(typed_label, (60, typed_label_y))
         typed_value = self.sentence_typed if self.sentence_typed else "_"
         typed_color = self.GOOD if current.startswith(self.sentence_typed) else self.DANGER
-        typed_surf, _ = self.text_font.render(typed_value, typed_color)
-        self.screen.blit(typed_surf, (60, 330))
+        y = typed_label_y + 30
+        for line in wrap_text(self.text_font, typed_value, screen_w - 120, typed_color) or [typed_value]:
+            typed_surf, _ = self.text_font.render(line, typed_color)
+            self.screen.blit(typed_surf, (60, y))
+            y += typed_surf.get_height() + 4
 
-        feedback_surf, _ = self.small_font.render(self.sentence_feedback, self.FG)
-        self.screen.blit(feedback_surf, (60, 386))
+        for line in wrap_text(self.small_font, self.sentence_feedback, screen_w - 120, self.FG):
+            feedback_surf, _ = self.small_font.render(line, self.FG)
+            self.screen.blit(feedback_surf, (60, y + 8))
+            y += feedback_surf.get_height() + 4
 
-        hint, _ = self.small_font.render("Match capitals and punctuation. Ctrl+Space remaining text; Esc back", self.ACCENT)
-        self.screen.blit(hint, (60, 560))
+        draw_controls_hint(
+            screen=self.screen,
+            small_font=self.small_font,
+            text="Match capitals and punctuation; Ctrl+Space remaining text; Esc back",
+            screen_w=screen_w,
+            y=get_footer_y(screen_h),
+            accent=self.ACCENT,
+        )
 
     def draw(self):
         self.screen.fill(self.BG)

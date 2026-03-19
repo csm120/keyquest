@@ -43,6 +43,7 @@ Current keyboard navigation highlights:
 - After lessons and Free Practice, KeyQuest now shows a regular up/down choice menu instead of relying on `OK` wording.
 - Lesson prompts now speak real practice words naturally, while letter patterns such as `asas` or `aass` are spelled out more clearly.
 - Menu, dialog, shop, pet, and setup screens were tightened to behave more consistently.
+- Screen layouts now respond better to larger font sizes and live window sizing across menus and current game screens.
 - Update failures now write `keyquest_error.log`, offer the setup download, and stay local instead of auto-opening a GitHub bug report.
 - The Practice Log now uses friendlier dates and durations, includes activity names and results, and can be copied to the clipboard.
 
@@ -56,6 +57,7 @@ Developer notes and session context live under [docs/dev](docs/dev).
 - Detailed project history is in [CHANGELOG.md](docs/dev/CHANGELOG.md)
 - Desktop accessibility direction is in [DESKTOP_ACCESSIBILITY_RESEARCH.md](docs/dev/DESKTOP_ACCESSIBILITY_RESEARCH.md)
 - Manual screen reader checks are in [SCREEN_READER_SMOKE_TESTS.md](docs/dev/SCREEN_READER_SMOKE_TESTS.md)
+- New render work should use `ui/layout.py` and `ui/game_layout.py` instead of hardcoded screen coordinates where possible.
 - To ship a full release with an automatic version-bump suggestion, run `powershell -ExecutionPolicy Bypass -File tools/ship_updates.ps1`.
   - Add `-Bump patch` or `-Bump minor` if you want to choose the bump yourself.
   - Add `-DryRun` first if you want to verify the workflow without pushing or tagging.

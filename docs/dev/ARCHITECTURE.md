@@ -65,6 +65,8 @@ KeyQuest is an accessible keyboard-learning application for Windows, with partia
 | File | Description |
 |---|---|
 | `ui/a11y.py` | Accessibility overlays and focus helpers |
+| `ui/layout.py` | Shared screen-size, centering, wrapped-text, and footer layout helpers |
+| `ui/game_layout.py` | Shared game title and status-stack layout helpers |
 | `ui/render_menus.py` | Main menu, lesson menu, and games menu rendering |
 | `ui/render_lesson.py` | Active lesson screen |
 | `ui/render_lesson_intro.py` | Lesson intro screen |
@@ -137,6 +139,14 @@ Active non-menu modes support Escape x3 to return safely to the main menu.
 
 `KeyQuestApp.run()` drives Pygame at about 30 FPS using `self.clock.tick(30)`. Each frame, `draw()` checks `self.state.mode` and dispatches to the matching `ui/render_*.py` helper with the current fonts, colors, and relevant state slices. The render modules are stateless draw helpers; mutable state lives in `AppState`.
 
+The current layout split is:
+
+- `ui/layout.py`: geometry and flow only. Use it for live screen size, safe content width, centered placement, wrapped text blocks, and footer row placement.
+- `ui/game_layout.py`: shared game chrome only. Use it for centered game titles and simple status stacks.
+- `ui/a11y.py`: accessibility emphasis only. Focus frames, active panels, and controls hints stay here instead of being folded into generic layout helpers.
+
+This separation is intentional: layout helpers should position content, while accessibility helpers should emphasize already-positioned content.
+
 wxPython dialogs from `modules/dialog_manager.py` are shown synchronously outside the main Pygame draw path. They are used for accessible summaries and information screens, while the in-app results screen now handles choice menus with normal up and down navigation.
 
 ## Speech Pipeline
@@ -165,3 +175,4 @@ Priority announcements can use `protect_seconds` to suppress lower-priority spee
 - Keep spoken and visual instructions aligned.
 - Use `get_app_dir()` for runtime-safe path resolution.
 - Shared list-style navigation should support Up, Down, Home, End, Enter, Space, and Escape where appropriate.
+- New screens should use `ui/layout.py` instead of hardcoded `900`, `600`, `450`, or single-line footer assumptions unless there is a documented gameplay reason not to.
