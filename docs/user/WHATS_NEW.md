@@ -4,7 +4,7 @@
 
 Version 1.5.1
 
-This update improves lesson guidance, game accessibility, and large-text layout behavior.
+This update makes lesson guidance, game feedback, and large-text layouts easier to follow.
 
 - Home-row lessons and Keyboard Explorer now mention the F and J bumps more directly, including the cue that if your left hand is lined up on F, your pinky should land on A.
 - Lesson intros can now be reviewed with Up and Down arrows so screen reader users do not have to hear the whole intro in one long block.
@@ -13,8 +13,9 @@ This update improves lesson guidance, game accessibility, and large-text layout 
 - The app window can be resized and tries to maximize on startup, which helps larger text stay visible.
 - Menus and current game screens now do a better job of using the live window size instead of older fixed-size layout assumptions.
 - Unexpected app and startup errors now save the local log, try to copy it to the clipboard automatically, and report the result with accessible dialogs instead of relying on console output.
-- The GitHub project page now points new visitors to downloads, the full guide, recent changes, and contributor notes more clearly.
-- Release automation now waits for GitHub to finish publishing the release, so a shipped update is less likely to stop at a pushed tag without visible downloads.
+- The GitHub project page now does a better job of pointing new visitors to downloads, the full guide, recent changes, and contributor notes.
+- Release automation now waits for GitHub to finish publishing the release, so a shipped update is less likely to stop at a pushed tag with no visible downloads.
+- The guide, repo page, and About screen now say more clearly that official KeyQuest builds come from the GitHub Releases page and that other builds are not official releases.
 
 Letter and word game feedback is clearer.
 
@@ -23,7 +24,7 @@ Letter and word game feedback is clearer.
 - Letter Fall and Word Typing now use the same correct and wrong key tones used elsewhere in lessons.
 - Word Typing now starts more directly, and `Ctrl+Space` repeats only the current word.
 
-Speech for confusing letters is also clearer again where it helps.
+Speech for confusing letters is clearer where it helps.
 
 - A small set of letters such as A, C, D, E, K, and P can now use brief hints like `A, like alpha` in places where hearing the letter name alone can be confusing.
 - Greek symbols and unusual old-style letters were removed from gameplay content.

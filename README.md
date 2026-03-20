@@ -5,18 +5,18 @@
 
 ![KeyQuest banner showing the KeyQuest name and describing it as an accessible typing adventure game for Windows with keyboard, screen reader, and low-vision support.](docs/assets/keyquest-hero.svg)
 
-KeyQuest is an accessible typing adventure game for Windows, built with Python and designed for keyboard, screen reader, and low-vision users.
+KeyQuest is a typing adventure game for Windows with built-in support for keyboard, screen reader, and low-vision users.
 
-It is built for learners who want stronger non-visual support than most typing games provide, including clear spoken feedback, keyboard-first navigation, and packaged documentation for both web and desktop reading.
+It is aimed at learners who want clearer spoken feedback, keyboard-first navigation, and documentation they can read in a browser or from the app itself.
 
-Download the latest installer or portable ZIP from the [Releases page](https://github.com/WebFriendlyHelp/KeyQuest/releases).
+Download the latest installer or portable ZIP from the [Releases page](https://github.com/WebFriendlyHelp/KeyQuest/releases). Official KeyQuest builds are published there.
 
 If you want the full plain-language user guide, open the [project website](https://webfriendlyhelp.github.io/KeyQuest/) or [README.html](README.html).
 
 ## Why KeyQuest
 
 - Accessible-first design for screen reader, keyboard-only, and low-vision users
-- Typing practice delivered through game structure instead of drills alone
+- Typing practice built around game structure instead of drills alone
 - Windows releases available as both installer and portable ZIP
 - Expandable game and sentence content stored in plain project folders
 
@@ -36,25 +36,12 @@ py -3.9 keyquest.pyw
 
 ## For Users
 
-Start with the [project website](https://webfriendlyhelp.github.io/KeyQuest/) or open [README.html](README.html) in a web browser for the plain-language guide.
+Start with the [project website](https://webfriendlyhelp.github.io/KeyQuest/) or open [README.html](README.html) in a web browser for the full plain-language guide.
 
-Recent user-facing changes are tracked in [WHATS_NEW.md](docs/user/WHATS_NEW.md).
-
-Key audience:
-
-- Learners who want a more game-like way to practice typing
-- Screen reader users who need reliable spoken feedback
-- Low-vision and keyboard-only users who benefit from consistent navigation patterns
-
-Current keyboard navigation highlights:
-
-- `Home` jumps to the first item and `End` jumps to the last item in menus, lesson lists, options, and post-session choice menus.
-- After lessons and Free Practice, KeyQuest now shows a regular up/down choice menu instead of relying on `OK` wording.
-- Lesson prompts now speak real practice words naturally, while letter patterns such as `asas` or `aass` are spelled out more clearly.
-- Menu, dialog, shop, pet, and setup screens were tightened to behave more consistently.
-- Screen layouts now respond better to larger font sizes and live window sizing across menus and current game screens.
-- Update failures now write `keyquest_error.log`, automatically copy that log to the clipboard when possible, and offer the setup download.
-- The Practice Log now uses friendlier dates and durations, includes activity names and results, and can be copied to the clipboard.
+- Best for: learners who want typing practice with stronger screen reader, keyboard, and low-vision support
+- Downloads: installer and portable ZIP are on the [Releases page](https://github.com/WebFriendlyHelp/KeyQuest/releases)
+- Official builds: the GitHub Releases page is the official download source for KeyQuest
+- Updates: recent user-facing changes are tracked in [WHATS_NEW.md](docs/user/WHATS_NEW.md)
 
 ## For Contributors
 
@@ -66,13 +53,8 @@ Developer notes and session context live under [docs/dev](docs/dev).
 - Detailed project history is in [CHANGELOG.md](docs/dev/CHANGELOG.md)
 - Desktop accessibility direction is in [DESKTOP_ACCESSIBILITY_RESEARCH.md](docs/dev/DESKTOP_ACCESSIBILITY_RESEARCH.md)
 - Manual screen reader checks are in [SCREEN_READER_SMOKE_TESTS.md](docs/dev/SCREEN_READER_SMOKE_TESTS.md)
-- New render work should use `ui/layout.py` and `ui/game_layout.py` instead of hardcoded screen coordinates where possible.
-- To ship a full release with an automatic version-bump suggestion, run `powershell -ExecutionPolicy Bypass -File tools/ship_updates.ps1`.
-  - Add `-Bump patch` or `-Bump minor` if you want to choose the bump yourself.
-  - Add `-DryRun` first if you want to verify the workflow without pushing or tagging.
-- `tools/release.ps1` is still available if you want to bump `modules/version.py` manually before releasing.
-  - The release flow refuses to publish unless `docs/user/WHATS_NEW.md` has been updated in plain language for that release.
-- Treat the repo as Python 3.9 everywhere unless an explicit migration changes that policy. Source runs, GitHub workflows, and linting are aligned to 3.9 for consistency and TTS compatibility.
+- Release and workflow details are documented in [docs/dev/RELEASE_POLICY.md](docs/dev/RELEASE_POLICY.md)
+- Treat the repo as Python 3.9 everywhere unless an explicit migration changes that policy
 
 ## Community
 

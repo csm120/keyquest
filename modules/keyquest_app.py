@@ -341,6 +341,11 @@ class KeyQuestApp:
                 "speak": "Website: webfriendlyhelp.com. Press Enter to open in your browser.",
             },
             {
+                "id": "official_downloads",
+                "display": "Official Downloads: GitHub Releases only",
+                "speak": "Official downloads: GitHub Releases only. The updater uses those releases. Other builds are not official.",
+            },
+            {
                 "id": "donate",
                 "display": "Donate: Support KeyQuest",
                 "speak": "Donate: Support KeyQuest. Press Enter to open the donation page in your browser.",
